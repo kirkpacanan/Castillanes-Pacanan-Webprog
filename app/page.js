@@ -19,6 +19,16 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [theme, setTheme] = useState("dark");
+  const [chatMessages, setChatMessages] = useState([
+    {
+      role: "assistant",
+      content:
+        "Hi! I’m here to listen. How are you feeling today, and what kind of movie vibe do you want?"
+    }
+  ]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [chatError, setChatError] = useState("");
 
   useEffect(() => {
     const stored = window.localStorage.getItem("theme");
@@ -46,6 +56,31 @@ export default function Home() {
     ].filter(Boolean);
   }, [analysis]);
 
+  const fetchRecommendation = async (promptText, yearOverride = year) => {
+    const response = await fetch("/api/recommend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: promptText,
+        year: yearOverride || null,
+        excludeIds: history.map((item) => item.imdbID)
+      })
+    });
+
+    const payload = await response.json();
+    if (!response.ok) {
+      throw new Error(payload.message || "We could not find a match.");
+    }
+    return payload;
+  };
+
+  const applyRecommendation = (payload, promptText) => {
+    setMovie(payload.movie);
+    setAnalysis(payload.analysis);
+    setHistory((prev) => [payload.movie, ...prev].slice(0, 5));
+    setLastPrompt(promptText);
+  };
+
   const requestRecommendation = async (promptText) => {
     if (!promptText) {
       setError("Please describe the kind of movie you want.");
@@ -56,29 +91,10 @@ export default function Home() {
     setError("");
 
     try {
-      const response = await fetch("/api/recommend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: promptText,
-          year: year || null,
-          excludeIds: history.map((item) => item.imdbID)
-        })
-      });
-
-      const payload = await response.json();
-      if (!response.ok) {
-        setError(payload.message || "We could not find a match.");
-        setLoading(false);
-        return;
-      }
-
-      setMovie(payload.movie);
-      setAnalysis(payload.analysis);
-      setHistory((prev) => [payload.movie, ...prev].slice(0, 5));
-      setLastPrompt(promptText);
+      const payload = await fetchRecommendation(promptText);
+      applyRecommendation(payload, promptText);
     } catch (err) {
-      setError("Unable to reach the recommendation service.");
+      setError(err.message || "Unable to reach the recommendation service.");
     } finally {
       setLoading(false);
     }
@@ -91,6 +107,90 @@ export default function Home() {
 
   const handleRetry = () => {
     requestRecommendation(lastPrompt);
+  };
+
+  const extractYearFromText = (text) => {
+    const match = text.match(/\b(19|20)\d{2}\b/);
+    return match ? match[0] : null;
+  };
+
+  const sendChatMessage = async (message) => {
+    const trimmed = message.trim();
+    if (!trimmed) return;
+
+    const detectedYear = extractYearFromText(trimmed);
+    if (detectedYear) {
+      setYear(detectedYear);
+    }
+
+    const nextMessages = [...chatMessages, { role: "user", content: trimmed }];
+    setChatMessages(nextMessages);
+    setChatInput("");
+    setChatLoading(true);
+    setChatError("");
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: nextMessages.slice(-8)
+        })
+      });
+
+      const payloadText = await response.text();
+      const payload = payloadText ? JSON.parse(payloadText) : null;
+      if (!response.ok) {
+        setChatError(payload?.message || "Chat is unavailable right now.");
+        setChatLoading(false);
+        return;
+      }
+
+      if (payload?.reply) {
+        setChatMessages((prev) => [
+          ...prev,
+          { role: "assistant", content: payload.reply }
+        ]);
+      }
+
+      if (payload?.year) {
+        setYear(payload.year);
+      }
+
+      if (payload?.action === "recommend" && payload.prompt) {
+        try {
+          const recommendation = await fetchRecommendation(
+            payload.prompt,
+            payload.year || detectedYear || year
+          );
+          applyRecommendation(recommendation, payload.prompt);
+          const relaxedYearNote =
+            recommendation.meta?.yearRelaxed && (payload.year || detectedYear || year)
+              ? " I couldn’t find an exact match for that year, so I picked the closest fit."
+              : "";
+          setChatMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content: `Based on that, I recommend “${recommendation.movie.Title}” (${recommendation.movie.Year}).${relaxedYearNote} Want another suggestion?`
+            }
+          ]);
+        } catch (error) {
+          setChatMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              content:
+                "I couldn’t find a great match just now. Want to try a different mood or add a year?"
+            }
+          ]);
+        }
+      }
+    } catch (err) {
+      setChatError("Unable to reach the chat service.");
+    } finally {
+      setChatLoading(false);
+    }
   };
 
   return (
@@ -322,29 +422,94 @@ export default function Home() {
           </div>
 
           <aside className="glass rounded-3xl p-6 lg:sticky lg:top-6">
-            <h2 className="text-base font-semibold text-slate-900 dark:text-white">
-              Previous Picks
-            </h2>
-            {history.length === 0 && (
-              <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
-                Your recommendations will appear here.
-              </p>
-            )}
-            <ul className="mt-4 flex flex-col gap-4">
-              {history.map((item) => (
-                <li
-                  key={item.imdbID}
-                  className="rounded-2xl border border-slate-200 bg-slate-100 p-4 text-sm dark:border-slate-800 dark:bg-slate-950/60"
+            <div className="space-y-5">
+              <div className="rounded-3xl border border-cyan-200 bg-cyan-50/70 p-4 shadow-lg shadow-cyan-500/10 dark:border-cyan-500/40 dark:bg-cyan-500/10">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                      Mood Chat
+                    </h2>
+                    <p className="mt-1 text-xs text-slate-600 dark:text-slate-300">
+                      Talk to the AI about how you feel.
+                    </p>
+                  </div>
+                  <span className="rounded-full bg-cyan-500 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-white dark:bg-cyan-300 dark:text-slate-900">
+                    Live
+                  </span>
+                </div>
+              </div>
+              <div className="flex max-h-72 flex-col gap-3 overflow-y-auto rounded-2xl border border-cyan-200 bg-white/80 p-4 text-sm shadow-inner shadow-cyan-500/10 dark:border-cyan-500/30 dark:bg-slate-950/70">
+                {chatMessages.map((message, index) => (
+                  <div
+                    key={`${message.role}-${index}`}
+                    className={
+                      message.role === "user"
+                        ? "ml-auto w-fit max-w-[85%] rounded-2xl bg-cyan-500 px-3 py-2 text-white dark:bg-cyan-400 dark:text-slate-900"
+                        : "mr-auto w-fit max-w-[85%] rounded-2xl border border-slate-200 bg-white px-3 py-2 text-slate-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
+                    }
+                  >
+                    {message.content}
+                  </div>
+                ))}
+                {chatLoading && (
+                  <div className="mr-auto w-fit rounded-2xl border border-slate-200 bg-white px-3 py-2 text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                    Typing...
+                  </div>
+                )}
+              </div>
+              {chatError && (
+                <p className="text-xs font-semibold text-rose-600 dark:text-rose-300">
+                  {chatError}
+                </p>
+              )}
+              <form
+                className="flex items-center gap-2"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  sendChatMessage(chatInput);
+                }}
+              >
+                <input
+                  value={chatInput}
+                  onChange={(event) => setChatInput(event.target.value)}
+                  placeholder="Type how you feel..."
+                  className="flex-1 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm text-slate-900 outline-none ring-cyan-500/30 transition focus:ring-2 dark:border-slate-800 dark:bg-slate-950/60 dark:text-slate-100"
+                />
+                <button
+                  type="submit"
+                  disabled={chatLoading}
+                  className="rounded-full bg-cyan-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-cyan-400 dark:text-slate-900 dark:hover:bg-cyan-300"
                 >
-                  <p className="font-semibold text-slate-900 dark:text-white">
-                    {item.Title}
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {item.Year} · ⭐ {item.imdbRating}
-                  </p>
-                </li>
-              ))}
-            </ul>
+                  Send
+                </button>
+              </form>
+            </div>
+
+            <div className="mt-8">
+              <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                Previous Picks
+              </h2>
+              {history.length === 0 && (
+                <p className="mt-4 text-sm text-slate-600 dark:text-slate-300">
+                  Your recommendations will appear here.
+                </p>
+              )}
+              <ul className="mt-4 flex flex-col gap-4">
+                {history.map((item) => (
+                  <li
+                    key={item.imdbID}
+                    className="rounded-2xl border border-slate-200 bg-slate-100 p-4 text-sm dark:border-slate-800 dark:bg-slate-950/60"
+                  >
+                    <p className="font-semibold text-slate-900 dark:text-white">
+                      {item.Title}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {item.Year} · ⭐ {item.imdbRating}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </aside>
         </section>
       </div>

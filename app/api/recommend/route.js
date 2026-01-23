@@ -68,6 +68,10 @@ const FALLBACK_LIBRARY = {
     "Interstellar",
     "Her"
   ],
+  funny: ["Game Night", "Palm Springs", "The Nice Guys", "Booksmart"],
+  comedy: ["Game Night", "The Nice Guys", "Spy", "The Grand Budapest Hotel"],
+  uplifting: ["The Secret Life of Walter Mitty", "Chef", "Paddington 2"],
+  light: ["Chef", "Julie & Julia", "The Grand Budapest Hotel"],
   friendship: ["Paddington 2", "The Intouchables", "Toy Story"],
   cozy: ["Paddington 2", "Chef", "Julie & Julia"],
   dark: ["Gone Girl", "Prisoners", "Zodiac"],
@@ -247,12 +251,22 @@ export async function POST(request) {
   }
 
   let movie = null;
+  let yearRelaxed = false;
   if (analysis?.title) {
     const preferredYear = year || analysis.year;
     const titleResult = await fetchByTitle(analysis.title, preferredYear);
     if (titleResult?.Response !== "False") {
       if (!excludeIds.includes(titleResult.imdbID)) {
         movie = titleResult;
+      }
+    }
+    if (!movie && preferredYear) {
+      const retryTitle = await fetchByTitle(analysis.title);
+      if (retryTitle?.Response !== "False") {
+        if (!excludeIds.includes(retryTitle.imdbID)) {
+          movie = retryTitle;
+          yearRelaxed = true;
+        }
       }
     }
   }
@@ -268,6 +282,18 @@ export async function POST(request) {
         }
       }
     }
+    if (!movie && year) {
+      for (const title of fallbackTitles) {
+        const titleResult = await fetchByTitle(title);
+        if (titleResult?.Response !== "False") {
+          if (!excludeIds.includes(titleResult.imdbID)) {
+            movie = titleResult;
+            yearRelaxed = true;
+            break;
+          }
+        }
+      }
+    }
   }
 
   if (!movie) {
@@ -275,6 +301,15 @@ export async function POST(request) {
     let match = await searchOmdb(query, excludeIds, year);
     if (!match && query !== prompt) {
       match = await searchOmdb(prompt, excludeIds, year);
+    }
+    if (!match && year) {
+      match = await searchOmdb(query, excludeIds);
+      if (!match && query !== prompt) {
+        match = await searchOmdb(prompt, excludeIds);
+      }
+      if (match) {
+        yearRelaxed = true;
+      }
     }
     if (match) {
       movie = await fetchMovieDetails(match.imdbID);
@@ -290,6 +325,9 @@ export async function POST(request) {
 
   return Response.json({
     movie,
+    meta: {
+      yearRelaxed
+    },
     analysis: {
       title: analysis?.title || null,
       year: analysis?.year || null,
