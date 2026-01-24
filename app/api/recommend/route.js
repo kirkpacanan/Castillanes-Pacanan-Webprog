@@ -61,6 +61,28 @@ const MOODS = [
   "tense"
 ];
 
+const NEGATIVE_MOOD_TERMS = [
+  "sad",
+  "heartbreak",
+  "heartbroken",
+  "breakup",
+  "break up",
+  "grief",
+  "lonely",
+  "down"
+];
+
+const POSITIVE_MOOD_TERMS = [
+  "funny",
+  "comedy",
+  "light",
+  "uplift",
+  "uplifting",
+  "feel-good",
+  "feelgood",
+  "happy"
+];
+
 const FALLBACK_LIBRARY = {
   "sci-fi": ["Interstellar", "Arrival", "Blade Runner 2049", "Ex Machina"],
   emotional: [
@@ -140,6 +162,17 @@ const extractSearchTerms = (prompt) => {
     .slice(0, 4);
 };
 
+const detectMoodBias = (prompt) => {
+  const lower = normalize(prompt);
+  if (NEGATIVE_MOOD_TERMS.some((term) => lower.includes(term))) {
+    return "sad";
+  }
+  if (POSITIVE_MOOD_TERMS.some((term) => lower.includes(term))) {
+    return "uplift";
+  }
+  return null;
+};
+
 const extractCountryTags = (prompt) => {
   const lower = normalize(prompt);
   return Object.keys(COUNTRY_LIBRARY).filter((key) => lower.includes(key));
@@ -206,6 +239,7 @@ const buildQuery = (analysis, prompt, year) => {
 const uniqueList = (items) => [...new Set(items.filter(Boolean))];
 
 const pickFallbackTitles = (prompt, analysis) => {
+  const moodBias = detectMoodBias(prompt);
   const countryTags = extractCountryTags(prompt);
   const tags = uniqueList([
     analysis?.genre,
@@ -218,6 +252,17 @@ const pickFallbackTitles = (prompt, analysis) => {
   countryTags.forEach((tag) => {
     candidates.push(...(COUNTRY_LIBRARY[tag] || []));
   });
+
+  if (moodBias === "sad") {
+    candidates.push(...FALLBACK_LIBRARY.sad, ...FALLBACK_LIBRARY.emotional);
+  }
+  if (moodBias === "uplift") {
+    candidates.push(
+      ...FALLBACK_LIBRARY.uplifting,
+      ...FALLBACK_LIBRARY["feel-good"]
+    );
+  }
+
   tags.forEach((tag) => {
     const normalized = normalize(tag);
     if (FALLBACK_LIBRARY[normalized]) {
