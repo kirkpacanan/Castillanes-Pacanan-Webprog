@@ -90,6 +90,23 @@ const FALLBACK_LIBRARY = {
   "true story": ["The Imitation Game", "Spotlight", "A Beautiful Mind"]
 };
 
+const COUNTRY_LIBRARY = {
+  filipino: ["Heneral Luna", "Maria", "On the Job", "The Hows of Us"],
+  philippines: ["Heneral Luna", "Maria", "On the Job", "The Hows of Us"],
+  korean: ["Parasite", "Train to Busan", "Minari", "Burning"],
+  japan: ["Spirited Away", "Your Name", "Seven Samurai", "Shoplifters"],
+  japanese: ["Spirited Away", "Your Name", "Seven Samurai", "Shoplifters"],
+  india: ["3 Idiots", "Dangal", "PK", "Lagaan"],
+  indian: ["3 Idiots", "Dangal", "PK", "Lagaan"],
+  chinese: ["Hero", "Crouching Tiger, Hidden Dragon", "Farewell My Concubine"],
+  france: ["Amélie", "The Intouchables", "Portrait of a Lady on Fire"],
+  french: ["Amélie", "The Intouchables", "Portrait of a Lady on Fire"],
+  spanish: ["Pan's Labyrinth", "The Invisible Guest", "The Orphanage"],
+  mexico: ["Roma", "Y Tu Mamá También", "Amores Perros"],
+  british: ["1917", "Pride", "About Time", "The King's Speech"],
+  uk: ["1917", "Pride", "About Time", "The King's Speech"]
+};
+
 const normalize = (value) => value.toLowerCase();
 
 const extractKeywordsFallback = (prompt) => {
@@ -121,6 +138,11 @@ const extractSearchTerms = (prompt) => {
     .split(/\s+/)
     .filter((word) => word.length > 3 && !STOPWORDS.has(word))
     .slice(0, 4);
+};
+
+const extractCountryTags = (prompt) => {
+  const lower = normalize(prompt);
+  return Object.keys(COUNTRY_LIBRARY).filter((key) => lower.includes(key));
 };
 
 const parseJson = (value) => {
@@ -184,6 +206,7 @@ const buildQuery = (analysis, prompt, year) => {
 const uniqueList = (items) => [...new Set(items.filter(Boolean))];
 
 const pickFallbackTitles = (prompt, analysis) => {
+  const countryTags = extractCountryTags(prompt);
   const tags = uniqueList([
     analysis?.genre,
     analysis?.mood,
@@ -192,6 +215,9 @@ const pickFallbackTitles = (prompt, analysis) => {
   ]);
 
   const candidates = [];
+  countryTags.forEach((tag) => {
+    candidates.push(...(COUNTRY_LIBRARY[tag] || []));
+  });
   tags.forEach((tag) => {
     const normalized = normalize(tag);
     if (FALLBACK_LIBRARY[normalized]) {
