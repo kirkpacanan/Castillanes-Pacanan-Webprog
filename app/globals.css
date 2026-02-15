@@ -4,20 +4,23 @@
 
 :root {
   color-scheme: light;
+  --bg-gradient-start: rgba(248, 250, 252, 0.98);
+  --bg-gradient-red: rgba(229, 9, 20, 0.06);
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(15, 23, 42, 0.1);
 }
 
 .dark {
   color-scheme: dark;
+  --bg-gradient-start: rgba(10, 10, 10, 0.98);
+  --bg-gradient-red: rgba(229, 9, 20, 0.22);
+  --glass-bg: rgba(18, 18, 18, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(15, 23, 42, 0.12);
-}
-
-.dark .glass {
-  background: rgba(15, 15, 15, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
 }
 
 .spinner {
@@ -40,16 +43,16 @@
   left: 0;
   right: 0;
   display: flex;
-  gap: 20px;
-  opacity: 0.2;
+  gap: 48px;
+  opacity: 0.18;
   pointer-events: none;
   z-index: 0;
 }
 
 .poster-track {
   display: flex;
-  gap: 20px;
-  animation: scroll-posters 60s linear infinite;
+  gap: 48px;
+  animation: scroll-posters 80s linear infinite;
 }
 
 .poster-track.reverse {
@@ -57,12 +60,41 @@
 }
 
 .poster-image {
-  width: 140px;
-  height: 210px;
+  width: 120px;
+  height: 180px;
   object-fit: cover;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Home (Searched SIGNED): poster rows at 0.4 opacity, card 141×213, radius 30px */
+.page-home .poster-row {
+  opacity: 0.4;
+}
+.page-home .poster-image {
+  width: 140px;
+  height: 140px;
+  border-radius: 30px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+}
+.page-home .poster-card {
+  width: 141px;
+  height: 213px;
+  border-radius: 8px;
+  background: transparent;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.page-home .poster-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
 }
 
 @keyframes scroll-posters {
@@ -72,4 +104,328 @@
   to {
     transform: translateX(-50%);
   }
+}
+
+/* About section animations */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.5s ease-out forwards;
+}
+
+/* Home page: moving red light (futuristic) */
+@keyframes home-red-glow-1 {
+  0%, 100% {
+    transform: translate(15%, 20%) scale(1);
+    opacity: 0.45;
+  }
+  33% {
+    transform: translate(-20%, -15%) scale(1.15);
+    opacity: 0.6;
+  }
+  66% {
+    transform: translate(-5%, 25%) scale(0.9);
+    opacity: 0.35;
+  }
+}
+@keyframes home-red-glow-2 {
+  0%, 100% {
+    transform: translate(-10%, -10%) scale(1.1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translate(25%, 10%) scale(0.95);
+    opacity: 0.5;
+  }
+}
+.page-home-red-glow {
+  position: absolute;
+  width: 100vmax;
+  height: 100vmax;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+}
+.page-home-red-glow-1 {
+  background: radial-gradient(
+    circle,
+    rgba(180, 30, 40, 0.5) 0%,
+    rgba(140, 15, 25, 0.2) 35%,
+    transparent 65%
+  );
+  animation: home-red-glow-1 20s ease-in-out infinite;
+}
+.page-home-red-glow-2 {
+  background: radial-gradient(
+    circle,
+    rgba(220, 50, 60, 0.35) 0%,
+    rgba(160, 20, 30, 0.1) 40%,
+    transparent 70%
+  );
+  animation: home-red-glow-2 25s ease-in-out infinite;
+  animation-delay: -8s;
+}
+.page-home-red-glow-cursor {
+  width: 60vmax;
+  height: 60vmax;
+  background: radial-gradient(
+    circle,
+    rgba(200, 40, 50, 0.55) 0%,
+    rgba(150, 25, 35, 0.2) 40%,
+    transparent 65%
+  );
+  transition: opacity 0.3s ease;
+  will-change: left, top;
+}
+
+/* Light mode: softer background and gentler red glows */
+html:not(.dark) .page-home-red-glow-1 {
+  background: radial-gradient(
+    circle,
+    rgba(220, 100, 110, 0.25) 0%,
+    rgba(200, 80, 90, 0.08) 35%,
+    transparent 65%
+  );
+  opacity: 0.9;
+}
+html:not(.dark) .page-home-red-glow-2 {
+  background: radial-gradient(
+    circle,
+    rgba(240, 120, 130, 0.2) 0%,
+    rgba(210, 90, 100, 0.06) 40%,
+    transparent 70%
+  );
+  opacity: 0.9;
+}
+html:not(.dark) .page-home-red-glow-cursor {
+  background: radial-gradient(
+    circle,
+    rgba(220, 100, 110, 0.35) 0%,
+    rgba(200, 80, 90, 0.1) 40%,
+    transparent 65%
+  );
+}
+
+/* Contact page: black bg + red gradient (light) + cursor-follow glow */
+.contact-page-red-glow {
+  position: absolute;
+  width: 100vmax;
+  height: 100vmax;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+}
+.contact-page-red-glow-1 {
+  background: radial-gradient(
+    circle,
+    rgba(180, 30, 40, 0.5) 0%,
+    rgba(140, 15, 25, 0.2) 35%,
+    transparent 65%
+  );
+  animation: home-red-glow-1 20s ease-in-out infinite;
+}
+.contact-page-red-glow-2 {
+  background: radial-gradient(
+    circle,
+    rgba(220, 50, 60, 0.35) 0%,
+    rgba(160, 20, 30, 0.1) 40%,
+    transparent 70%
+  );
+  animation: home-red-glow-2 25s ease-in-out infinite;
+  animation-delay: -8s;
+}
+.contact-page-red-glow-cursor {
+  width: 60vmax;
+  height: 60vmax;
+  background: radial-gradient(
+    circle,
+    rgba(200, 40, 50, 0.55) 0%,
+    rgba(150, 25, 35, 0.2) 40%,
+    transparent 65%
+  );
+  transition: opacity 0.3s ease;
+  will-change: left, top;
+}
+
+/* Contact page: moving red glow gradient */
+@keyframes contact-glow-float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.5;
+  }
+  25% {
+    transform: translate(15%, -10%) scale(1.1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-10%, 15%) scale(0.95);
+    opacity: 0.6;
+  }
+  75% {
+    transform: translate(-15%, -5%) scale(1.05);
+    opacity: 0.55;
+  }
+}
+
+@keyframes contact-glow-float-2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(-20%, 10%) scale(1.15);
+  }
+  66% {
+    transform: translate(10%, -15%) scale(0.9);
+  }
+}
+
+.contact-glow-moving {
+  animation: contact-glow-float 12s ease-in-out infinite;
+}
+
+.contact-glow-moving-2 {
+  animation: contact-glow-float-2 15s ease-in-out infinite;
+}
+
+/* Contact hero: pill + text drop down on view – drop, scale, slight bounce */
+@keyframes contact-hero-drop {
+  0% {
+    opacity: 0;
+    transform: translateY(-80px) scale(0.92);
+    filter: blur(4px);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(8px) scale(1.02);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.contact-hero-drop {
+  animation: contact-hero-drop 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Pill hover: smooth scale + shadow (applied to wrapper so it’s not overridden by animation) */
+.contact-pill-hover {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), filter 0.5s ease-out;
+}
+.contact-pill-hover:hover {
+  transform: scale(1.02);
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.35));
+}
+.dark .contact-pill-hover:hover {
+  filter: drop-shadow(0 24px 48px rgba(0, 0, 0, 0.55));
+}
+
+/* Contact form card hover: smooth lift + shadow */
+.contact-form-hover {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease-out;
+}
+.contact-form-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+}
+.dark .contact-form-hover:hover {
+  box-shadow: 0 24px 56px rgba(0, 0, 0, 0.5);
+}
+
+/* Contact form: fade in + slide up, starts after hero */
+@keyframes contact-form-in {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.contact-form-in {
+  animation: contact-form-in 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.35s forwards;
+  opacity: 0;
+}
+
+/* About page: section entrance animations */
+@keyframes about-section-in {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.about-section-in {
+  animation: about-section-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  opacity: 0;
+}
+
+/* About page: developer placeholder floating */
+@keyframes about-dev-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.about-dev-float {
+  animation: about-dev-float 3s ease-in-out infinite;
+}
+
+/* About page: developer card red glow on hover */
+.about-dev-card {
+  position: relative;
+  transition: transform 0.4s ease;
+  isolation: isolate;
+}
+
+/* Red glow only behind the card (back light) */
+.about-dev-card::before {
+  content: "";
+  position: absolute;
+  inset: -48px;
+  border-radius: 100px;
+  background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(180, 40, 40, 0.5) 0%, rgba(140, 30, 30, 0.3) 35%, rgba(100, 20, 20, 0.15) 60%, transparent 75%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.about-dev-card:hover::before {
+  opacity: 1;
 }

@@ -237,7 +237,7 @@ const buildFallbackResponse = (messages) => {
     if (detectSmallTalk(text)) {
       return {
         reply:
-          "I’m CineSense, your movie companion. I’m here to chat and help you find something to watch. How are you feeling right now?",
+          "I’m Feelvie, your movie companion. I’m here to chat and help you find something to watch. How are you feeling right now?",
         mood,
         year
       };
@@ -302,7 +302,7 @@ const callOpenAI = async (messages) => {
         {
           role: "system",
           content:
-            "You are a warm, supportive movie companion. Respond with empathy, short and natural. If the user greets you or chats casually, respond naturally before asking about how they feel. Analyze mood and ask whether they want a movie that matches their mood or lifts it. If a release year is mentioned, include it. Respond ONLY with JSON: {\"reply\":\"\", \"mood\":\"\", \"preference\":\"match|uplift|\", \"action\":\"recommend|\", \"prompt\":\"\", \"year\":\"\"}."
+            "You are a warm, supportive movie companion named Feelvie. Respond with empathy, short and natural. If the user greets you or chats casually, respond naturally before asking about how they feel. Analyze mood and ask whether they want a movie that matches their mood or lifts it. If a release year is mentioned, include it. Respond ONLY with JSON: {\"reply\":\"\", \"mood\":\"\", \"preference\":\"match|uplift|\", \"action\":\"recommend|\", \"prompt\":\"\", \"year\":\"\"}."
         },
         ...messages
       ],
@@ -336,7 +336,7 @@ const callGemini = async (messages) => {
           parts: [
             {
               text:
-                "You are a warm, supportive movie companion named CineSense. Always return valid JSON and ALWAYS include a non-empty reply. If the user greets you or asks about you, respond naturally before asking about how they feel. Only recommend a movie AFTER the user explicitly chooses match or uplift. If a release year is mentioned, include it. If preference is set and you are recommending, you MUST include a concise prompt for the movie recommender. Respond ONLY with JSON: {\"reply\":\"\", \"mood\":\"\", \"preference\":\"match|uplift|\", \"action\":\"recommend|\", \"prompt\":\"\", \"year\":\"\"}."
+                "You are a warm, supportive movie companion named Feelvie. Always return valid JSON and ALWAYS include a non-empty reply. If the user greets you or asks about you, respond naturally before asking about how they feel. Only recommend a movie AFTER the user explicitly chooses match or uplift. If a release year is mentioned, include it. If preference is set and you are recommending, you MUST include a concise prompt for the movie recommender. Respond ONLY with JSON: {\"reply\":\"\", \"mood\":\"\", \"preference\":\"match|uplift|\", \"action\":\"recommend|\", \"prompt\":\"\", \"year\":\"\"}."
             }
           ]
         },

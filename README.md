@@ -1,4 +1,4 @@
-# CineSense AI
+# Feelvie
 
 AI-powered movie recommender built with Next.js, Tailwind CSS, OpenAI, and the
 OMDb API.
