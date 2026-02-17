@@ -50,6 +50,8 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 Use the same project URL for both `SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_URL`. Use the **anon** (public) key for `NEXT_PUBLIC_SUPABASE_ANON_KEY` and the **service_role** key for `SUPABASE_SERVICE_ROLE_KEY`. Restart the dev server after changing env vars (`npm run dev`).
 
+**Deploying on Vercel:** Vercel does not use `.env.local`. In the [Vercel Dashboard](https://vercel.com/dashboard) open your project → **Settings** → **Environment Variables**, then add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (and optionally `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` for API sign-up). Redeploy so the "Continue with Google" button appears in production.
+
 ## 4. (Optional) Sign in with Google
 
 To let users sign up and sign in with their Google account:
@@ -60,7 +62,10 @@ To let users sign up and sign in with their Google account:
    ```
    (Use the URL shown in your own Supabase project; the part before `.supabase.co` is your project ref.)
 2. In the Supabase dashboard, go to **Authentication** → **Providers** → **Google**. Enable Google and paste the Client ID and Client Secret from Google. Save.
-3. In **Authentication** → **URL Configuration**, add **Redirect URLs**: `http://localhost:3000/auth/callback` and `https://yourdomain.com/auth/callback` (use your real production URL).
+3. **Important (fixes “redirects to localhost” on Vercel):** In Supabase go to **Authentication** → **URL Configuration**. Under **Redirect URLs**, add **both**:
+   - `http://localhost:3000/auth/callback` (for local dev)
+   - `https://YOUR-VERCEL-APP.vercel.app/auth/callback` (replace with your real Vercel URL, e.g. `https://castillanes-pacanan-webprog.vercel.app/auth/callback`)
+   If the production URL is missing, Supabase will redirect to the **Site URL** after Google sign-in (often `http://localhost:3000`), so you’ll see `localhost/?code=...` instead of your app. Add the exact production callback URL and try again.
 4. Ensure `.env.local` has `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (step 3). Then use **Sign in** or **Sign up** and click **Continue with Google**.
 
 To add more providers (e.g. GitHub, Apple), enable them under **Authentication** → **Providers** in Supabase and add a “Continue with GitHub” (etc.) button that calls `signInWithOAuth({ provider: 'github' })` in your app (you can expose this from `AuthContext` the same way as `signInWithGoogle`).

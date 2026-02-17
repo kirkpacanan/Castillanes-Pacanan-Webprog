@@ -80,7 +80,9 @@ export default function SignUpPage() {
         </>
       ) : (
         <p className="mt-6 text-center text-xs text-slate-500 dark:text-white/50">
-          Add <code className="rounded bg-slate-200 px-1 dark:bg-slate-700">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="rounded bg-slate-200 px-1 dark:bg-slate-700">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to <code className="rounded bg-slate-200 px-1 dark:bg-slate-700">.env.local</code>, then restart the dev server to see &quot;Continue with Google&quot;.
+          {process.env.NODE_ENV === "development"
+            ? "Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local, then restart the dev server to see \"Continue with Google\"."
+            : "Sign up with email below."}
         </p>
       )}
       <form onSubmit={handleSubmit} className={`flex flex-col gap-4 ${hasSupabase ? "mt-6" : "mt-8"}`}>

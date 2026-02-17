@@ -12,16 +12,35 @@ function SignInContent() {
   const [emailOrUser, setEmailOrUser] = useState("");
   const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (searchParams.get("error") === "auth") setAuthError("Sign-in was cancelled or failed. Please try again.");
   }, [searchParams]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!emailOrUser.trim()) return;
-    signIn(emailOrUser.trim(), null);
-    router.push("/");
+    setAuthError("");
+    if (!emailOrUser.trim() || !password) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailOrUsername: emailOrUser.trim(), password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setAuthError(data.error || "Sign-in failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+      signIn(data.user?.name ?? emailOrUser.trim(), data.user?.email ?? null);
+      router.push("/");
+    } catch (_) {
+      setAuthError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
   };
 
   if (user) {
@@ -69,7 +88,9 @@ function SignInContent() {
         </>
       ) : (
         <p className="mt-6 text-center text-xs text-slate-500 dark:text-white/50">
-          Add <code className="rounded bg-slate-200 px-1 dark:bg-slate-700">NEXT_PUBLIC_SUPABASE_URL</code> and <code className="rounded bg-slate-200 px-1 dark:bg-slate-700">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to <code className="rounded bg-slate-200 px-1 dark:bg-slate-700">.env.local</code>, then restart the dev server to see &quot;Continue with Google&quot;.
+          {process.env.NODE_ENV === "development"
+            ? "Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local, then restart the dev server to see \"Continue with Google\"."
+            : "Sign in with email below."}
         </p>
       )}
       <form onSubmit={handleSubmit} className={`flex flex-col gap-4 ${hasSupabase ? "mt-6" : "mt-8"}`}>
@@ -96,9 +117,10 @@ function SignInContent() {
         />
         <button
           type="submit"
-          className="mt-4 rounded-xl bg-red-600 py-3 text-sm font-bold text-white hover:bg-red-500"
+          disabled={loading}
+          className="mt-4 rounded-xl bg-red-600 py-3 text-sm font-bold text-white hover:bg-red-500 disabled:opacity-60 disabled:pointer-events-none"
         >
-          Sign In
+          {loading ? "Signing in…" : "Sign In"}
         </button>
         <Link
           href="#"

@@ -81,10 +81,14 @@ export function AuthProvider({ children }) {
 
   const signInWithGoogle = useCallback(() => {
     if (!supabase) return;
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_APP_URL || "";
+    const redirectTo = `${origin}/auth/callback`;
     supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${origin}/auth/callback` },
+      options: { redirectTo },
     });
   }, [supabase]);
 
