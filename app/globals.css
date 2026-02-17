@@ -429,3 +429,114 @@ html:not(.dark) .page-home-red-glow-cursor {
 .about-dev-card:hover::before {
   opacity: 1;
 }
+
+/* ========== How it works page: scroll-triggered animations ========== */
+@keyframes hiw-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hiw-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes hiw-slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes hiw-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Sections start invisible; animation runs when .hiw-in-view is added */
+.hiw-animate {
+  opacity: 0;
+}
+
+.hiw-animate.hiw-in-view.hiw-fade-up {
+  animation: hiw-fade-in-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hiw-animate.hiw-in-view.hiw-scale {
+  animation: hiw-scale-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hiw-animate.hiw-in-view.hiw-slide-left {
+  animation: hiw-slide-in-left 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hiw-animate.hiw-in-view.hiw-slide-right {
+  animation: hiw-slide-in-right 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Stagger delays for steps and list items */
+.hiw-delay-0 { animation-delay: 0ms; }
+.hiw-delay-1 { animation-delay: 120ms; }
+.hiw-delay-2 { animation-delay: 240ms; }
+.hiw-delay-3 { animation-delay: 360ms; }
+.hiw-delay-4 { animation-delay: 480ms; }
+.hiw-delay-5 { animation-delay: 600ms; }
+.hiw-delay-6 { animation-delay: 720ms; }
+.hiw-delay-7 { animation-delay: 840ms; }
+.hiw-delay-8 { animation-delay: 960ms; }
+.hiw-delay-9 { animation-delay: 1080ms; }
+
+/* Section-based: when .hiw-section gets .hiw-in-view, children animate with stagger */
+.hiw-section .hiw-step {
+  opacity: 0;
+}
+.hiw-section.hiw-in-view .hiw-step {
+  animation: hiw-fade-in-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hiw-section .hiw-faq-item {
+  opacity: 0;
+}
+.hiw-section.hiw-in-view .hiw-faq-item {
+  animation: hiw-fade-in-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hiw-section .hiw-list-card {
+  opacity: 0;
+}
+.hiw-section.hiw-in-view .hiw-list-card {
+  animation: hiw-scale-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.hiw-section .hiw-overlay-left {
+  opacity: 0;
+}
+.hiw-section.hiw-in-view .hiw-overlay-left {
+  animation: hiw-slide-in-left 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hiw-section .hiw-overlay-right {
+  opacity: 0;
+}
+.hiw-section.hiw-in-view .hiw-overlay-right {
+  animation: hiw-slide-in-right 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+}

@@ -57,7 +57,7 @@ export default function ContactPage() {
           {/* Wrapper for hover so animation transform doesn’t block it */}
           <div className="contact-pill-hover">
             <div
-              className="contact-hero-drop flex flex-col items-center justify-center rounded-[195px] bg-slate-800 px-0 pt-14 pb-10 dark:bg-[#05050A] md:pt-16 md:pb-12 lg:pt-20 lg:pb-14"
+              className="contact-hero-drop flex flex-col items-center justify-center rounded-[195px] bg-[#B22222] px-0 pt-14 pb-10 dark:bg-[#05050A] md:pt-16 md:pb-12 lg:pt-20 lg:pb-14"
             >
           <h1
             className="text-center font-bold leading-[160%] text-white drop-shadow text-3xl md:text-4xl lg:text-5xl"
@@ -86,11 +86,14 @@ export default function ContactPage() {
           ) : (
             <div className="contact-form-hover">
             <div className="contact-form-in overflow-hidden rounded-3xl bg-slate-200 shadow-lg dark:bg-[#040404] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)] md:rounded-[2rem]">
-              <div className="border-b border-slate-200/80 px-6 py-6 dark:border-white/10 md:px-8 md:py-7">
-                <h2 className="text-center text-xl font-semibold tracking-tight text-slate-900 dark:text-white md:text-2xl">
+              <div
+                className="border-b border-[#B22222]/30 px-6 py-6 dark:border-white/10 md:px-8 md:py-7 rounded-t-3xl md:rounded-t-[2rem] bg-[#B22222] dark:bg-transparent"
+                style={{ boxShadow: "0 2px 8px rgba(178, 34, 34, 0.25)" }}
+              >
+                <h2 className="text-center text-xl font-semibold tracking-tight text-white md:text-2xl">
                   Contact Form
                 </h2>
-                <p className="mt-1 text-center text-sm text-slate-500 dark:text-white/60">
+                <p className="mt-1 text-center text-sm text-white/90 dark:text-white/60">
                   Send us a message and we&apos;ll get back to you.
                 </p>
               </div>
@@ -159,8 +162,8 @@ export default function ContactPage() {
                       type="submit"
                       className="w-full rounded-xl py-3.5 text-base font-semibold text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-red-500/60 focus:ring-offset-2 focus:ring-offset-slate-50 dark:focus:ring-offset-[#0d0d0d] sm:w-auto sm:min-w-[140px] sm:px-8"
                       style={{
-                        background: "#8E1B1B",
-                        boxShadow: "0 2px 8px rgba(142, 27, 27, 0.35)",
+                        background: "#B22222",
+                        boxShadow: "0 2px 8px rgba(178, 34, 34, 0.35)",
                       }}
                     >
                       Submit

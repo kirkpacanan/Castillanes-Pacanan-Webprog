@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRef, useEffect, useState } from "react";
 
 const STEPS = [
   {
@@ -77,10 +78,51 @@ function Icon({ name, className = "h-12 w-12" }) {
 }
 
 export default function HowItWorksPage() {
+  const [inView, setInView] = useState(new Set());
+  const headerRef = useRef(null);
+  const pathRef = useRef(null);
+  const overlayRef = useRef(null);
+  const listRef = useRef(null);
+  const faqRef = useRef(null);
+  const ctaRef = useRef(null);
+
+  useEffect(() => {
+    const refs = [
+      { ref: headerRef, id: "header" },
+      { ref: pathRef, id: "path" },
+      { ref: overlayRef, id: "overlay" },
+      { ref: listRef, id: "list" },
+      { ref: faqRef, id: "faq" },
+      { ref: ctaRef, id: "cta" }
+    ];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const id = refs.find((r) => r.ref.current === entry.target)?.id;
+          if (!id) return;
+          setInView((prev) => {
+            const next = new Set(prev);
+            if (entry.isIntersecting) next.add(id);
+            else next.delete(id);
+            return next;
+          });
+        });
+      },
+      { rootMargin: "-8% 0px -8% 0px", threshold: 0 }
+    );
+    const nodes = refs.map((r) => r.ref.current).filter(Boolean);
+    nodes.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="flex flex-col items-stretch" style={{ fontFamily: "Inter, sans-serif" }}>
       {/* Header — bg #350A0A, padding 112px 64px */}
-      <header className="flex flex-col items-center gap-20 px-8 py-28 md:px-16" style={{ background: "#350A0A" }}>
+      <header
+        ref={headerRef}
+        className={`flex flex-col items-center gap-20 px-8 py-28 md:px-16 ${inView.has("header") ? "hiw-animate hiw-in-view hiw-fade-up" : "hiw-animate hiw-fade-up"}`}
+        style={{ background: "#350A0A" }}
+      >
         <div className="flex max-w-[768px] flex-col items-center gap-8 text-center">
           <p className="text-base font-semibold leading-[150%] text-white">Process</p>
           <h1 className="text-5xl font-bold leading-[110%] tracking-[0.01em] text-white md:text-7xl md:leading-[110%]">
@@ -108,8 +150,12 @@ export default function HowItWorksPage() {
       </header>
 
       {/* Layout 237 — bg #05050A, 3 columns */}
-      <section className="flex flex-col items-center gap-20 px-8 py-28 md:px-16" style={{ background: "#05050A" }}>
-        <div className="flex max-w-[768px] flex-col items-center gap-6 text-center">
+      <section
+        ref={pathRef}
+        className={`hiw-section flex flex-col items-center gap-20 px-8 py-28 md:px-16 ${inView.has("path") ? "hiw-in-view" : ""}`}
+        style={{ background: "#05050A" }}
+      >
+        <div className="hiw-step hiw-delay-0 flex max-w-[768px] flex-col items-center gap-6 text-center">
           <h2 className="text-4xl font-bold leading-[120%] tracking-[0.01em] text-white md:text-5xl lg:text-[60px]">
             The path from feeling to film
           </h2>
@@ -118,8 +164,8 @@ export default function HowItWorksPage() {
           </p>
         </div>
         <div className="grid w-full max-w-[1152px] grid-cols-1 gap-12 md:grid-cols-3">
-          {STEPS.map((step) => (
-            <div key={step.title} className="flex flex-col items-center gap-6 text-center">
+          {STEPS.map((step, i) => (
+            <div key={step.title} className={`hiw-step ${["hiw-delay-1", "hiw-delay-2", "hiw-delay-3"][i]} flex flex-col items-center gap-6 text-center`}>
               <div className="flex h-12 w-12 items-center justify-center">
                 <Icon name={step.icon} />
               </div>
@@ -151,17 +197,18 @@ export default function HowItWorksPage() {
 
       {/* Layout 442 — dark overlay section (two columns) */}
       <section
-        className="flex flex-col items-center gap-20 px-8 py-28 md:px-16"
+        ref={overlayRef}
+        className={`hiw-section flex flex-col items-center gap-20 px-8 py-28 md:px-16 ${inView.has("overlay") ? "hiw-in-view" : ""}`}
         style={{ background: "linear-gradient(0deg, rgba(0,0,0,0.4), rgba(0,0,0,0.4)), #1a1a1a" }}
       >
         <div className="grid w-full max-w-[1152px] grid-cols-1 gap-20 lg:grid-cols-2">
-          <div className="flex flex-col gap-4">
+          <div className="hiw-overlay-left flex flex-col gap-4">
             <p className="text-base font-semibold leading-[150%] text-white">Intelligence</p>
             <h2 className="text-4xl font-bold leading-[120%] tracking-[0.01em] text-white md:text-5xl lg:text-[60px]">
               Technology that understands emotion
             </h2>
           </div>
-          <div className="flex flex-col justify-end gap-8">
+          <div className="hiw-overlay-right flex flex-col justify-end gap-8">
             <p className="max-w-[536px] text-xl leading-[160%] text-white">
               Behind every recommendation is sentiment analysis, emotional mapping, and a curated database of films. Feelvie doesn&apos;t just predict what you want—it understands what you need.
             </p>
@@ -179,12 +226,16 @@ export default function HowItWorksPage() {
       </section>
 
       {/* Layout 31 — bg #350A0A, list + placeholder image */}
-      <section className="flex flex-col items-center gap-20 px-8 py-28 md:px-16" style={{ background: "#350A0A" }}>
+      <section
+        ref={listRef}
+        className={`hiw-section flex flex-col items-center gap-20 px-8 py-28 md:px-16 ${inView.has("list") ? "hiw-in-view" : ""}`}
+        style={{ background: "#350A0A" }}
+      >
         <div className="grid w-full max-w-[1152px] grid-cols-1 gap-20 lg:grid-cols-2">
           <div className="flex flex-col gap-8">
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
-              {LIST_ITEMS.map((item) => (
-                <div key={item.title} className="flex flex-col gap-4">
+              {LIST_ITEMS.map((item, i) => (
+                <div key={item.title} className={`hiw-list-card ${["hiw-delay-0", "hiw-delay-1", "hiw-delay-2", "hiw-delay-3"][i]} flex flex-col gap-4`}>
                   <div className="flex h-12 w-12 items-center justify-center">
                     <Icon name={item.icon} />
                   </div>
@@ -200,15 +251,19 @@ export default function HowItWorksPage() {
             </div>
           </div>
           <div
-            className="min-h-[300px] w-full rounded-[40px] bg-white/10 md:min-h-[400px]"
+            className="hiw-list-card hiw-delay-4 min-h-[300px] w-full rounded-[40px] bg-white/10 md:min-h-[400px]"
             style={{ maxWidth: 536 }}
           />
         </div>
       </section>
 
       {/* FAQ — bg #05050A */}
-      <section className="flex flex-col items-center gap-20 px-8 py-28 md:px-16" style={{ background: "#05050A" }}>
-        <div className="flex max-w-[768px] flex-col items-center gap-6 text-center">
+      <section
+        ref={faqRef}
+        className={`hiw-section flex flex-col items-center gap-20 px-8 py-28 md:px-16 ${inView.has("faq") ? "hiw-in-view" : ""}`}
+        style={{ background: "#05050A" }}
+      >
+        <div className="hiw-faq-item hiw-delay-0 flex max-w-[768px] flex-col items-center gap-6 text-center">
           <h2 className="text-4xl font-bold leading-[120%] tracking-[0.01em] text-white md:text-5xl lg:text-[60px]">
             Frequently asked questions
           </h2>
@@ -217,14 +272,14 @@ export default function HowItWorksPage() {
           </p>
         </div>
         <ul className="flex w-full max-w-[768px] flex-col gap-12">
-          {FAQ.map((item) => (
-            <li key={item.q} className="flex flex-col gap-4">
+          {FAQ.map((item, i) => (
+            <li key={item.q} className={`hiw-faq-item ${["hiw-delay-1", "hiw-delay-2", "hiw-delay-3", "hiw-delay-4", "hiw-delay-5"][i]} flex flex-col gap-4`}>
               <h3 className="text-xl font-bold leading-[160%] text-white">{item.q}</h3>
               <p className="text-lg leading-[160%] text-white">{item.a}</p>
             </li>
           ))}
         </ul>
-        <div className="flex max-w-[560px] flex-col items-center gap-6 text-center">
+        <div className="hiw-faq-item hiw-delay-6 flex max-w-[560px] flex-col items-center gap-6 text-center">
           <h4 className="text-3xl font-bold leading-[120%] tracking-[0.01em] text-white md:text-4xl">
             More questions?
           </h4>
@@ -241,7 +296,11 @@ export default function HowItWorksPage() {
       </section>
 
       {/* CTA — bg #05050A */}
-      <section className="flex flex-col items-center gap-20 px-8 py-28 md:px-16" style={{ background: "#05050A" }}>
+      <section
+        ref={ctaRef}
+        className={`flex flex-col items-center gap-20 px-8 py-28 md:px-16 ${inView.has("cta") ? "hiw-animate hiw-in-view hiw-fade-up" : "hiw-animate hiw-fade-up"}`}
+        style={{ background: "#05050A" }}
+      >
         <div className="flex max-w-[768px] flex-col items-center gap-8 text-center">
           <h2 className="text-4xl font-bold leading-[120%] tracking-[0.01em] text-white md:text-5xl lg:text-[60px]">
             Ready to discover
