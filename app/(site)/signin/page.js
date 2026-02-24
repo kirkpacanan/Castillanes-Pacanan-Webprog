@@ -58,14 +58,14 @@ function SignInContent() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-center text-2xl font-bold uppercase tracking-wide text-slate-900 dark:text-white">
+      <h1 className="text-center text-2xl font-bold uppercase tracking-wide text-white">
         Sign in to Feelvie
       </h1>
-      <p className="mt-4 text-center text-sm text-slate-600 dark:text-white/70">
+      <p className="mt-4 text-center text-sm text-white/70">
         Create an account if you don&apos;t have one.
       </p>
       {authError && (
-        <p className="mt-6 rounded-xl bg-red-100 px-4 py-2 text-sm text-red-800 dark:bg-red-900/40 dark:text-red-200">
+        <p className="mt-6 rounded-xl bg-red-900/40 px-4 py-2 text-sm text-red-200">
           {authError}
         </p>
       )}
@@ -74,7 +74,7 @@ function SignInContent() {
           <button
             type="button"
             onClick={signInWithGoogle}
-            className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+            className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-white/20"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden>
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -84,10 +84,10 @@ function SignInContent() {
             </svg>
             Continue with Google
           </button>
-          <p className="mt-4 text-center text-xs text-slate-500 dark:text-white/50">or sign in with email</p>
+          <p className="mt-4 text-center text-xs text-white/50">or sign in with email</p>
         </>
       ) : (
-        <p className="mt-6 text-center text-xs text-slate-500 dark:text-white/50">
+        <p className="mt-6 text-center text-xs text-white/50">
           {process.env.NODE_ENV === "development"
             ? "Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local, then restart the dev server to see \"Continue with Google\"."
             : "Sign in with email below."}
@@ -124,14 +124,14 @@ function SignInContent() {
         </button>
         <Link
           href="#"
-          className="text-center text-sm text-slate-500 hover:text-red-500 dark:text-white/50 dark:hover:text-red-400"
+          className="text-center text-sm text-white/50 hover:text-red-400"
         >
           Forgot password?
         </Link>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600 dark:text-white/70">
+      <p className="mt-6 text-center text-sm text-white/70">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-semibold text-red-600 hover:underline dark:text-red-400">
+        <Link href="/signup" className="font-semibold text-red-400 hover:underline">
           Sign up
         </Link>
       </p>

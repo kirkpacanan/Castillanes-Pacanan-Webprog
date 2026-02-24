@@ -267,10 +267,10 @@ export default function HomePage() {
       <div className="relative z-10 mx-auto w-full max-w-[1280px] px-4 pb-24 pt-10 md:px-8 md:pt-14 animate-fade-in">
         {/* Logo and hero */}
         <section className="text-center">
-          <h1 className="text-2xl font-medium tracking-tight text-slate-900 dark:text-white md:text-3xl" style={{ fontFamily: "Inter, sans-serif" }}>
+          <h1 className="text-2xl font-medium tracking-tight text-white md:text-3xl" style={{ fontFamily: "Inter, sans-serif" }}>
             Feelvie
           </h1>
-          <p className="mt-5 max-w-xl mx-auto text-lg leading-relaxed text-slate-700 dark:text-white/95 md:text-xl md:leading-relaxed" style={{ fontFamily: "Inter, sans-serif" }}>
+          <p className="mt-5 max-w-xl mx-auto text-lg leading-relaxed text-white/95 md:text-xl md:leading-relaxed" style={{ fontFamily: "Inter, sans-serif" }}>
             Tell us how you feel… and we&apos;ll tell you what to watch.
           </p>
         </section>
@@ -278,13 +278,13 @@ export default function HomePage() {
         {/* Search bar + year */}
         <section className="mx-auto mt-10 w-full max-w-[904px]">
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex h-[92px] items-center gap-3 rounded-[50px] bg-slate-200/90 dark:bg-[#1E1E1E]/95 px-6 shadow-lg ring-1 ring-slate-300/50 dark:ring-white/5 transition focus-within:ring-2 focus-within:ring-[#8E1B1B]/50">
+            <div className="flex h-[92px] items-center gap-3 rounded-[50px] bg-[#1E1E1E]/95 px-6 shadow-lg ring-1 ring-white/5 transition focus-within:ring-2 focus-within:ring-[#8E1B1B]/50">
               <input
                 type="text"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Type a sentence or phrase."
-                className="min-w-0 flex-1 bg-transparent text-xl text-slate-900 placeholder:text-slate-500 dark:text-white dark:placeholder:text-white/60 outline-none md:text-2xl"
+                className="min-w-0 flex-1 bg-transparent text-xl text-white placeholder:text-white/60 outline-none md:text-2xl"
                 style={{ fontFamily: "Inter, sans-serif" }}
               />
               <button
@@ -302,7 +302,7 @@ export default function HomePage() {
               <select
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
-                className="h-[42px] w-full appearance-none rounded-[50px] bg-slate-200/90 dark:bg-[#1E1E1E]/95 pl-6 pr-10 text-lg text-slate-900 dark:text-white ring-1 ring-slate-300/50 dark:ring-white/5 outline-none transition focus:ring-2 focus:ring-[#8E1B1B]/50"
+                className="h-[42px] w-full appearance-none rounded-[50px] bg-[#1E1E1E]/95 pl-6 pr-10 text-lg text-white ring-1 ring-white/5 outline-none transition focus:ring-2 focus:ring-[#8E1B1B]/50"
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
                 <option value="">Any year</option>
@@ -328,7 +328,7 @@ export default function HomePage() {
                 key={item}
                 type="button"
                 onClick={() => { setPrompt(item); requestRecommendation(item); }}
-                className="rounded-full border border-slate-300 dark:border-white/20 bg-slate-200/60 dark:bg-white/5 px-4 py-2 text-sm text-slate-800 dark:text-white/90 transition hover:border-[#8E1B1B]/60 hover:bg-slate-300/80 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white"
+                className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/90 transition hover:border-red-400/60 hover:bg-white/10 hover:text-white"
                 style={{ fontFamily: "Inter, sans-serif" }}
               >
                 {item}
@@ -373,7 +373,7 @@ export default function HomePage() {
                   <p className="font-['Inria_Sans'] text-lg leading-[22px] text-red-600 dark:text-[#DD7575]" style={{ fontFamily: "'Inria Sans', sans-serif" }}>
                     {movie.Genre}
                   </p>
-                  <h3 className="font-['Inclusive_Sans'] text-2xl leading-[29px] text-slate-900 dark:text-white" style={{ fontFamily: "'Inclusive Sans', sans-serif" }}>
+                  <h3 className="font-['Inclusive_Sans'] text-2xl leading-[29px] text-white" style={{ fontFamily: "'Inclusive Sans', sans-serif" }}>
                     {movie.Title}
                   </h3>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -428,7 +428,7 @@ export default function HomePage() {
           {showMoodChat && (
             <aside className="min-h-[608px] rounded-2xl border border-slate-200 dark:border-white/5 bg-white/90 dark:bg-[#0a0505]/95 p-6 shadow-xl backdrop-blur-sm md:p-8">
               <div className="rounded-xl border border-red-200 dark:border-[#8E1B1B]/50 bg-red-50/80 dark:bg-[rgba(178,34,34,0.15)] px-4 py-3">
-                <h2 className="text-xl font-medium text-slate-900 dark:text-white" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
+                <h2 className="text-xl font-medium text-white" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
                   Mood Chat
                 </h2>
                 <p className="mt-1 text-xs text-slate-600 dark:text-white/60" style={{ fontFamily: "Inder, sans-serif" }}>
@@ -442,7 +442,7 @@ export default function HomePage() {
                     className={
                       msg.role === "user"
                         ? "ml-auto max-w-[85%] rounded-2xl bg-[#8E1B1B]/90 px-4 py-2.5 text-sm text-white"
-                        : "rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-white/5 px-4 py-3 text-xs leading-relaxed text-slate-700 dark:text-white/70"
+                        : "rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs leading-relaxed text-white/70"
                     }
                     style={msg.role === "assistant" ? { fontFamily: "Inder, sans-serif" } : undefined}
                   >
@@ -466,7 +466,7 @@ export default function HomePage() {
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   placeholder="Type how you feel..."
-                  className="flex-1 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-white/5 px-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-white/40 outline-none transition focus:border-[#8E1B1B]/50 focus:ring-1 focus:ring-[#8E1B1B]/30"
+                  className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/40 outline-none transition focus:border-red-400/50 focus:ring-1 focus:ring-red-400/30"
                   style={{ fontFamily: "Inder, sans-serif" }}
                 />
                 <button
@@ -478,7 +478,7 @@ export default function HomePage() {
                 </button>
               </form>
               <div className="mt-6">
-                <h3 className="text-sm font-medium text-slate-900 dark:text-white">Previous Picks</h3>
+                <h3 className="text-sm font-medium text-white">Previous Picks</h3>
                 {!user ? (
                   <p className="mt-2 text-xs text-slate-500 dark:text-white/50" style={{ fontFamily: "Inder, sans-serif" }}>
                     Sign in to save your recommendations.
@@ -494,7 +494,7 @@ export default function HomePage() {
                         key={item.imdbID}
                         className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-white/5 px-3 py-2 transition hover:bg-slate-200/80 dark:hover:bg-white/10"
                       >
-                        <span className="text-sm font-medium text-slate-900 dark:text-white" style={{ fontFamily: "'Inclusive Sans', sans-serif" }}>{item.Title}</span>
+                        <span className="text-sm font-medium text-white" style={{ fontFamily: "'Inclusive Sans', sans-serif" }}>{item.Title}</span>
                         <span className="text-xs text-slate-500 dark:text-white/50"> · {item.Year} · {item.imdbRating}</span>
                       </li>
                     ))}
@@ -533,7 +533,7 @@ export default function HomePage() {
                         )}
                       </div>
                     </Link>
-                    <p className="mt-3 text-center text-sm font-medium text-slate-800 dark:text-white/95 line-clamp-2 group-hover:text-slate-900 dark:group-hover:text-white" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
+                    <p className="mt-3 text-center text-sm font-medium text-white/95 line-clamp-2 group-hover:text-white" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
                       {m.Title}
                     </p>
                   </div>

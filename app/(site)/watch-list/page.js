@@ -62,7 +62,7 @@ export default function WatchListPage() {
   return (
     <div className="mx-auto w-[min(1280px,94%)] px-4 py-12 md:py-16">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-white">
           Watch List
         </h1>
         <Link
@@ -116,7 +116,7 @@ export default function WatchListPage() {
                 )}
               </div>
               <div className="p-4">
-                <h2 className="font-semibold text-slate-900 dark:text-white line-clamp-2">
+                <h2 className="font-semibold text-white line-clamp-2">
                   {movie.Title}
                 </h2>
                 <p className="mt-1 text-xs text-slate-500 dark:text-white/50">
@@ -138,10 +138,10 @@ export default function WatchListPage() {
           aria-label="Create playlist"
         >
           <div
-            className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-800"
+            className="w-full max-w-sm rounded-2xl bg-slate-800 p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">New playlist</h3>
+            <h3 className="text-lg font-semibold text-white">New playlist</h3>
             <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
               Create a category to organize your watch list.
             </p>
@@ -151,7 +151,7 @@ export default function WatchListPage() {
               onChange={(e) => setNewPlaylistName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
               placeholder="e.g. Weekend picks, Favorites"
-              className="mt-4 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-slate-900 placeholder:text-slate-400 dark:border-white/20 dark:bg-slate-700 dark:text-white dark:placeholder:text-white/50"
+              className="mt-4 w-full rounded-xl border border-white/20 bg-slate-700 px-4 py-2.5 text-white placeholder:text-white/50"
             />
             <div className="mt-4 flex gap-2">
               <button
@@ -164,7 +164,7 @@ export default function WatchListPage() {
               <button
                 type="button"
                 onClick={() => { setShowCreatePlaylist(false); setNewPlaylistName(""); }}
-                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 dark:border-white/20 dark:text-white/80"
+                className="rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80"
               >
                 Cancel
               </button>
@@ -191,7 +191,7 @@ export default function WatchListPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedMovie(null)}
-                  className="rounded-full p-2 text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-white"
+                  className="rounded-full p-2 text-white/50 hover:bg-slate-700 hover:text-white"
                   aria-label="Close"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -215,7 +215,7 @@ export default function WatchListPage() {
                   <p className="text-xs font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
                     {selectedMovie.Genre || "Movie"}
                   </p>
-                  <h2 id="movie-modal-title" className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  <h2 id="movie-modal-title" className="text-2xl font-semibold text-white">
                     {selectedMovie.Title}
                   </h2>
                   <div className="flex flex-wrap gap-2 text-sm text-slate-600 dark:text-white/70">
@@ -245,7 +245,7 @@ export default function WatchListPage() {
                         markWatched(selectedMovie);
                         setSelectedMovie(null);
                       }}
-                      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:border-red-500 hover:text-slate-900 dark:border-white/20 dark:text-white/80 dark:hover:border-red-500 dark:hover:text-white"
+                      className="rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80 hover:border-red-500 hover:text-white"
                     >
                       Watched
                     </button>
@@ -255,7 +255,7 @@ export default function WatchListPage() {
                         removeFromWatchList(selectedMovie.imdbID);
                         setSelectedMovie(null);
                       }}
-                      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:border-red-500 hover:text-slate-900 dark:border-white/20 dark:text-white/80 dark:hover:border-red-500 dark:hover:text-white"
+                      className="rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80 hover:border-red-500 hover:text-white"
                     >
                       Remove from Watch list
                     </button>

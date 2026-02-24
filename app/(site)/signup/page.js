@@ -58,7 +58,7 @@ export default function SignUpPage() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-center text-2xl font-bold uppercase tracking-wide text-slate-900 dark:text-white">
+      <h1 className="text-center text-2xl font-bold uppercase tracking-wide text-white">
         Sign up to Feelvie
       </h1>
       {hasSupabase ? (
@@ -66,7 +66,7 @@ export default function SignUpPage() {
           <button
             type="button"
             onClick={signInWithGoogle}
-            className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white py-3 text-sm font-medium text-slate-700 shadow-sm transition hover:bg-slate-50 dark:border-white/20 dark:bg-white/10 dark:text-white dark:hover:bg-white/20"
+            className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-white/20"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden>
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -76,10 +76,10 @@ export default function SignUpPage() {
             </svg>
             Continue with Google
           </button>
-          <p className="mt-4 text-center text-xs text-slate-500 dark:text-white/50">or sign up with email</p>
+          <p className="mt-4 text-center text-xs text-white/50">or sign up with email</p>
         </>
       ) : (
-        <p className="mt-6 text-center text-xs text-slate-500 dark:text-white/50">
+        <p className="mt-6 text-center text-xs text-white/50">
           {process.env.NODE_ENV === "development"
             ? "Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to .env.local, then restart the dev server to see \"Continue with Google\"."
             : "Sign up with email below."}
@@ -87,11 +87,11 @@ export default function SignUpPage() {
       )}
       <form onSubmit={handleSubmit} className={`flex flex-col gap-4 ${hasSupabase ? "mt-6" : "mt-8"}`}>
         {error && (
-          <p className="rounded-xl bg-red-100 px-4 py-2 text-sm text-red-800 dark:bg-red-900/40 dark:text-red-200">
+          <p className="rounded-xl bg-red-900/40 px-4 py-2 text-sm text-red-200">
             {error}
           </p>
         )}
-        <label className="text-sm font-semibold text-slate-700 dark:text-white/80">
+        <label className="text-sm font-semibold text-white/80">
           Username
         </label>
         <input
@@ -99,10 +99,10 @@ export default function SignUpPage() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter your username"
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-red-500/30 dark:border-white/15 dark:bg-slate-900 dark:text-white"
+          className="rounded-xl border border-white/15 bg-slate-900 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-red-500/30"
           required
         />
-        <label className="text-sm font-semibold text-slate-700 dark:text-white/80">
+        <label className="text-sm font-semibold text-white/80">
           Email
         </label>
         <input
@@ -110,9 +110,9 @@ export default function SignUpPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-red-500/30 dark:border-white/15 dark:bg-slate-900 dark:text-white"
+          className="rounded-xl border border-white/15 bg-slate-900 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-red-500/30"
         />
-        <label className="text-sm font-semibold text-slate-700 dark:text-white/80">
+        <label className="text-sm font-semibold text-white/80">
           Password
         </label>
         <input
@@ -120,9 +120,9 @@ export default function SignUpPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-red-500/30 dark:border-white/15 dark:bg-slate-900 dark:text-white"
+          className="rounded-xl border border-white/15 bg-slate-900 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-red-500/30"
         />
-        <p className="text-xs text-slate-600 dark:text-white/60">
+        <p className="text-xs text-white/60">
           By clicking Sign Up, you agree to Feelvie&apos;s Terms of Use (including arbitration provisions) and acknowledge that you have read our Privacy Policy.
         </p>
         <button
@@ -133,16 +133,16 @@ export default function SignUpPage() {
           {loading ? "Creating account…" : "Sign Up"}
         </button>
       </form>
-      <p className="mt-6 text-center text-sm text-slate-600 dark:text-white/70">
+      <p className="mt-6 text-center text-sm text-white/70">
         Already have an account?{" "}
-        <Link href="/signin" className="font-semibold text-red-600 hover:underline dark:text-red-400">
+        <Link href="/signin" className="font-semibold text-red-400 hover:underline">
           Sign in
         </Link>
       </p>
       <p className="mt-4 text-center">
         <Link
           href="/"
-          className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-white/70 dark:hover:text-white"
+          className="text-sm font-medium text-white/70 hover:text-white"
         >
           Continue as Guest
         </Link>

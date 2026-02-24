@@ -63,7 +63,7 @@ export default function WatchedPage() {
   return (
     <div className="mx-auto w-[min(1280px,94%)] px-4 py-12 md:py-16">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-white">
           Watched
         </h1>
         <Link
@@ -116,7 +116,7 @@ export default function WatchedPage() {
                   )}
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+                  <h2 className="text-xl font-semibold text-white">
                     {featured.Title}
                   </h2>
                   <p className="mt-2 text-sm text-slate-600 dark:text-white/70">
@@ -141,7 +141,7 @@ export default function WatchedPage() {
                     <button
                       type="button"
                       onClick={() => addToWatchList(featured)}
-                      className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 dark:border-white/20 dark:text-white/80"
+                      className="rounded-lg border border-white/20 px-4 py-2 text-sm font-medium text-white/80"
                     >
                       Add to Watch list
                     </button>
@@ -154,7 +154,7 @@ export default function WatchedPage() {
             </div>
           )}
           <div className="mt-12">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+            <h2 className="text-lg font-semibold text-white">
               All watched
             </h2>
             <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -177,7 +177,7 @@ export default function WatchedPage() {
                     )}
                   </div>
                   <div className="p-4">
-                    <h3 className="font-semibold text-slate-900 dark:text-white line-clamp-2">
+                    <h3 className="font-semibold text-white line-clamp-2">
                       {movie.Title}
                     </h3>
                     <p className="mt-1 text-xs text-slate-500 dark:text-white/50">
@@ -204,7 +204,7 @@ export default function WatchedPage() {
             className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-800"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-white">New playlist</h3>
+            <h3 className="text-lg font-semibold text-white">New playlist</h3>
             <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
               Create a category to organize your watched movies.
             </p>
@@ -214,7 +214,7 @@ export default function WatchedPage() {
               onChange={(e) => setNewPlaylistName(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
               placeholder="e.g. Favorites, Date night"
-              className="mt-4 w-full rounded-xl border border-slate-300 px-4 py-2.5 text-slate-900 placeholder:text-slate-400 dark:border-white/20 dark:bg-slate-700 dark:text-white dark:placeholder:text-white/50"
+              className="mt-4 w-full rounded-xl border border-white/20 bg-slate-700 px-4 py-2.5 text-white placeholder:text-white/50"
             />
             <div className="mt-4 flex gap-2">
               <button
@@ -227,7 +227,7 @@ export default function WatchedPage() {
               <button
                 type="button"
                 onClick={() => { setShowCreatePlaylist(false); setNewPlaylistName(""); }}
-                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 dark:border-white/20 dark:text-white/80"
+                className="rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80"
               >
                 Cancel
               </button>
@@ -254,7 +254,7 @@ export default function WatchedPage() {
                 <button
                   type="button"
                   onClick={() => setSelectedMovie(null)}
-                  className="rounded-full p-2 text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:hover:bg-slate-700 dark:hover:text-white"
+                  className="rounded-full p-2 text-white/50 hover:bg-slate-700 hover:text-white"
                   aria-label="Close"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -278,7 +278,7 @@ export default function WatchedPage() {
                   <p className="text-xs font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
                     {selectedMovie.Genre || "Movie"}
                   </p>
-                  <h2 id="watched-movie-modal-title" className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  <h2 id="watched-movie-modal-title" className="text-2xl font-semibold text-white">
                     {selectedMovie.Title}
                   </h2>
                   <div className="flex flex-wrap gap-2 text-sm text-slate-600 dark:text-white/70">
@@ -305,7 +305,7 @@ export default function WatchedPage() {
                     <button
                       type="button"
                       onClick={() => addToWatchList(selectedMovie)}
-                      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:border-red-500 hover:text-slate-900 dark:border-white/20 dark:text-white/80 dark:hover:border-red-500 dark:hover:text-white"
+                      className="rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80 hover:border-red-500 hover:text-white"
                     >
                       Add to Watch list
                     </button>

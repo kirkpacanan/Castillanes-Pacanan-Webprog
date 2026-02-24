@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useTheme } from "../context/ThemeContext";
 import FeelvieLogo from "./FeelvieLogo";
 
 const navLinkBase =
@@ -36,7 +35,6 @@ function NavLink({ href, children, active }) {
 export default function Header() {
   const pathname = usePathname();
   const { user, signOut, hydrated } = useAuth();
-  const { theme, toggleTheme } = useTheme();
   const [moreOpen, setMoreOpen] = useState(false);
 
   const isMoreActive = morePaths.some((p) => pathname === p);
@@ -129,13 +127,7 @@ export default function Header() {
               >
                 Contact
               </Link>
-              <button
-                type="button"
-                onClick={() => { toggleTheme(); setMoreOpen(false); }}
-                className="block w-full px-4 py-2 text-left text-sm font-medium text-white transition-colors hover:bg-white/10"
-              >
-                {theme === "dark" ? "Light mode" : "Dark mode"}
-              </button>
+
             </div>
           </div>
         </nav>
