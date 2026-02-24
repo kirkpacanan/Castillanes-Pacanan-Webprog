@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
+import TermsModal from "../../components/TermsModal";
+import PrivacyModal from "../../components/PrivacyModal";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -13,6 +15,8 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -123,7 +127,16 @@ export default function SignUpPage() {
           className="rounded-xl border border-white/15 bg-slate-900 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-red-500/30"
         />
         <p className="text-xs text-white/60">
-          By clicking Sign Up, you agree to Feelvie&apos;s Terms of Use (including arbitration provisions) and acknowledge that you have read our Privacy Policy.
+          By clicking Sign Up, you agree to Feelvie&apos;s
+          {' '}
+          <button type="button" onClick={() => setShowTerms(true)} className="underline text-red-400 hover:text-red-300">
+            Terms of Service
+          </button>
+          {' '} (including arbitration provisions) and acknowledge that you have read our {' '}
+          <button type="button" onClick={() => setShowPrivacy(true)} className="underline text-red-400 hover:text-red-300">
+            Privacy Policy
+          </button>
+          .
         </p>
         <button
           type="submit"
@@ -147,6 +160,8 @@ export default function SignUpPage() {
           Continue as Guest
         </Link>
       </p>
+      <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
+      <PrivacyModal open={showPrivacy} onClose={() => setShowPrivacy(false)} />
     </div>
   );
 }

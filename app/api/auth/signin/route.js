@@ -2,6 +2,14 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getSupabaseAdmin } from "../../../../lib/supabase";
 
+// Dummy account for offline testing
+const DUMMY_ACCOUNT = {
+  username: "testuser",
+  email: "test@example.com",
+  password: "password123",
+  name: "Test User"
+};
+
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -21,6 +29,14 @@ export async function POST(request) {
         { error: "Password is required" },
         { status: 400 }
       );
+    }
+
+    // Check against dummy account (for offline testing)
+    if ((trimmed === DUMMY_ACCOUNT.username || trimmed === DUMMY_ACCOUNT.email) && rawPassword === DUMMY_ACCOUNT.password) {
+      return NextResponse.json({
+        success: true,
+        user: { name: DUMMY_ACCOUNT.name, email: DUMMY_ACCOUNT.email },
+      });
     }
 
     const supabase = getSupabaseAdmin();

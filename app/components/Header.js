@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import FeelvieLogo from "./FeelvieLogo";
 
 const navLinkBase =
   "relative font-medium text-white hover:text-white/90 transition text-sm leading-snug py-2";
@@ -56,7 +55,13 @@ export default function Header() {
     >
       <div className="mx-auto flex h-full max-w-[1403px] items-center justify-between px-6 md:px-12">
         <nav className="flex items-center gap-5 md:gap-7">
-          <FeelvieLogo className="h-9" />
+          <Link href="/" className="inline-flex items-center transition opacity-90 hover:opacity-100">
+            <img 
+              src="/feelvie-full-logo.png" 
+              alt="Feelvie" 
+              className="h-9 w-auto" 
+            />
+          </Link>
           <NavLink href="/" active={pathname === "/"}>
             Home
           </NavLink>

@@ -4,7 +4,10 @@ import { WatchlistProvider } from "./context/WatchlistContext";
 
 export const metadata = {
   title: "Feelvie",
-  description: "AI-powered movie recommender using OpenAI + OMDb."
+  description: "AI-powered movie recommender using OpenAI + OMDb.",
+  icons: {
+    icon: "/feelvie-logo.png"
+  }
 };
 
 export default function RootLayout({ children }) {

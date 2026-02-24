@@ -25,7 +25,8 @@ export function WatchlistProvider({ children }) {
   const supabase = useMemo(() => createClient(), []);
   const [watchList, setWatchList] = useState([]);
   const [watched, setWatched] = useState([]);
-  const [playlists, setPlaylists] = useState([]);
+  const [watchlistPlaylists, setWatchlistPlaylists] = useState([]);
+  const [watchedPlaylists, setWatchedPlaylists] = useState([]);
   const [syncReady, setSyncReady] = useState(false);
   const saveTimeoutRef = useRef(null);
 
@@ -34,7 +35,8 @@ export function WatchlistProvider({ children }) {
     if (hydrated && !user) {
       setWatchList([]);
       setWatched([]);
-      setPlaylists([]);
+      setWatchlistPlaylists([]);
+      setWatchedPlaylists([]);
       setSyncReady(false);
     }
   }, [hydrated, user]);
@@ -45,7 +47,7 @@ export function WatchlistProvider({ children }) {
     if (user.id && supabase) {
       supabase
         .from("user_watchlist_sync")
-        .select("watchlist, watched, playlists")
+        .select("watchlist, watched, watchlist_playlists, watched_playlists")
         .eq("user_id", user.id)
         .maybeSingle()
         .then(({ data, error }) => {
@@ -56,7 +58,8 @@ export function WatchlistProvider({ children }) {
           if (data) {
             setWatchList(Array.isArray(data.watchlist) ? data.watchlist : []);
             setWatched(Array.isArray(data.watched) ? data.watched : []);
-            setPlaylists(Array.isArray(data.playlists) ? data.playlists : []);
+            setWatchlistPlaylists(Array.isArray(data.watchlist_playlists) ? data.watchlist_playlists : []);
+            setWatchedPlaylists(Array.isArray(data.watched_playlists) ? data.watched_playlists : []);
           }
           setSyncReady(true);
         });
@@ -65,10 +68,12 @@ export function WatchlistProvider({ children }) {
         const key = storageKey(user);
         const rawList = window.localStorage.getItem(`${key}_list`);
         const rawWatched = window.localStorage.getItem(`${key}_watched`);
-        const rawPlaylists = window.localStorage.getItem(`${key}_playlists`);
+        const rawWatchlistPlaylists = window.localStorage.getItem(`${key}_watchlist_playlists`);
+        const rawWatchedPlaylists = window.localStorage.getItem(`${key}_watched_playlists`);
         if (rawList) setWatchList(JSON.parse(rawList));
         if (rawWatched) setWatched(JSON.parse(rawWatched));
-        if (rawPlaylists) setPlaylists(JSON.parse(rawPlaylists));
+        if (rawWatchlistPlaylists) setWatchlistPlaylists(JSON.parse(rawWatchlistPlaylists));
+        if (rawWatchedPlaylists) setWatchedPlaylists(JSON.parse(rawWatchedPlaylists));
       } catch (_) {}
       setSyncReady(true);
     }
@@ -76,9 +81,9 @@ export function WatchlistProvider({ children }) {
 
   // Save: to Supabase when user.id (debounced), else to localStorage
   const persist = useCallback(
-    (list, watchedList, playlistList) => {
+    (list, watchedList, watchlistPlaylistList, watchedPlaylistList) => {
       if (!user || !hydrated) return;
-if (user.id && supabase) {
+      if (user.id && supabase) {
         if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
         saveTimeoutRef.current = setTimeout(() => {
           saveTimeoutRef.current = null;
@@ -89,7 +94,8 @@ if (user.id && supabase) {
                 user_id: user.id,
                 watchlist: list ?? [],
                 watched: watchedList ?? [],
-                playlists: playlistList ?? [],
+                watchlist_playlists: watchlistPlaylistList ?? [],
+                watched_playlists: watchedPlaylistList ?? [],
                 updated_at: new Date().toISOString(),
               },
               { onConflict: "user_id" }
@@ -103,7 +109,8 @@ if (user.id && supabase) {
           const key = storageKey(user);
           window.localStorage.setItem(`${key}_list`, JSON.stringify(list ?? []));
           window.localStorage.setItem(`${key}_watched`, JSON.stringify(watchedList ?? []));
-          window.localStorage.setItem(`${key}_playlists`, JSON.stringify(playlistList ?? []));
+          window.localStorage.setItem(`${key}_watchlist_playlists`, JSON.stringify(watchlistPlaylistList ?? []));
+          window.localStorage.setItem(`${key}_watched_playlists`, JSON.stringify(watchedPlaylistList ?? []));
         } catch (_) {}
       }
     },
@@ -112,8 +119,8 @@ if (user.id && supabase) {
 
   useEffect(() => {
     if (!syncReady || !user) return;
-    persist(watchList, watched, playlists);
-  }, [syncReady, user, watchList, watched, playlists, persist]);
+    persist(watchList, watched, watchlistPlaylists, watchedPlaylists);
+  }, [syncReady, user, watchList, watched, watchlistPlaylists, watchedPlaylists, persist]);
 
   useEffect(() => {
     return () => {
@@ -143,6 +150,11 @@ if (user.id && supabase) {
     setWatchList((prev) => prev.filter((m) => m.imdbID !== movie.imdbID));
   }, []);
 
+  const markUnwatched = useCallback((movie) => {
+    if (!movie?.imdbID) return;
+    setWatched((prev) => prev.filter((m) => m.imdbID !== movie.imdbID));
+  }, []);
+
   const isInWatchList = useCallback(
     (imdbID) => watchList.some((m) => m.imdbID === imdbID),
     [watchList]
@@ -152,64 +164,103 @@ if (user.id && supabase) {
     [watched]
   );
 
-  const createPlaylist = useCallback((name) => {
+  const createPlaylist = useCallback((name, type = "watchlist") => {
     const trimmed = (name || "").trim();
     if (!trimmed) return null;
     const id = generatePlaylistId();
-    setPlaylists((prev) => [...prev, { id, name: trimmed, movieIds: [] }]);
+    const newPlaylist = { id, name: trimmed, movieIds: [] };
+    if (type === "watched") {
+      setWatchedPlaylists((prev) => [...prev, newPlaylist]);
+    } else {
+      setWatchlistPlaylists((prev) => [...prev, newPlaylist]);
+    }
     return id;
   }, []);
 
-  const deletePlaylist = useCallback((playlistId) => {
-    setPlaylists((prev) => prev.filter((p) => p.id !== playlistId));
+  const deletePlaylist = useCallback((playlistId, type = "watchlist") => {
+    if (type === "watched") {
+      setWatchedPlaylists((prev) => prev.filter((p) => p.id !== playlistId));
+    } else {
+      setWatchlistPlaylists((prev) => prev.filter((p) => p.id !== playlistId));
+    }
   }, []);
 
-  const renamePlaylist = useCallback((playlistId, newName) => {
+  const renamePlaylist = useCallback((playlistId, newName, type = "watchlist") => {
     const trimmed = (newName || "").trim();
     if (!trimmed) return;
-    setPlaylists((prev) =>
-      prev.map((p) => (p.id === playlistId ? { ...p, name: trimmed } : p))
-    );
+    if (type === "watched") {
+      setWatchedPlaylists((prev) =>
+        prev.map((p) => (p.id === playlistId ? { ...p, name: trimmed } : p))
+      );
+    } else {
+      setWatchlistPlaylists((prev) =>
+        prev.map((p) => (p.id === playlistId ? { ...p, name: trimmed } : p))
+      );
+    }
   }, []);
 
-  const addMovieToPlaylist = useCallback((playlistId, imdbID) => {
-    setPlaylists((prev) =>
-      prev.map((p) => {
-        if (p.id !== playlistId) return p;
-        if (p.movieIds.includes(imdbID)) return p;
-        return { ...p, movieIds: [...p.movieIds, imdbID] };
-      })
-    );
+  const addMovieToPlaylist = useCallback((playlistId, imdbID, type = "watchlist") => {
+    if (type === "watched") {
+      setWatchedPlaylists((prev) =>
+        prev.map((p) => {
+          if (p.id !== playlistId) return p;
+          if (p.movieIds.includes(imdbID)) return p;
+          return { ...p, movieIds: [...p.movieIds, imdbID] };
+        })
+      );
+    } else {
+      setWatchlistPlaylists((prev) =>
+        prev.map((p) => {
+          if (p.id !== playlistId) return p;
+          if (p.movieIds.includes(imdbID)) return p;
+          return { ...p, movieIds: [...p.movieIds, imdbID] };
+        })
+      );
+    }
   }, []);
 
-  const removeMovieFromPlaylist = useCallback((playlistId, imdbID) => {
-    setPlaylists((prev) =>
-      prev.map((p) =>
-        p.id === playlistId ? { ...p, movieIds: p.movieIds.filter((id) => id !== imdbID) } : p
-      )
-    );
+  const removeMovieFromPlaylist = useCallback((playlistId, imdbID, type = "watchlist") => {
+    if (type === "watched") {
+      setWatchedPlaylists((prev) =>
+        prev.map((p) =>
+          p.id === playlistId ? { ...p, movieIds: p.movieIds.filter((id) => id !== imdbID) } : p
+        )
+      );
+    } else {
+      setWatchlistPlaylists((prev) =>
+        prev.map((p) =>
+          p.id === playlistId ? { ...p, movieIds: p.movieIds.filter((id) => id !== imdbID) } : p
+        )
+      );
+    }
   }, []);
 
   const isMovieInPlaylist = useCallback(
-    (playlistId, imdbID) => {
+    (playlistId, imdbID, type = "watchlist") => {
+      const playlists = type === "watched" ? watchedPlaylists : watchlistPlaylists;
       const pl = playlists.find((p) => p.id === playlistId);
       return pl ? pl.movieIds.includes(imdbID) : false;
     },
-    [playlists]
+    [watchlistPlaylists, watchedPlaylists]
   );
 
   const getPlaylistsContaining = useCallback(
-    (imdbID) => playlists.filter((p) => p.movieIds.includes(imdbID)),
-    [playlists]
+    (imdbID, type = "watchlist") => {
+      const playlists = type === "watched" ? watchedPlaylists : watchlistPlaylists;
+      return playlists.filter((p) => p.movieIds.includes(imdbID));
+    },
+    [watchlistPlaylists, watchedPlaylists]
   );
 
   const value = {
     watchList,
     watched,
-    playlists,
+    watchlistPlaylists,
+    watchedPlaylists,
     addToWatchList,
     removeFromWatchList,
     markWatched,
+    markUnwatched,
     isInWatchList,
     isWatched,
     createPlaylist,

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import FeelvieLogo from "./FeelvieLogo";
 
 const DISCOVER_LINKS = [
   { href: "/how-it-works", label: "How it works" },
@@ -76,7 +75,11 @@ export default function Footer() {
         <div className="flex flex-col gap-12 lg:flex-row lg:gap-32">
           {/* Newsletter – width 500px, gap 24px */}
           <div className="flex w-full max-w-[500px] flex-col gap-6">
-            <FeelvieLogo className="h-7 text-sm" />
+            <img 
+              src="/feelvie-full-logo.png" 
+              alt="Feelvie" 
+              className="h-12 w-auto flex-shrink-0 max-w-fit" 
+            />
             <p
               className="text-white"
               style={{ fontSize: 14, fontWeight: 400, lineHeight: "160%" }}

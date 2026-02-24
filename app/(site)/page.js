@@ -2,9 +2,12 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { useWatchlist } from "../context/WatchlistContext";
 import PosterPlaceholder from "../components/PosterPlaceholder";
+import MovieModal from "../components/MovieModal";
+import ClientPortal from "../components/ClientPortal";
 
 const suggestions = [
   "I want a mind-bending sci-fi that feels emotional.",
@@ -14,9 +17,20 @@ const suggestions = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
   const { user, signIn, signOut, hydrated } = useAuth();
   const {
     watchList,
+    watched,
+    watchlistPlaylists,
+    watchedPlaylists,
+    createPlaylist,
+    renamePlaylist,
+    deletePlaylist,
+    addMovieToPlaylist,
+    removeMovieFromPlaylist,
+    isMovieInPlaylist,
+    getPlaylistsContaining,
     addToWatchList,
     removeFromWatchList,
     markWatched,
@@ -46,6 +60,7 @@ export default function HomePage() {
   const [backgroundPosters, setBackgroundPosters] = useState([]);
   const [cursorGlow, setCursorGlow] = useState({ x: 0, y: 0 });
   const [cursorVisible, setCursorVisible] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState(null);
 
   const handleMouseMove = (e) => {
     setCursorGlow({ x: e.clientX, y: e.clientY });
@@ -267,9 +282,11 @@ export default function HomePage() {
       <div className="relative z-10 mx-auto w-full max-w-[1280px] px-4 pb-24 pt-10 md:px-8 md:pt-14 animate-fade-in">
         {/* Logo and hero */}
         <section className="text-center">
-          <h1 className="text-2xl font-medium tracking-tight text-white md:text-3xl" style={{ fontFamily: "Inter, sans-serif" }}>
-            Feelvie
-          </h1>
+          <img 
+            src="/feelvie-full-logo.png" 
+            alt="Feelvie" 
+            className="mx-auto h-auto w-auto max-w-xs md:max-w-sm"
+          />
           <p className="mt-5 max-w-xl mx-auto text-lg leading-relaxed text-white/95 md:text-xl md:leading-relaxed" style={{ fontFamily: "Inter, sans-serif" }}>
             Tell us how you feel… and we&apos;ll tell you what to watch.
           </p>
@@ -516,10 +533,10 @@ export default function HomePage() {
                 .slice(0, 15)
                 .map((m) => (
                   <div key={m.imdbID} className="group flex flex-col">
-                    <Link
-                      href="#"
-                      onClick={(e) => { e.preventDefault(); setMovie(m); setAnalysis(null); }}
-                      className="block overflow-hidden rounded-lg shadow-lg transition duration-200 hover:scale-[1.03] hover:shadow-xl"
+                    <button
+                      type="button"
+                      onClick={() => setSelectedMovie(m)}
+                      className="block overflow-hidden rounded-lg shadow-lg transition duration-200 hover:scale-[1.03] hover:shadow-xl w-full"
                     >
                       <div className="flex aspect-[2/3] w-full items-center justify-center bg-slate-100 dark:bg-white/5">
                         {m.Poster && m.Poster !== "N/A" ? (
@@ -532,7 +549,7 @@ export default function HomePage() {
                           <PosterPlaceholder className="h-full w-full rounded-lg" />
                         )}
                       </div>
-                    </Link>
+                    </button>
                     <p className="mt-3 text-center text-sm font-medium text-white/95 line-clamp-2 group-hover:text-white" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
                       {m.Title}
                     </p>
@@ -541,6 +558,41 @@ export default function HomePage() {
             </div>
           </section>
         )}
+
+        {/* Movie Modal for related movies */}
+        <ClientPortal>
+          <MovieModal
+            movie={selectedMovie}
+            onClose={() => setSelectedMovie(null)}
+            watchlistPlaylists={watchlistPlaylists}
+            watchedPlaylists={watchedPlaylists}
+            getPlaylistsContaining={getPlaylistsContaining}
+            isMovieInPlaylist={isMovieInPlaylist}
+            addMovieToPlaylist={addMovieToPlaylist}
+            removeMovieFromPlaylist={removeMovieFromPlaylist}
+            createPlaylist={createPlaylist}
+            renamePlaylist={renamePlaylist}
+            deletePlaylist={deletePlaylist}
+            isInWatchList={selectedMovie ? isInWatchList(selectedMovie.imdbID) : false}
+            isWatched={selectedMovie ? isWatched(selectedMovie.imdbID) : false}
+            onToggleWatchlist={() => {
+              if (selectedMovie) {
+                if (isInWatchList(selectedMovie.imdbID)) {
+                  removeFromWatchList(selectedMovie.imdbID);
+                } else {
+                  addToWatchList(selectedMovie);
+                }
+              }
+            }}
+            onToggleWatched={() => {
+              if (selectedMovie) {
+                markWatched(selectedMovie);
+              }
+            }}
+            user={user}
+            onSignIn={() => router.push("/signin")}
+          />
+        </ClientPortal>
       </div>
     </div>
   );

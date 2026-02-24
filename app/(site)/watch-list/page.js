@@ -8,6 +8,8 @@ import { useWatchlist } from "../../context/WatchlistContext";
 import PosterPlaceholder from "../../components/PosterPlaceholder";
 import PlaylistPicker from "../../components/PlaylistPicker";
 import PlaylistCategories from "../../components/PlaylistCategories";
+import MovieModal from "../../components/MovieModal";
+import CreatePlaylistModal from "../../components/CreatePlaylistModal";
 
 export default function WatchListPage() {
   const router = useRouter();
@@ -16,7 +18,7 @@ export default function WatchListPage() {
     watchList,
     removeFromWatchList,
     markWatched,
-    playlists,
+    watchlistPlaylists,
     createPlaylist,
     renamePlaylist,
     deletePlaylist,
@@ -24,19 +26,16 @@ export default function WatchListPage() {
     removeMovieFromPlaylist,
     isMovieInPlaylist,
     getPlaylistsContaining,
+    isInWatchList,
+    isWatched,
   } = useWatchlist();
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [activePlaylistId, setActivePlaylistId] = useState(null);
-  const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
-  const [newPlaylistName, setNewPlaylistName] = useState("");
+  const [createOpen, setCreateOpen] = useState(false);
 
   useEffect(() => {
     if (hydrated && !user) router.replace("/signin");
   }, [user, hydrated, router]);
-
-  const handleBackdropClick = (e) => {
-    if (e.target === e.currentTarget) setSelectedMovie(null);
-  };
 
   if (!hydrated || !user) {
     return (
@@ -47,17 +46,8 @@ export default function WatchListPage() {
   }
 
   const filteredList = activePlaylistId
-    ? watchList.filter((m) => isMovieInPlaylist(activePlaylistId, m.imdbID))
+    ? watchList.filter((m) => isMovieInPlaylist(activePlaylistId, m.imdbID, "watchlist"))
     : watchList;
-
-  const handleCreatePlaylist = () => {
-    const name = newPlaylistName.trim();
-    if (name) {
-      createPlaylist(name);
-      setNewPlaylistName("");
-      setShowCreatePlaylist(false);
-    }
-  };
 
   return (
     <div className="mx-auto w-[min(1280px,94%)] px-4 py-12 md:py-16">
@@ -75,17 +65,24 @@ export default function WatchListPage() {
 
       <div className="mt-6">
         <PlaylistCategories
-          playlists={playlists}
+          playlists={watchlistPlaylists}
           activePlaylistId={activePlaylistId}
           onSelectPlaylist={setActivePlaylistId}
           onDeletePlaylist={(id) => {
-            deletePlaylist(id);
+            deletePlaylist(id, "watchlist");
             if (activePlaylistId === id) setActivePlaylistId(null);
           }}
-          onCreatePlaylist={() => setShowCreatePlaylist(true)}
+          onCreatePlaylist={() => setCreateOpen(true)}
           items={watchList}
         />
       </div>
+
+      <CreatePlaylistModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreate={(name, type) => createPlaylist(name, "watchlist")}
+        type="watchlist"
+      />
 
       {watchList.length === 0 ? (
         <p className="mt-6 text-slate-600 dark:text-white/70">
@@ -128,144 +125,36 @@ export default function WatchListPage() {
         </div>
       )}
 
-      {/* Create playlist modal */}
-      {showCreatePlaylist && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-          onClick={(e) => e.target === e.currentTarget && setShowCreatePlaylist(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Create playlist"
-        >
-          <div
-            className="w-full max-w-sm rounded-2xl bg-slate-800 p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold text-white">New playlist</h3>
-            <p className="mt-1 text-sm text-slate-600 dark:text-white/70">
-              Create a category to organize your watch list.
-            </p>
-            <input
-              type="text"
-              value={newPlaylistName}
-              onChange={(e) => setNewPlaylistName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleCreatePlaylist()}
-              placeholder="e.g. Weekend picks, Favorites"
-              className="mt-4 w-full rounded-xl border border-white/20 bg-slate-700 px-4 py-2.5 text-white placeholder:text-white/50"
-            />
-            <div className="mt-4 flex gap-2">
-              <button
-                type="button"
-                onClick={handleCreatePlaylist}
-                className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500"
-              >
-                Create
-              </button>
-              <button
-                type="button"
-                onClick={() => { setShowCreatePlaylist(false); setNewPlaylistName(""); }}
-                className="rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Movie detail modal - opens when poster is clicked */}
-      {selectedMovie && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
-          onClick={handleBackdropClick}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="movie-modal-title"
-        >
-          <div
-            className="glass max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6 md:p-8">
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => setSelectedMovie(null)}
-                  className="rounded-full p-2 text-white/50 hover:bg-slate-700 hover:text-white"
-                  aria-label="Close"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <div className="mt-2 grid gap-6 md:grid-cols-[0.4fr_0.6fr]">
-                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-slate-800">
-                  {selectedMovie.Poster && selectedMovie.Poster !== "N/A" ? (
-                    <img
-                      src={selectedMovie.Poster}
-                      alt={selectedMovie.Title}
-                      className="h-full w-full rounded-2xl object-contain"
-                    />
-                  ) : (
-                    <PosterPlaceholder className="aspect-[2/3] w-full" />
-                  )}
-                </div>
-                <div className="flex flex-col gap-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
-                    {selectedMovie.Genre || "Movie"}
-                  </p>
-                  <h2 id="movie-modal-title" className="text-2xl font-semibold text-white">
-                    {selectedMovie.Title}
-                  </h2>
-                  <div className="flex flex-wrap gap-2 text-sm text-slate-600 dark:text-white/70">
-                    <span>{selectedMovie.Year}</span>
-                    <span>{selectedMovie.Runtime}</span>
-                    <span>⭐ {selectedMovie.imdbRating}</span>
-                  </div>
-                  <p className="text-sm text-slate-600 dark:text-white/75">
-                    {selectedMovie.Plot || "No description available."}
-                  </p>
-                  <div className="mt-4 flex flex-wrap items-center gap-2">
-                    <PlaylistPicker
-                      imdbID={selectedMovie.imdbID}
-                      playlists={playlists}
-                      getPlaylistsContaining={getPlaylistsContaining}
-                      isMovieInPlaylist={isMovieInPlaylist}
-                      addMovieToPlaylist={addMovieToPlaylist}
-                      removeMovieFromPlaylist={removeMovieFromPlaylist}
-                      createPlaylist={createPlaylist}
-                      renamePlaylist={renamePlaylist}
-                      deletePlaylist={deletePlaylist}
-                      label="Playlists"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        markWatched(selectedMovie);
-                        setSelectedMovie(null);
-                      }}
-                      className="rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80 hover:border-red-500 hover:text-white"
-                    >
-                      Watched
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        removeFromWatchList(selectedMovie.imdbID);
-                        setSelectedMovie(null);
-                      }}
-                      className="rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80 hover:border-red-500 hover:text-white"
-                    >
-                      Remove from Watch list
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <MovieModal
+        movie={selectedMovie}
+        onClose={() => setSelectedMovie(null)}
+        watchlistPlaylists={watchlistPlaylists}
+        watchedPlaylists={[]}
+        getPlaylistsContaining={getPlaylistsContaining}
+        isMovieInPlaylist={isMovieInPlaylist}
+        addMovieToPlaylist={addMovieToPlaylist}
+        removeMovieFromPlaylist={removeMovieFromPlaylist}
+        createPlaylist={createPlaylist}
+        renamePlaylist={renamePlaylist}
+        deletePlaylist={deletePlaylist}
+        isInWatchList={selectedMovie ? isInWatchList(selectedMovie.imdbID) : false}
+        isWatched={selectedMovie ? isWatched(selectedMovie.imdbID) : false}
+        onToggleWatchlist={() => {
+          if (selectedMovie) {
+            removeFromWatchList(selectedMovie.imdbID);
+            setSelectedMovie(null);
+          }
+        }}
+        onToggleWatched={() => {
+          if (selectedMovie) {
+            markWatched(selectedMovie);
+            setSelectedMovie(null);
+          }
+        }}
+        user={user}
+        onSignIn={() => router.push("/signin")}
+      />
     </div>
   );
 }
