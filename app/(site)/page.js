@@ -157,33 +157,22 @@ export default function HomePage() {
       .slice(0, 25);
   }, [relatedMovies, history, movie]);
 
-  /** Each row gets a different slice/rotation of the poster list so they don’t repeat the same sequence. */
-  const posterRow1Items = useMemo(() => {
-    if (posterUrls.length < 4) return Array(18).fill(null);
+  /** Split posters into 3 non-overlapping groups so each row has different posters (no repeat across rows). */
+  const { posterRow1Items, posterRow2Items, posterRow3Items } = useMemo(() => {
+    const empty = Array(18).fill(null);
+    if (posterUrls.length < 4) return { posterRow1Items: empty, posterRow2Items: empty, posterRow3Items: empty };
     const n = posterUrls.length;
-    const repeat = Math.ceil(18 / n);
-    const base = Array(repeat).fill(posterUrls).flat().slice(0, 18);
-    return base;
-  }, [posterUrls]);
-
-  const posterRow2Items = useMemo(() => {
-    if (posterUrls.length < 4) return Array(18).fill(null);
-    const n = posterUrls.length;
-    const offset = Math.max(1, Math.floor(n / 3));
-    const rotated = [...posterUrls.slice(offset), ...posterUrls.slice(0, offset)];
-    const repeat = Math.ceil(18 / n);
-    const base = Array(repeat).fill(rotated).flat().slice(0, 18);
-    return base;
-  }, [posterUrls]);
-
-  const posterRow3Items = useMemo(() => {
-    if (posterUrls.length < 4) return Array(18).fill(null);
-    const n = posterUrls.length;
-    const offset = Math.max(1, Math.floor((n * 2) / 3));
-    const rotated = [...posterUrls.slice(offset), ...posterUrls.slice(0, offset)];
-    const repeat = Math.ceil(18 / n);
-    const base = Array(repeat).fill(rotated).flat().slice(0, 18);
-    return base;
+    const c1 = Math.max(1, Math.ceil(n / 3));
+    const c2 = Math.max(1, Math.ceil((n - c1) / 2));
+    const row1 = posterUrls.slice(0, c1);
+    const row2 = posterUrls.slice(c1, c1 + c2);
+    const row3 = posterUrls.slice(c1 + c2, n);
+    const fill = (arr) => (arr.length ? Array(Math.ceil(18 / arr.length)).fill(arr).flat().slice(0, 18) : empty);
+    return {
+      posterRow1Items: fill(row1),
+      posterRow2Items: fill(row2),
+      posterRow3Items: fill(row3)
+    };
   }, [posterUrls]);
 
   const fetchRecommendation = async (promptText, yearOverride = year, options = {}) => {
