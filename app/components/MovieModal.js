@@ -23,12 +23,18 @@ export default function MovieModal({
   onToggleWatched,
   user,
   onSignIn,
+  moodGlowColor,
 }) {
   if (!movie) return null;
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) onClose();
   };
+
+  const [moodR, moodG, moodB] = Array.isArray(moodGlowColor) && moodGlowColor.length >= 3
+    ? moodGlowColor
+    : [178, 34, 34];
+  const moodStyle = { ["--mood-r"]: moodR, ["--mood-g"]: moodG, ["--mood-b"]: moodB };
 
   return (
     <ClientPortal>
@@ -40,8 +46,9 @@ export default function MovieModal({
         aria-labelledby="movie-modal-title"
       >
       <div
-        className="glass flex h-[85vh] w-full max-w-6xl flex-col rounded-3xl shadow-2xl transition-all duration-300 sm:max-h-[90vh] sm:h-auto sm:max-w-5xl md:max-w-6xl overflow-visible"
+        className="glass app-mood flex h-[85vh] w-full max-w-6xl flex-col rounded-3xl shadow-2xl transition-all duration-300 sm:max-h-[90vh] sm:h-auto sm:max-w-5xl md:max-w-6xl overflow-visible"
         onClick={(e) => e.stopPropagation()}
+        style={moodStyle}
       >
         {/* Close Button */}
         <div className="flex shrink-0 justify-end px-4 py-2 sm:px-6 sm:py-3 md:px-8 md:py-4">
@@ -77,7 +84,7 @@ export default function MovieModal({
           {/* Right: Scrollable Details */}
           <div className="modal-scroll flex min-h-0 flex-1 flex-col overflow-y-auto pl-2 pr-2 sm:pl-3 sm:pr-3">
             <div className="flex flex-col gap-3 pb-4 sm:pb-6 md:pb-8">
-              <p className="text-xs font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
+              <p className="mood-accent-text text-xs font-semibold uppercase tracking-wider">
                 {movie.Genre || "Movie"}
               </p>
               <h2 id="movie-modal-title" className="text-2xl font-bold text-white md:text-3xl">
@@ -120,14 +127,14 @@ export default function MovieModal({
               
               {/* Guest: Sign in prompt */}
               {!user && (
-                <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 transition-all duration-300">
+                <div className="mood-accent-box mt-4 rounded-2xl border p-4 transition-all duration-300">
                   <p className="text-sm text-white/90">
                     Want to save this movie to your Watchlist or mark it as Watched? Sign in to start tracking your movies!
                   </p>
                   <button
                     type="button"
                     onClick={onSignIn}
-                    className="mt-3 w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-all duration-300 ease-out hover:scale-105 hover:brightness-110 hover:shadow-[0_0_20px_rgba(178,34,34,0.6)] active:scale-95"
+                    className="mood-accent-button mt-3 w-full rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-all duration-300 ease-out hover:scale-105 hover:brightness-110 active:scale-95"
                   >
                     Sign In
                   </button>
@@ -183,8 +190,8 @@ export default function MovieModal({
                         onClick={onToggleWatched}
                         className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 ${
                           isWatched
-                            ? "border border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:shadow-[0_0_12px_rgba(220,38,38,0.4)]"
-                            : "border border-white/20 text-white/80 hover:border-red-500 hover:text-white hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+                            ? "mood-accent-chip border border-current"
+                            : "mood-accent-border border border-white/20 text-white/80 hover:text-white"
                         }`}
                       >
                         {isWatched ? "✓ Watched" : "Mark as Watched"}
@@ -217,7 +224,7 @@ export default function MovieModal({
                       key={index}
                       type="button"
                       onClick={button.onClick}
-                      className={button.className || "rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80 transition-all duration-300 ease-out hover:scale-105 hover:border-red-500 hover:text-white hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"}
+                      className={button.className || "mood-accent-border rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80 transition-all duration-300 ease-out hover:scale-105 hover:text-white"}
                     >
                       {button.label}
                     </button>

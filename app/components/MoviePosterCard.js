@@ -14,7 +14,7 @@ export default function MoviePosterCard({ movie, onClick, className = "" }) {
     <button
       type="button"
       onClick={onClick}
-      className={`group w-full overflow-hidden rounded-xl border border-white/10 bg-white/5 text-left shadow-lg transition-all duration-300 ease-out hover:scale-[1.08] hover:shadow-[0_8px_24px_rgba(178,34,34,0.4)] hover:border-red-500/50 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500/40 ${className}`}
+      className={`movie-poster-card-mood group w-full overflow-hidden rounded-xl border border-white/10 bg-white/5 text-left shadow-lg transition-all duration-300 ease-out hover:scale-[1.08] active:scale-95 focus:outline-none focus:ring-2 ${className}`}
     >
       <div className="flex aspect-[2/3] w-full items-center justify-center bg-slate-100 dark:bg-white/5">
         {movie?.Poster && movie.Poster !== "N/A" ? (

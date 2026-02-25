@@ -251,6 +251,18 @@
   box-shadow: 0 0 12px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
 }
 
+/* Other related movies – poster card hover/focus use mood */
+.page-home .movie-poster-card-mood:hover,
+.app-mood .movie-poster-card-mood:hover {
+  box-shadow: 0 8px 24px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.4);
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+}
+.page-home .movie-poster-card-mood:focus-visible,
+.app-mood .movie-poster-card-mood:focus-visible {
+  --tw-ring-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+  box-shadow: 0 0 0 2px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+}
+
 /* Playlist / Watch list / Watched – mood accents */
 .mood-accent-dashed {
   border-color: rgba(220, 38, 38, 0.6);
@@ -416,6 +428,7 @@
   z-index: 0;
   height: 213px;
   overflow: hidden;
+  contain: layout style paint;
 }
 
 /* Welcome page: three rows with non-overlapping vertical spacing */
@@ -433,6 +446,9 @@
   display: flex;
   gap: 48px;
   animation: scroll-posters 80s linear infinite;
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .poster-track.reverse {
@@ -516,10 +532,10 @@
 
 @keyframes scroll-posters {
   from {
-    transform: translateX(0);
+    transform: translateZ(0) translateX(0);
   }
   to {
-    transform: translateX(-33.333%);
+    transform: translateZ(0) translateX(-50%);
   }
 }
 

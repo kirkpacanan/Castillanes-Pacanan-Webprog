@@ -55,6 +55,16 @@ function getMoodGlowColor(analysis, lastPrompt) {
   return MOOD_GLOW_COLORS.red;
 }
 
+/** Start loading poster images in the background so they appear faster when the UI updates. */
+function preloadPosterUrls(urls) {
+  if (!urls?.length) return;
+  urls.forEach((url) => {
+    if (!url || url === "N/A") return;
+    const img = new Image();
+    img.src = url;
+  });
+}
+
 export default function HomeClient({ initialPosters = [] }) {
   const router = useRouter();
   const { user, signIn, signOut, hydrated } = useAuth();
@@ -102,18 +112,9 @@ export default function HomeClient({ initialPosters = [] }) {
   const [cursorVisible, setCursorVisible] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
-  const [posterLoadedKeys, setPosterLoadedKeys] = useState(() => new Set());
   const chatScrollRef = useRef(null);
+  const posterPoolRef = useRef([]);
   const { moodGlowColor, setMoodGlowColor } = useMoodGlow();
-
-  const markPosterLoaded = (key) => {
-    setPosterLoadedKeys((prev) => {
-      if (prev.has(key)) return prev;
-      const next = new Set(prev);
-      next.add(key);
-      return next;
-    });
-  };
 
   useEffect(() => {
     if (!chatOpen) return;
@@ -132,6 +133,18 @@ export default function HomeClient({ initialPosters = [] }) {
     setCursorVisible(true);
   };
   const handleMouseLeave = () => setCursorVisible(false);
+
+  useEffect(() => {
+    if (backgroundPosters.length === 0) return;
+    const pool = posterPoolRef.current;
+    const seen = new Set(pool);
+    for (const url of backgroundPosters) {
+      if (url && url !== "N/A" && !seen.has(url)) {
+        seen.add(url);
+        pool.push(url);
+      }
+    }
+  }, [backgroundPosters]);
 
   useEffect(() => {
     if (Array.isArray(initialPosters) && initialPosters.length > 0) return;
@@ -154,16 +167,25 @@ export default function HomeClient({ initialPosters = [] }) {
   }, [analysis]);
 
   const posterUrls = useMemo(() => {
-    const posters = [
+    const base = [
       ...backgroundPosters,
       ...[movie, ...history, ...relatedMovies].map((item) => item?.Poster)
     ].filter((p) => p && p !== "N/A");
-    return [...new Set(posters)];
+    const uniqueBase = [...new Set(base)];
+    const minPosters = 12;
+    if (uniqueBase.length >= minPosters) return uniqueBase;
+    const pool = posterPoolRef.current;
+    const seen = new Set(uniqueBase);
+    const fill = [];
+    for (const url of pool) {
+      if (fill.length + uniqueBase.length >= minPosters) break;
+      if (url && url !== "N/A" && !seen.has(url)) {
+        seen.add(url);
+        fill.push(url);
+      }
+    }
+    return [...uniqueBase, ...fill];
   }, [movie, history, relatedMovies, backgroundPosters]);
-
-  useEffect(() => {
-    setPosterLoadedKeys(new Set());
-  }, [posterUrls]);
 
   const relatedList = useMemo(() => {
     const base = relatedMovies?.length ? relatedMovies : history;
@@ -172,9 +194,10 @@ export default function HomeClient({ initialPosters = [] }) {
       .slice(0, 25);
   }, [relatedMovies, history, movie]);
 
-  /** Split posters into 3 groups (different per row). Repeat each row’s set 3x so the track fills the screen and the scroll animation loops seamlessly (CSS uses -33.33%). */
+  /** Split posters into 3 groups (different per row). Repeat each row’s set exactly 2x so the CSS -50% loop is seamless (no glitch on reset). */
+  const MIN_ITEMS_PER_COPY = 12;
   const { posterRow1Items, posterRow2Items, posterRow3Items } = useMemo(() => {
-    const empty = Array(18).fill(null);
+    const empty = Array(24).fill(null);
     if (posterUrls.length < 3) return { posterRow1Items: empty, posterRow2Items: empty, posterRow3Items: empty };
     const n = posterUrls.length;
     const c1 = Math.max(1, Math.ceil(n / 3));
@@ -182,7 +205,12 @@ export default function HomeClient({ initialPosters = [] }) {
     const row1 = posterUrls.slice(0, c1);
     const row2 = posterUrls.slice(c1, c1 + c2);
     const row3 = posterUrls.slice(c1 + c2, n);
-    const repeatForTrack = (arr) => (arr.length ? [...arr, ...arr, ...arr] : empty);
+    const repeatForTrack = (arr) => {
+      if (!arr.length) return empty;
+      const repeat = Math.ceil(MIN_ITEMS_PER_COPY / arr.length);
+      const oneCopy = Array(repeat).fill(arr).flat().slice(0, MIN_ITEMS_PER_COPY);
+      return [...oneCopy, ...oneCopy];
+    };
     return {
       posterRow1Items: repeatForTrack(row1),
       posterRow2Items: repeatForTrack(row2),
@@ -208,6 +236,20 @@ export default function HomeClient({ initialPosters = [] }) {
   };
 
   const applyRecommendation = (payload, promptText) => {
+    const posterUrlsFromPayload = [
+      payload.movie?.Poster,
+      ...(payload.relatedMovies || []).map((m) => m?.Poster)
+    ].filter((p) => p && p !== "N/A");
+    preloadPosterUrls(posterUrlsFromPayload);
+    const pool = posterPoolRef.current;
+    const seen = new Set(pool);
+    for (const url of posterUrlsFromPayload) {
+      if (!seen.has(url)) {
+        seen.add(url);
+        pool.push(url);
+      }
+    }
+    if (pool.length > 48) posterPoolRef.current = pool.slice(-48);
     setMovie(payload.movie);
     setAnalysis(payload.analysis);
     setRelatedMovies(payload.relatedMovies || []);
@@ -343,27 +385,16 @@ export default function HomeClient({ initialPosters = [] }) {
           }}
         />
       </div>
-      {/* Floating poster rows – each row has unique posters only (no repeat within or across rows) */}
+      {/* Floating poster rows – show images immediately when we have URLs (no loading state) */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         <div className="poster-row poster-row-1">
           <div className="poster-track">
             {posterRow1Items.map((url, i) => (
               <div key={`row1-${i}`} className="poster-card">
                 {url ? (
-                  <>
-                    <div className="poster-card-skeleton" aria-hidden />
-                    <img
-                      src={url}
-                      alt=""
-                      loading="lazy"
-                      className={posterLoadedKeys.has(`row1-${i}`) ? "poster-img-loaded" : "poster-img-loading"}
-                      onLoad={() => markPosterLoaded(`row1-${i}`)}
-                    />
-                  </>
+                  <img src={url} alt="" loading="lazy" />
                 ) : (
-                  <div className="poster-card-placeholder">
-                    <PosterPlaceholder className="h-full w-full" ariaHidden />
-                  </div>
+                  <PosterPlaceholder className="h-full w-full" ariaHidden />
                 )}
               </div>
             ))}
@@ -374,20 +405,9 @@ export default function HomeClient({ initialPosters = [] }) {
             {posterRow2Items.map((url, i) => (
               <div key={`row2-${i}`} className="poster-card">
                 {url ? (
-                  <>
-                    <div className="poster-card-skeleton" aria-hidden />
-                    <img
-                      src={url}
-                      alt=""
-                      loading="lazy"
-                      className={posterLoadedKeys.has(`row2-${i}`) ? "poster-img-loaded" : "poster-img-loading"}
-                      onLoad={() => markPosterLoaded(`row2-${i}`)}
-                    />
-                  </>
+                  <img src={url} alt="" loading="lazy" />
                 ) : (
-                  <div className="poster-card-placeholder">
-                    <PosterPlaceholder className="h-full w-full" ariaHidden />
-                  </div>
+                  <PosterPlaceholder className="h-full w-full" ariaHidden />
                 )}
               </div>
             ))}
@@ -398,20 +418,9 @@ export default function HomeClient({ initialPosters = [] }) {
             {posterRow3Items.map((url, i) => (
               <div key={`row3-${i}`} className="poster-card">
                 {url ? (
-                  <>
-                    <div className="poster-card-skeleton" aria-hidden />
-                    <img
-                      src={url}
-                      alt=""
-                      loading="lazy"
-                      className={posterLoadedKeys.has(`row3-${i}`) ? "poster-img-loaded" : "poster-img-loading"}
-                      onLoad={() => markPosterLoaded(`row3-${i}`)}
-                    />
-                  </>
+                  <img src={url} alt="" loading="lazy" />
                 ) : (
-                  <div className="poster-card-placeholder">
-                    <PosterPlaceholder className="h-full w-full" ariaHidden />
-                  </div>
+                  <PosterPlaceholder className="h-full w-full" ariaHidden />
                 )}
               </div>
             ))}
@@ -884,6 +893,7 @@ export default function HomeClient({ initialPosters = [] }) {
           <MovieModal
             movie={selectedMovie}
             onClose={() => setSelectedMovie(null)}
+            moodGlowColor={moodGlowColor}
             watchlistPlaylists={watchlistPlaylists}
             watchedPlaylists={watchedPlaylists}
             getPlaylistsContaining={getPlaylistsContaining}
