@@ -630,6 +630,12 @@ const fetchTmdbMovieAsOmdbShape = async (tmdbId) => {
   return normalizeTmdbToOmdbShape(details);
 };
 
+/** Ensure poster URL is HTTPS so images load on deployed HTTPS (e.g. Vercel). */
+const posterHttps = (url) => {
+  if (!url || url === "N/A" || typeof url !== "string") return url;
+  return url.replace(/^http:\/\//i, "https://");
+};
+
 /** Dedupe key: same movie from both APIs (prefer OMDB entry when both have imdbID). */
 const movieDedupeKey = (m) => m.imdbID || `${m.Title}_${m.Year}`;
 
@@ -973,9 +979,16 @@ export async function POST(request) {
     }
   }
 
+  const outMovie = movie
+    ? { ...movie, Poster: posterHttps(movie.Poster) || movie.Poster }
+    : null;
+  const outRelated = (relatedMovies || []).map((m) =>
+    m ? { ...m, Poster: posterHttps(m.Poster) || m.Poster } : m
+  );
+
   return Response.json({
-    movie,
-    relatedMovies,
+    movie: outMovie,
+    relatedMovies: outRelated,
     meta: {
       yearRelaxed
     },
