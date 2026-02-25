@@ -3,6 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import CreatePlaylistModal from "./CreatePlaylistModal";
 import ClientPortal from "./ClientPortal";
+import { useMoodGlow } from "../context/MoodGlowContext";
+
+const DEFAULT_MOOD = [178, 34, 34];
 
 export default function PlaylistPicker({
   imdbID,
@@ -22,6 +25,8 @@ export default function PlaylistPicker({
   const [createPlaylistOpen, setCreatePlaylistOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
+  const { moodGlowColor } = useMoodGlow();
+  const [r, g, b] = moodGlowColor ?? DEFAULT_MOOD;
 
   const containing = getPlaylistsContaining(imdbID);
 
@@ -43,7 +48,7 @@ export default function PlaylistPicker({
       <button
         type="button"
         onClick={() => setModalOpen(true)}
-        className={`inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-2 text-sm font-medium text-white/80 transition-all duration-300 ease-out hover:scale-105 hover:border-red-500 hover:bg-white/5 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)] active:scale-95 ${className}`}
+        className={`playlist-picker-trigger inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-2 text-sm font-medium text-white/80 transition-all duration-300 ease-out hover:scale-105 hover:bg-white/5 active:scale-95 ${className}`}
         aria-expanded={modalOpen}
         aria-haspopup="dialog"
       >
@@ -57,7 +62,11 @@ export default function PlaylistPicker({
       {modalOpen && (
         <ClientPortal>
           <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4" onClick={() => setModalOpen(false)} role="dialog" aria-modal="true">
-            <div className="glass w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="app-mood glass w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+              style={{ ["--mood-r"]: r, ["--mood-g"]: g, ["--mood-b"]: b }}
+              onClick={(e) => e.stopPropagation()}
+            >
             {/* Header */}
             <div className="flex items-center justify-between border-b border-white/10 px-6 py-4 shrink-0">
               <h3 className="text-xl font-semibold text-white">Manage Playlists</h3>
@@ -89,7 +98,7 @@ export default function PlaylistPicker({
                               value={editName}
                               onChange={(e) => setEditName(e.target.value)}
                               onKeyDown={(e) => e.key === "Enter" && handleRename()}
-                              className="flex-1 rounded border border-white/20 bg-slate-700 px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                              className="playlist-edit-input flex-1 rounded border border-white/20 bg-slate-700 px-2 py-1.5 text-sm text-white focus:outline-none"
                               autoFocus
                             />
                             <button type="button" onClick={handleRename} className="text-xs font-medium text-red-400 hover:text-red-300 transition-colors">
@@ -116,7 +125,7 @@ export default function PlaylistPicker({
                               <button
                                 type="button"
                                 onClick={() => removeMovieFromPlaylist(p.id, imdbID)}
-                                className="rounded p-1.5 text-white/50 hover:bg-red-900/30 hover:text-red-400 transition-all duration-200"
+                                className="mood-accent-remove rounded p-1.5 text-white/50 transition-all duration-200"
                                 aria-label="Remove from playlist"
                               >
                                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,7 +155,7 @@ export default function PlaylistPicker({
                           key={p.id}
                           type="button"
                           onClick={() => addMovieToPlaylist(p.id, imdbID)}
-                          className="w-full flex items-center rounded-lg px-3 py-2 text-left text-sm text-white/80 bg-slate-800/50 border border-white/5 hover:bg-red-500/10 hover:border-red-500/30 hover:text-white transition-all duration-200"
+                          className="playlist-add-item w-full flex items-center rounded-lg px-3 py-2 text-left text-sm text-white/80 bg-slate-800/50 border border-white/5 transition-all duration-200"
                         >
                           {p.name}
                         </button>
@@ -165,7 +174,7 @@ export default function PlaylistPicker({
               <button
                 type="button"
                 onClick={() => setCreatePlaylistOpen(true)}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-red-400/60 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:border-red-400 hover:bg-red-500/20 hover:shadow-[0_0_12px_rgba(220,38,38,0.4)] active:scale-95"
+                className="mood-accent-dashed w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-3 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 active:scale-95"
               >
                 <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

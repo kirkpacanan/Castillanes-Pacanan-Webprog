@@ -68,7 +68,7 @@ export default function WatchedPage() {
           </div>
           <Link
             href="/"
-            className="feelvie-button inline-flex items-center justify-center rounded-full px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white w-full sm:w-auto transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95"
+            className="feelvie-button inline-flex items-center justify-center rounded-full px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white w-full sm:w-auto transition-all duration-300 ease-out hover:scale-105 active:scale-95"
           >
             Back to home
           </Link>

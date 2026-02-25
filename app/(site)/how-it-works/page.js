@@ -132,8 +132,7 @@ export default function HowItWorksPage() {
       {/* Header */}
       <header
         ref={headerRef}
-        className={`relative z-10 flex flex-col items-center gap-16 px-8 py-28 text-center md:px-16 ${inView.has("header") ? "hiw-animate hiw-in-view hiw-fade-up" : "hiw-animate hiw-fade-up"}`}
-        style={{ background: "linear-gradient(180deg, #350A0A 0%, #1a0a0a 55%, #05050A 100%)" }}
+        className={`hiw-header-bg relative z-10 flex flex-col items-center gap-16 px-8 py-28 text-center md:px-16 ${inView.has("header") ? "hiw-animate hiw-in-view hiw-fade-up" : "hiw-animate hiw-fade-up"}`}
       >
         <div className="flex max-w-[860px] flex-col items-center gap-6">
           <p className="feelvie-kicker">Process</p>
@@ -152,13 +151,13 @@ export default function HowItWorksPage() {
         <div className="flex flex-row items-center gap-4">
           <Link
             href="/"
-            className="feelvie-button flex items-center justify-center rounded-full px-5 sm:px-6 py-2 sm:py-2.5 text-base sm:text-lg font-medium text-white w-full sm:w-auto transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95"
+            className="feelvie-button flex items-center justify-center rounded-full px-5 sm:px-6 py-2 sm:py-2.5 text-base sm:text-lg font-medium text-white w-full sm:w-auto transition-all duration-300 ease-out hover:scale-105 active:scale-95"
           >
             Home
           </Link>
           <Link
             href="/"
-            className="feelvie-button-ghost flex items-center justify-center rounded-full px-5 sm:px-6 py-2 sm:py-2.5 text-base sm:text-lg font-medium text-white w-full sm:w-auto transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+            className="feelvie-button-ghost flex items-center justify-center rounded-full px-5 sm:px-6 py-2 sm:py-2.5 text-base sm:text-lg font-medium text-white w-full sm:w-auto transition-all duration-300 ease-out hover:scale-105"
           >
             Movie suggestion
           </Link>
@@ -181,7 +180,7 @@ export default function HowItWorksPage() {
         </div>
         <div className="grid w-full max-w-[1152px] grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
           {STEPS.map((step, i) => (
-            <div key={step.title} className={`hiw-step ${["hiw-delay-1", "hiw-delay-2", "hiw-delay-3"][i]} feelvie-card flex flex-col gap-4 sm:gap-6 p-6 sm:p-8 text-left transition-all duration-300 ease-out hover:shadow-[0_8px_24px_rgba(178,34,34,0.3)] hover:scale-[1.02] hover:border-red-500/30 group`}>
+            <div key={step.title} className={`hiw-step ${["hiw-delay-1", "hiw-delay-2", "hiw-delay-3"][i]} feelvie-card flex flex-col gap-4 sm:gap-6 p-6 sm:p-8 text-left transition-all duration-300 ease-out hover:scale-[1.02] group`}>
               <div className="flex items-center justify-between">
                 <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
                   <Icon name={step.icon} className="h-8 w-8 sm:h-10 sm:w-10" />
@@ -199,7 +198,7 @@ export default function HowItWorksPage() {
         </div>
         <div className="grid w-full max-w-[980px] grid-cols-1 gap-4 sm:grid-cols-3">
           {HIGHLIGHTS.map((item, i) => (
-            <div key={item.title} className={`hiw-step ${["hiw-delay-2", "hiw-delay-3", "hiw-delay-4"][i]} feelvie-card-muted flex flex-col gap-3 p-5 text-left transition-all duration-300 ease-out hover:border-red-500/30 hover:shadow-[0_4px_12px_rgba(178,34,34,0.2)] hover:scale-[1.02]`}>
+            <div key={item.title} className={`hiw-step ${["hiw-delay-2", "hiw-delay-3", "hiw-delay-4"][i]} feelvie-card-muted flex flex-col gap-3 p-5 text-left transition-all duration-300 ease-out hover:scale-[1.02]`}>
               <p className="text-base font-semibold text-white">{item.title}</p>
               <p className="text-sm leading-[170%] text-white/70">{item.body}</p>
             </div>
@@ -208,13 +207,13 @@ export default function HowItWorksPage() {
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 px-4">
           <Link
             href="/"
-            className="feelvie-button-ghost rounded-full px-5 sm:px-6 py-2 sm:py-2.5 text-base sm:text-lg font-medium text-white w-full sm:w-auto text-center transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+            className="feelvie-button-ghost rounded-full px-5 sm:px-6 py-2 sm:py-2.5 text-base sm:text-lg font-medium text-white w-full sm:w-auto text-center transition-all duration-300 ease-out hover:scale-105"
           >
             Learn more
           </Link>
           <Link
             href="/about"
-            className="flex items-center justify-center gap-2 rounded-full text-base sm:text-lg font-medium text-white w-full sm:w-auto transition-all duration-300 ease-out hover:scale-105 hover:text-red-400 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+            className="feelvie-link-mood flex items-center justify-center gap-2 rounded-full text-base sm:text-lg font-medium text-white w-full sm:w-auto transition-all duration-300 ease-out hover:scale-105"
           >
             More
             <svg className="h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300 ease-out group-hover:translate-x-1" fill="currentColor" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
@@ -225,8 +224,7 @@ export default function HowItWorksPage() {
       {/* Layout 442 — dark overlay section (two columns) */}
       <section
         ref={overlayRef}
-        className={`hiw-section relative z-10 flex flex-col items-center gap-12 sm:gap-20 px-4 sm:px-8 py-16 sm:py-28 md:px-16 ${inView.has("overlay") ? "hiw-in-view" : ""}`}
-        style={{ background: "linear-gradient(120deg, rgba(53, 10, 10, 0.55), rgba(5, 5, 10, 0.9)), #05050A" }}
+        className={`hiw-overlay-bg hiw-section relative z-10 flex flex-col items-center gap-12 sm:gap-20 px-4 sm:px-8 py-16 sm:py-28 md:px-16 ${inView.has("overlay") ? "hiw-in-view" : ""}`}
       >
         <div className="grid w-full max-w-[1152px] grid-cols-1 gap-12 sm:gap-20 lg:grid-cols-2">
           <div className="hiw-overlay-left flex flex-col gap-3 sm:gap-4">
@@ -239,7 +237,7 @@ export default function HowItWorksPage() {
             <p className="max-w-[536px] text-base sm:text-lg md:text-xl leading-[170%] text-white/85">
               Behind every recommendation is sentiment analysis, emotional mapping, and a curated database of films. Feelvie doesn&apos;t just predict what you want—it understands what you need.
             </p>
-            <div className="feelvie-card-muted flex flex-col gap-4 p-6 transition-all duration-300 ease-out hover:border-red-500/30 hover:shadow-[0_4px_12px_rgba(178,34,34,0.2)] hover:scale-[1.02]">
+            <div className="feelvie-card-muted flex flex-col gap-4 p-6 transition-all duration-300 ease-out hover:scale-[1.02]">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/60">Signal stack</p>
               <div className="flex flex-col gap-3 text-sm text-white/80">
                 <span>Language sentiment</span>
@@ -248,10 +246,10 @@ export default function HowItWorksPage() {
               </div>
             </div>
             <div className="flex flex-row items-center gap-6">
-              <Link href="/" className="feelvie-button-ghost rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]">
+              <Link href="/" className="feelvie-button-ghost rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105">
                 Discover
               </Link>
-              <Link href="/about" className="flex items-center gap-2 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105 hover:text-red-400 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]">
+              <Link href="/about" className="feelvie-link-mood flex items-center gap-2 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105">
                 More
                 <svg className="h-6 w-6 transition-transform duration-300 ease-out group-hover:translate-x-1" fill="currentColor" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" /></svg>
               </Link>
@@ -263,14 +261,13 @@ export default function HowItWorksPage() {
       {/* Layout 31 — bg #350A0A, list + placeholder image */}
       <section
         ref={listRef}
-        className={`hiw-section relative z-10 flex flex-col items-center gap-20 px-8 py-28 md:px-16 ${inView.has("list") ? "hiw-in-view" : ""}`}
-        style={{ background: "linear-gradient(160deg, #350A0A 0%, #1a0a0a 60%, #05050A 100%)" }}
+        className={`hiw-list-bg hiw-section relative z-10 flex flex-col items-center gap-20 px-8 py-28 md:px-16 ${inView.has("list") ? "hiw-in-view" : ""}`}
       >
         <div className="grid w-full max-w-[1152px] grid-cols-1 gap-20 lg:grid-cols-2">
           <div className="flex flex-col gap-8">
             <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
               {LIST_ITEMS.map((item, i) => (
-                <div key={item.title} className={`hiw-list-card ${["hiw-delay-0", "hiw-delay-1", "hiw-delay-2", "hiw-delay-3"][i]} feelvie-card flex flex-col gap-4 p-6 transition-all duration-300 ease-out hover:shadow-[0_8px_24px_rgba(178,34,34,0.3)] hover:scale-[1.02] hover:border-red-500/30`}>
+                <div key={item.title} className={`hiw-list-card ${["hiw-delay-0", "hiw-delay-1", "hiw-delay-2", "hiw-delay-3"][i]} feelvie-card flex flex-col gap-4 p-6 transition-all duration-300 ease-out hover:scale-[1.02]`}>
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
                     <Icon name={item.icon} className="h-9 w-9" />
                   </div>
@@ -278,7 +275,7 @@ export default function HowItWorksPage() {
                     {item.title}
                   </h4>
                   <p className="text-sm leading-[170%] text-white/80 md:text-base">{item.body}</p>
-                  <Link href="/" className="text-sm font-semibold text-white/80 transition-all duration-300 ease-out hover:scale-105 hover:text-white hover:shadow-[0_0_8px_rgba(178,34,34,0.2)]">
+                  <Link href="/" className="feelvie-link-mood text-sm font-semibold text-white/80 transition-all duration-300 ease-out hover:scale-105 hover:text-white">
                     Learn more
                   </Link>
                 </div>
@@ -286,7 +283,7 @@ export default function HowItWorksPage() {
             </div>
           </div>
           <div
-            className="hiw-list-card hiw-delay-4 min-h-[300px] w-full rounded-[40px] border border-white/10 bg-gradient-to-br from-white/10 to-transparent md:min-h-[400px]"
+            className="hiw-list-panel hiw-list-card hiw-delay-4 min-h-[300px] w-full rounded-[40px] border border-white/10 md:min-h-[400px]"
             style={{ maxWidth: 536 }}
           />
         </div>
@@ -308,7 +305,7 @@ export default function HowItWorksPage() {
         </div>
         <ul className="flex w-full max-w-[820px] flex-col gap-6">
           {FAQ.map((item, i) => (
-            <li key={item.q} className={`hiw-faq-item ${["hiw-delay-1", "hiw-delay-2", "hiw-delay-3", "hiw-delay-4", "hiw-delay-5"][i]} feelvie-card-muted flex flex-col gap-3 p-6 transition-all duration-300 ease-out hover:border-red-500/30 hover:shadow-[0_4px_12px_rgba(178,34,34,0.2)] hover:bg-white/[0.08]`}>
+            <li key={item.q} className={`hiw-faq-item ${["hiw-delay-1", "hiw-delay-2", "hiw-delay-3", "hiw-delay-4", "hiw-delay-5"][i]} feelvie-card-muted flex flex-col gap-3 p-6 transition-all duration-300 ease-out hover:bg-white/[0.08]`}>
               <h3 className="text-lg font-semibold leading-[160%] text-white">{item.q}</h3>
               <p className="text-sm leading-[170%] text-white/80 md:text-base">{item.a}</p>
             </li>
@@ -323,7 +320,7 @@ export default function HowItWorksPage() {
           </p>
           <Link
             href="/contact"
-            className="feelvie-button-ghost rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+            className="feelvie-button-ghost rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105"
           >
             Contact us
           </Link>
@@ -346,13 +343,13 @@ export default function HowItWorksPage() {
           <div className="flex flex-row items-center gap-4">
             <Link
               href="/"
-              className="feelvie-button rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95"
+              className="feelvie-button rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105 active:scale-95"
             >
               Sign in
             </Link>
             <Link
               href="/"
-              className="feelvie-button-ghost rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+              className="feelvie-button-ghost rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105"
             >
               Create account
             </Link>

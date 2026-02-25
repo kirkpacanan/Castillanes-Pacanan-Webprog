@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -17,14 +17,41 @@
 }
 
 .feelvie-page {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Inter", sans-serif;
   background: var(--feelvie-deep);
   color: #fff;
 }
 
 .feelvie-title {
-  font-family: "Fraunces", serif;
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
   letter-spacing: -0.01em;
+}
+
+/* Mood-based outer glow from the logo text shape (default red, smooth transition) */
+.logo-mood-glow {
+  --mood-r: 178;
+  --mood-g: 34;
+  --mood-b: 34;
+}
+.logo-mood-glow img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 0 20px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.65))
+    drop-shadow(0 0 48px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.4))
+    drop-shadow(0 0 80px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3))
+    drop-shadow(0 0 120px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.15));
+  transition: filter 1.4s ease;
+}
+.logo-mood-glow-footer img {
+  width: auto;
+  height: 2.25rem; /* 36px – footer logo */
+}
+@media (min-width: 640px) {
+  .logo-mood-glow-footer img {
+    height: 2.5rem; /* 40px on sm+ */
+  }
 }
 
 .feelvie-kicker {
@@ -62,6 +89,15 @@
   background: radial-gradient(circle, rgba(120, 20, 20, 0.55) 0%, transparent 70%);
 }
 
+/* Mood-based ambient spots on all pages (How it works, About, Contact, Sign in, etc.) */
+.app-mood .feelvie-ambient-spot-1 {
+  background: radial-gradient(circle, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.55) 0%, transparent 65%);
+}
+
+.app-mood .feelvie-ambient-spot-2 {
+  background: radial-gradient(circle, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.4) 0%, transparent 70%);
+}
+
 .feelvie-grid {
   position: absolute;
   inset: -10%;
@@ -71,6 +107,44 @@
   background-size: 120px 120px;
   opacity: 0.2;
   mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.9), transparent 70%);
+}
+
+/* Search bar: light moves along the border when searching (box stays fixed) */
+@property --search-border-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.search-bar-border-wrap {
+  --mood-r: 178;
+  --mood-g: 34;
+  --mood-b: 34;
+  background: transparent;
+}
+.search-bar-border-wrap--loading {
+  background: conic-gradient(
+    from var(--search-border-angle),
+    transparent 0deg,
+    transparent 240deg,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.9) 270deg,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5) 300deg,
+    transparent 330deg,
+    transparent 360deg
+  );
+  animation: search-bar-light-move 2s linear infinite;
+}
+@keyframes search-bar-light-move {
+  to {
+    --search-border-angle: 360deg;
+  }
+}
+
+/* Mood defaults (overridden by inline style on .page-home or .app-mood) */
+.page-home,
+.app-mood {
+  --mood-r: 178;
+  --mood-g: 34;
+  --mood-b: 34;
 }
 
 .feelvie-card {
@@ -92,6 +166,208 @@
   border: 1px solid rgba(178, 34, 34, 0.45);
   color: #fff;
   border-radius: 9999px;
+}
+
+/* Mood-based UI: buttons, chips, cards use --mood-r/g/b on .page-home and .app-mood (all pages) */
+.page-home .feelvie-button,
+.app-mood .feelvie-button {
+  background: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+  border-bottom: 4px solid rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.6);
+}
+
+.page-home .feelvie-button:hover,
+.app-mood .feelvie-button:hover {
+  box-shadow: 0 0 20px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+}
+
+.app-mood .feelvie-button:focus-visible {
+  outline: none;
+  --tw-ring-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.6);
+}
+
+.app-mood .feelvie-button-ghost:hover {
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.4);
+  box-shadow: 0 0 12px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+}
+
+.app-mood .feelvie-card:hover {
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+  box-shadow: 0 8px 24px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3), 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+.app-mood .feelvie-card-muted:hover {
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+  box-shadow: 0 4px 12px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2);
+}
+
+/* Mood link (e.g. "More" links) – hover uses mood instead of red */
+.app-mood .feelvie-link-mood:hover {
+  color: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+  box-shadow: 0 0 12px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+}
+
+/* Mood accent for labels, chips, and boxes */
+.page-home .mood-accent-text,
+.app-mood .mood-accent-text {
+  color: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+}
+
+.page-home .mood-accent-chip,
+.app-mood .mood-accent-chip {
+  background: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.1);
+  color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.95);
+}
+
+.page-home .mood-accent-chip:hover,
+.app-mood .mood-accent-chip:hover {
+  background: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2);
+  box-shadow: 0 0 8px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+}
+
+.page-home .mood-accent-box,
+.app-mood .mood-accent-box {
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+  background: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.1);
+}
+
+.page-home .mood-accent-button,
+.app-mood .mood-accent-button {
+  background: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+}
+
+.page-home .mood-accent-button:hover,
+.app-mood .mood-accent-button:hover {
+  box-shadow: 0 0 20px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.6);
+}
+
+.page-home .mood-accent-border,
+.app-mood .mood-accent-border {
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+}
+
+.page-home .mood-accent-border:hover,
+.app-mood .mood-accent-border:hover {
+  border-color: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+  box-shadow: 0 0 12px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+}
+
+/* Playlist / Watch list / Watched – mood accents */
+.mood-accent-dashed {
+  border-color: rgba(220, 38, 38, 0.6);
+  background: rgba(220, 38, 38, 0.1);
+  color: rgb(248, 113, 113);
+}
+.mood-accent-dashed:hover {
+  border-color: rgb(239, 68, 68);
+  background: rgba(220, 38, 38, 0.2);
+  box-shadow: 0 0 12px rgba(220, 38, 38, 0.4);
+}
+.app-mood .mood-accent-dashed {
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.6);
+  background: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.1);
+  color: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+}
+.app-mood .mood-accent-dashed:hover {
+  border-color: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+  background: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2);
+  box-shadow: 0 0 12px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.4);
+}
+.app-mood .playlist-pill--active,
+.app-mood .playlist-pill.playlist-pill--active {
+  background: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+  box-shadow: 0 0 16px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+}
+.app-mood .playlist-pill:not(.playlist-pill--active):hover {
+  box-shadow: 0 0 8px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+}
+.app-mood .playlist-pill:focus-visible {
+  outline: none;
+  --tw-ring-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+}
+.app-mood .playlist-pill.focus-within {
+  --tw-ring-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+}
+.playlist-picker-trigger:hover {
+  border-color: rgba(239, 68, 68, 0.8);
+  box-shadow: 0 0 12px rgba(178, 34, 34, 0.3);
+}
+.app-mood .playlist-picker-trigger:hover {
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.6);
+  box-shadow: 0 0 12px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+}
+.playlist-add-item:hover {
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: white;
+}
+.app-mood .playlist-add-item:hover {
+  background: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.1);
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+  color: white;
+}
+.mood-accent-text-btn {
+  color: rgb(248, 113, 113);
+}
+.mood-accent-text-btn:hover {
+  color: rgb(252, 165, 165);
+}
+.app-mood .mood-accent-text-btn {
+  color: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+}
+.app-mood .mood-accent-text-btn:hover {
+  color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.85);
+}
+.mood-accent-remove:hover {
+  background: rgba(220, 38, 38, 0.2);
+  color: rgb(248, 113, 113);
+}
+.app-mood .mood-accent-remove:hover {
+  background: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.15);
+  color: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+}
+.app-mood .playlist-edit-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+}
+
+/* Form inputs: focus border and ring use mood color inside .app-mood */
+.app-mood .feelvie-input:focus {
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+  --tw-ring-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+}
+.app-mood .feelvie-input:focus-visible {
+  outline: none;
+}
+
+/* Mood chat icon (floating button): gentle float like contact circles; icon is hidden when panel is open so no need to stop animation */
+.mood-chat-icon {
+  animation: contact-bubble-float 3s ease-in-out infinite;
+}
+
+/* Mood chat panel (portaled): Send button uses mood color */
+.mood-chat-panel .feelvie-button {
+  background: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+  border-bottom: 4px solid rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.6);
+}
+
+.mood-chat-panel .feelvie-button:hover {
+  box-shadow: 0 0 20px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+}
+
+/* Footer mood: social icons and link underlines */
+.footer-mood .group:hover .footer-social-icon {
+  color: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+}
+
+.footer-mood .footer-link-underline {
+  background: linear-gradient(to right, rgb(var(--mood-r), var(--mood-g), var(--mood-b)), rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.8));
+}
+
+.page-home .feelvie-chip,
+.app-mood .feelvie-chip {
+  background: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.16);
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.45);
 }
 
 .feelvie-divider {
@@ -138,6 +414,19 @@
   opacity: 0.18;
   pointer-events: none;
   z-index: 0;
+  height: 213px;
+  overflow: hidden;
+}
+
+/* Welcome page: three rows with non-overlapping vertical spacing */
+.page-home .poster-row.poster-row-1 {
+  top: 12vh;
+}
+.page-home .poster-row.poster-row-2 {
+  top: 48vh;
+}
+.page-home .poster-row.poster-row-3 {
+  top: 84vh;
 }
 
 .poster-track {
@@ -226,7 +515,17 @@
   animation: fade-in 0.5s ease-out forwards;
 }
 
-/* Home page: moving red light (futuristic) */
+/* Home page: mood-based ambient glow (smooth color transition) */
+@property --mood-r { syntax: "<number>"; inherits: true; initial-value: 178; }
+@property --mood-g { syntax: "<number>"; inherits: true; initial-value: 34; }
+@property --mood-b { syntax: "<number>"; inherits: true; initial-value: 34; }
+
+.page-home-mood-glow-wrapper {
+  --mood-r: 178;
+  --mood-g: 34;
+  --mood-b: 34;
+}
+
 @keyframes home-red-glow-1 {
   0%, 100% {
     transform: translate(15%, 20%) scale(1);
@@ -262,32 +561,34 @@
 .page-home-red-glow-1 {
   background: radial-gradient(
     circle,
-    rgba(180, 30, 40, 0.5) 0%,
-    rgba(140, 15, 25, 0.2) 35%,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5) 0%,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2) 35%,
     transparent 65%
   );
   animation: home-red-glow-1 20s ease-in-out infinite;
+  transition: --mood-r 1.4s ease, --mood-g 1.4s ease, --mood-b 1.4s ease;
 }
 .page-home-red-glow-2 {
   background: radial-gradient(
     circle,
-    rgba(220, 50, 60, 0.35) 0%,
-    rgba(160, 20, 30, 0.1) 40%,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.35) 0%,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.1) 40%,
     transparent 70%
   );
   animation: home-red-glow-2 25s ease-in-out infinite;
   animation-delay: -8s;
+  transition: --mood-r 1.4s ease, --mood-g 1.4s ease, --mood-b 1.4s ease;
 }
 .page-home-red-glow-cursor {
   width: 60vmax;
   height: 60vmax;
   background: radial-gradient(
     circle,
-    rgba(200, 40, 50, 0.55) 0%,
-    rgba(150, 25, 35, 0.2) 40%,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.55) 0%,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2) 40%,
     transparent 65%
   );
-  transition: opacity 0.3s ease;
+  transition: opacity 0.3s ease, --mood-r 1.4s ease, --mood-g 1.4s ease, --mood-b 1.4s ease;
   will-change: left, top;
 }
 
@@ -330,6 +631,34 @@
   );
   transition: opacity 0.3s ease;
   will-change: left, top;
+}
+
+/* Contact page glows use mood when inside .app-mood */
+.app-mood .contact-page-red-glow-1 {
+  background: radial-gradient(
+    circle,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5) 0%,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2) 35%,
+    transparent 65%
+  );
+}
+
+.app-mood .contact-page-red-glow-2 {
+  background: radial-gradient(
+    circle,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.35) 0%,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.1) 40%,
+    transparent 70%
+  );
+}
+
+.app-mood .contact-page-red-glow-cursor {
+  background: radial-gradient(
+    circle,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.55) 0%,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2) 40%,
+    transparent 65%
+  );
 }
 
 /* Contact page: moving red glow gradient */
@@ -438,6 +767,137 @@
   opacity: 0;
 }
 
+/* Contact floating notification circles */
+@keyframes contact-bubble-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.contact-bubble {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+}
+.contact-bubble-left {
+  left: 8px;
+}
+.contact-bubble-right {
+  right: 8px;
+}
+@media (min-width: 1024px) {
+  .contact-bubble-left {
+    left: 0;
+  }
+  .contact-bubble-right {
+    right: 0;
+  }
+}
+.contact-bubble-circle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(9, 9, 12, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  animation: contact-bubble-float 3s ease-in-out infinite;
+}
+.contact-bubble-circle-right {
+  animation-delay: 0.5s;
+}
+.contact-bubble-circle:hover {
+  transform: scale(1.08);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.contact-bubble-circle[aria-expanded="true"] {
+  animation: none;
+  transform: scale(1.05);
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+  box-shadow: 0 0 20px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+}
+.app-mood .contact-bubble-circle[aria-expanded="true"] {
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
+  box-shadow: 0 0 20px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+}
+.contact-bubble-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgb(239, 68, 68);
+  box-shadow: 0 0 0 2px rgba(9, 9, 12, 0.9);
+  animation: contact-bubble-float 2s ease-in-out infinite;
+}
+.app-mood .contact-bubble-dot {
+  background: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
+}
+.contact-bubble-card {
+  position: absolute;
+  top: 100%;
+  margin-top: 12px;
+  width: 280px;
+  max-width: calc(100vw - 2rem);
+  z-index: 30;
+  animation: contact-bubble-card-in 0.25s ease-out;
+}
+@keyframes contact-bubble-card-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.contact-bubble-card-left {
+  left: 0;
+}
+.contact-bubble-card-right {
+  right: 0;
+  left: auto;
+}
+@media (min-width: 1024px) {
+  .contact-bubble-card-left {
+    top: 50%;
+    left: 100%;
+    right: auto;
+    margin-top: 0;
+    margin-left: 12px;
+    transform: translateY(-50%);
+  }
+  .contact-bubble-card-right {
+    top: 50%;
+    right: 100%;
+    left: auto;
+    margin-top: 0;
+    margin-right: 12px;
+    transform: translateY(-50%);
+  }
+  @keyframes contact-bubble-card-in {
+    from {
+      opacity: 0;
+      transform: translateY(-50%) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+  }
+}
+
 /* About page: section entrance animations */
 @keyframes about-section-in {
   from {
@@ -512,6 +972,10 @@
   z-index: -1;
 }
 
+.app-mood .about-dev-card::before {
+  background: radial-gradient(ellipse 70% 70% at 50% 50%, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5) 0%, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3) 35%, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.15) 60%, transparent 75%);
+}
+
 .about-dev-card:hover::before {
   opacity: 1;
 }
@@ -559,6 +1023,32 @@
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+/* How it works: section backgrounds and right panel – red by default, mood inside .app-mood */
+.hiw-header-bg {
+  background: linear-gradient(180deg, #350A0A 0%, #1a0a0a 55%, #05050A 100%);
+}
+.app-mood .hiw-header-bg {
+  background: linear-gradient(180deg, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.22) 0%, rgba(20, 8, 8, 0.95) 35%, #1a0a0a 55%, #05050A 100%);
+}
+.hiw-overlay-bg {
+  background: linear-gradient(120deg, rgba(53, 10, 10, 0.55), rgba(5, 5, 10, 0.9)), #05050A;
+}
+.app-mood .hiw-overlay-bg {
+  background: linear-gradient(120deg, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2), rgba(5, 5, 10, 0.85)), #05050A;
+}
+.hiw-list-bg {
+  background: linear-gradient(160deg, #350A0A 0%, #1a0a0a 60%, #05050A 100%);
+}
+.app-mood .hiw-list-bg {
+  background: linear-gradient(160deg, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2) 0%, #1a0a0a 60%, #05050A 100%);
+}
+.hiw-list-panel {
+  background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.1), transparent);
+}
+.app-mood .hiw-list-panel {
+  background: linear-gradient(to bottom right, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.12), transparent);
 }
 
 /* Sections start invisible; animation runs when .hiw-in-view is added */
@@ -647,6 +1137,13 @@
   border-color: rgba(178, 34, 34, 0.6);
 }
 
+.page-home .feelvie-chip:hover,
+.app-mood .feelvie-chip:hover {
+  background: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.25);
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.6);
+  box-shadow: 0 0 12px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.4);
+}
+
 /* Smooth page entry animations */
 @keyframes page-fade-in {
   from {
@@ -668,6 +1165,11 @@
   box-shadow: 0 0 0 3px rgba(178, 34, 34, 0.3), 0 24px 60px rgba(0, 0, 0, 0.35);
 }
 
+.page-home .feelvie-card:focus-within,
+.app-mood .feelvie-card:focus-within {
+  box-shadow: 0 0 0 3px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3), 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
 /* Loading skeleton pulsing */
 @keyframes skeleton-pulse {
   0%, 100% {
@@ -683,7 +1185,7 @@
 }
 
 /* ========== Enhanced navbar hover effects ========== */
-/* Logo hover glow */
+/* Logo hover glow (mood-aware when inside .page-home) */
 @keyframes logo-glow {
   0%, 100% {
     filter: drop-shadow(0 0 8px rgba(178, 34, 34, 0.3));
@@ -764,6 +1266,16 @@ header nav button:focus-visible {
   border-radius: 4px;
 }
 
+.header-mood nav a::before,
+.header-mood nav button::before {
+  background: radial-gradient(circle at center, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.15) 0%, transparent 70%);
+}
+
+.header-mood nav a:focus-visible,
+.header-mood nav button:focus-visible {
+  outline-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.6);
+}
+
 /* Dropdown item stagger animation */
 header nav a[href="/how-it-works"] {
   animation-delay: 0ms;
@@ -816,6 +1328,9 @@ header nav a[href="/contact"] {
   }
 
   /* Adjust poster sizes for smaller screens */
+  .page-home .poster-row {
+    height: 150px;
+  }
   .page-home .poster-card {
     width: 100px;
     height: 150px;
@@ -844,6 +1359,9 @@ header nav a[href="/contact"] {
     filter: blur(85px);
   }
 
+  .page-home .poster-row {
+    height: 180px;
+  }
   .page-home .poster-card {
     width: 120px;
     height: 180px;

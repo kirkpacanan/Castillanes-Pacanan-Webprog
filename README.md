@@ -47,20 +47,25 @@ Create a file named **`.env.local`** in the **project root** (same folder as `pa
 
 - **OMDB_API_KEY** – Get a free key at [omdbapi.com](https://www.omdbapi.com/apikey.aspx) (choose “FREE” 1,000 requests/day).
 
-**Required for Mood Chat:**
+**Optional, for wider movie selection:**
 
-- **GEMINI_API_KEY** – Get a key in [Google AI Studio](https://aistudio.google.com/app/apikey). Create an API key and paste it here.
+- **TMDB_API_KEY** – Get a free key at [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api). When set, recommendations search both OMDB and TMDB, merge results, and dedupe so the same film is not returned twice. Movies from TMDB are normalized to the same shape as OMDB (watchlist and UI work the same).
 
-**Optional (improves recommendations):**
+**For AI recommendations + Mood Chat (free):**
 
-- **OPENAI_API_KEY** – From [platform.openai.com](https://platform.openai.com/api-keys). If set, the recommender uses GPT to analyze your prompt; if not, a rule-based fallback is used.
+- **GEMINI_API_KEY** – Get a key in [Google AI Studio](https://aistudio.google.com/app/apikey). With only this key, both recommendations and Mood Chat use Gemini (free tier). No OpenAI key needed.
 
-**Example `.env.local` (replace with your own keys):**
+**Optional (paid alternative):**
+
+- **OPENAI_API_KEY** – From [platform.openai.com](https://platform.openai.com/api-keys). If set, the app still tries Gemini first; OpenAI is used when Gemini is not set or fails.
+
+**Example `.env.local` (Gemini-only, free):**
 
 ```env
 OMDB_API_KEY=your_omdb_key_here
 GEMINI_API_KEY=your_gemini_key_here
-OPENAI_API_KEY=your_openai_key_here
+# Optional: wider selection (recommendations use both OMDB + TMDB, no clash)
+# TMDB_API_KEY=your_tmdb_key_here
 ```
 
 - Use **plain key=value** (no quotes, no spaces around `=`).

@@ -115,7 +115,7 @@ export default function SignUpPage() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter your username"
-          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30"
+          className="feelvie-input rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:ring-2"
           required
         />
         <label className="text-sm font-semibold text-white/90">
@@ -126,7 +126,7 @@ export default function SignUpPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
-          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30"
+          className="feelvie-input rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:ring-2"
         />
         <label className="text-sm font-semibold text-white/90">
           Password
@@ -136,16 +136,16 @@ export default function SignUpPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
-          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30"
+          className="feelvie-input rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:ring-2"
         />
         <p className="text-xs text-white/60">
           By clicking Sign Up, you agree to Feelvie&apos;s
           {' '}
-          <button type="button" onClick={() => setShowTerms(true)} className="underline text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:text-red-300">
+          <button type="button" onClick={() => setShowTerms(true)} className="feelvie-link-mood underline transition-all duration-300 ease-out hover:scale-105">
             Terms of Service
           </button>
           {' '} (including arbitration provisions) and acknowledge that you have read our {' '}
-          <button type="button" onClick={() => setShowPrivacy(true)} className="underline text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:text-red-300">
+          <button type="button" onClick={() => setShowPrivacy(true)} className="feelvie-link-mood underline transition-all duration-300 ease-out hover:scale-105">
             Privacy Policy
           </button>
           .
@@ -160,7 +160,7 @@ export default function SignUpPage() {
       </form>
       <p className="mt-6 text-center text-sm text-white/70">
         Already have an account?{" "}
-        <Link href="/signin" className="font-semibold text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:text-red-300">
+        <Link href="/signin" className="feelvie-link-mood font-semibold transition-all duration-300 ease-out hover:scale-105">
           Sign in
         </Link>
       </p>

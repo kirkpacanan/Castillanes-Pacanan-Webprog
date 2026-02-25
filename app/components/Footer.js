@@ -5,6 +5,7 @@ import Link from "next/link";
 import CookiesModal from "./CookiesModal";
 import PrivacyModal from "./PrivacyModal";
 import TermsModal from "./TermsModal";
+import { useMoodGlow } from "../context/MoodGlowContext";
 
 const DISCOVER_LINKS = [
   { href: "/how-it-works", label: "How it works" },
@@ -61,6 +62,8 @@ export default function Footer() {
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showCookies, setShowCookies] = useState(false);
+  const { moodGlowColor } = useMoodGlow();
+  const moodRgb = `${moodGlowColor[0]}, ${moodGlowColor[1]}, ${moodGlowColor[2]}`;
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -70,19 +73,30 @@ export default function Footer() {
 
   return (
     <footer
-      className="flex w-full flex-col items-center border-t border-white/5 bg-[#05050A] px-4 sm:px-6 py-12 sm:py-20 md:px-16"
-      style={{ fontFamily: "'Space Grotesk', sans-serif", gap: 60 }}
+      className="footer-mood flex w-full flex-col items-center border-t border-white/5 bg-[#05050A] px-4 sm:px-6 py-12 sm:py-20 md:px-16"
+      style={{
+        fontFamily: "'Inter', sans-serif",
+        gap: 60,
+        ["--mood-r"]: moodGlowColor[0],
+        ["--mood-g"]: moodGlowColor[1],
+        ["--mood-b"]: moodGlowColor[2],
+      }}
     >
       <div className="flex w-full max-w-[1152px] flex-col gap-12 sm:gap-20">
         {/* Content: row, gap 128px */}
         <div className="flex flex-col gap-8 sm:gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-32">
           {/* Newsletter – width 500px, gap 24px */}
           <div className="flex w-full lg:max-w-[500px] flex-col gap-4 sm:gap-6">
-            <img 
-              src="/feelvie-full-logo.png" 
-              alt="Feelvie" 
-              className="h-12 w-auto flex-shrink-0 max-w-fit transition-all duration-300 ease-out hover:scale-105 hover:drop-shadow-[0_0_12px_rgba(178,34,34,0.4)] cursor-pointer" 
-            />
+            <div
+              className="logo-mood-glow logo-mood-glow-footer inline-block w-auto flex-shrink-0 max-w-fit cursor-pointer transition-all duration-300 ease-out hover:scale-105"
+              style={{
+                ["--mood-r"]: moodGlowColor[0],
+                ["--mood-g"]: moodGlowColor[1],
+                ["--mood-b"]: moodGlowColor[2],
+              }}
+            >
+              <img src="/feelvie-full-logo.png" alt="Feelvie" className="h-6 w-auto sm:h-7" />
+            </div>
             <p
               className="text-white/85"
               style={{ fontSize: 14, fontWeight: 400, lineHeight: "170%" }}
@@ -96,13 +110,24 @@ export default function Footer() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Your email"
-                  className="min-h-[40px] w-full sm:flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white placeholder:text-white/50 outline-none transition-all duration-300 ease-out hover:border-white/20 hover:bg-white/8 focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30 focus:bg-white/10"
-                  style={{ fontSize: 14, lineHeight: "160%" }}
+                  className="min-h-[40px] w-full sm:flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white placeholder:text-white/50 outline-none transition-all duration-300 ease-out hover:border-white/20 hover:bg-white/8 focus:ring-2 focus:bg-white/10"
+                  style={{ fontSize: 14, lineHeight: "160%", ["--tw-ring-color"]: `rgba(${moodRgb}, 0.5)` }}
                 />
                 <button
                   type="submit"
-                  className="feelvie-button flex h-[40px] w-full sm:w-auto sm:min-w-[120px] shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95"
-                  style={{ lineHeight: "160%" }}
+                  className="flex h-[40px] w-full sm:w-auto sm:min-w-[120px] shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white transition-all duration-300 ease-out hover:scale-105 active:scale-95"
+                  style={{
+                    lineHeight: "160%",
+                    background: `rgb(${moodRgb})`,
+                    borderBottom: `4px solid rgba(${moodRgb}, 0.6)`,
+                    boxShadow: "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.boxShadow = `0 0 20px rgba(${moodRgb}, 0.5)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
                 >
                   Subscribe
                 </button>
@@ -115,7 +140,8 @@ export default function Footer() {
                 <button
                   type="button"
                   onClick={() => setShowPrivacy(true)}
-                  className="underline text-red-400 transition-all duration-300 ease-out hover:text-red-300 hover:scale-105 inline-block"
+                  className="underline transition-all duration-300 ease-out hover:scale-105 inline-block"
+                  style={{ color: `rgb(${moodRgb})` }}
                 >
                   Privacy Policy
                 </button>{" "}
@@ -143,7 +169,7 @@ export default function Footer() {
                     style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
                   >
                     <span className="relative inline-block">
-                      <span className="absolute -left-3 top-1/2 -translate-y-1/2 text-red-400 opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:-left-4">→</span>
+                      <span className="absolute -left-3 top-1/2 -translate-y-1/2 opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:-left-4" style={{ color: `rgb(${moodRgb})` }}>→</span>
                       {label}
                     </span>
                   </Link>
@@ -169,7 +195,7 @@ export default function Footer() {
                     className="group flex items-center gap-2 py-1.5 text-white/85 transition-all duration-300 ease-out hover:text-white hover:translate-x-2"
                     style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
                   >
-                    <SocialIcon name={icon} className="h-4 w-4 shrink-0 transition-all duration-300 ease-out group-hover:scale-110 group-hover:rotate-6 group-hover:text-red-400" />
+                    <SocialIcon name={icon} className="footer-social-icon h-4 w-4 shrink-0 transition-all duration-300 ease-out group-hover:scale-110 group-hover:rotate-6" />
                     {label}
                   </a>
                 ))}
@@ -194,7 +220,7 @@ export default function Footer() {
                 style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
               >
                 Terms of Service
-                <span className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-red-400 to-red-300 transition-all duration-300 ease-out group-hover:w-full" />
+                <span className="footer-link-underline absolute bottom-0 left-0 h-px w-0 transition-all duration-300 ease-out group-hover:w-full" />
               </button>
               <button
                 type="button"
@@ -203,7 +229,7 @@ export default function Footer() {
                 style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
               >
                 Privacy Policy
-                <span className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-red-400 to-red-300 transition-all duration-300 ease-out group-hover:w-full" />
+                <span className="footer-link-underline absolute bottom-0 left-0 h-px w-0 transition-all duration-300 ease-out group-hover:w-full" />
               </button>
               <button
                 type="button"
@@ -212,7 +238,7 @@ export default function Footer() {
                 style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
               >
                 Cookies Settings
-                <span className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-red-400 to-red-300 transition-all duration-300 ease-out group-hover:w-full" />
+                <span className="footer-link-underline absolute bottom-0 left-0 h-px w-0 transition-all duration-300 ease-out group-hover:w-full" />
               </button>
             </div>
           </div>

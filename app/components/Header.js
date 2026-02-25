@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { useMoodGlow } from "../context/MoodGlowContext";
 
 const navLinkBase =
   "relative font-medium text-white/90 hover:text-white transition-all duration-300 ease-out text-sm leading-snug py-2";
@@ -17,18 +18,33 @@ function getMoreButtonLabel(pathname) {
   return morePathLabels[pathname] ?? "More";
 }
 
-function NavLink({ href, children, active }) {
+/** Convert RGB [0-255, 0-255, 0-255] to hue in degrees 0-360 for hue-rotate filter */
+function rgbToHue(r, g, b) {
+  const R = r / 255, G = g / 255, B = b / 255;
+  const max = Math.max(R, G, B), min = Math.min(R, G, B);
+  const delta = max - min;
+  if (delta === 0) return 0;
+  let h = 0;
+  if (max === R) h = ((G - B) / delta) % 6;
+  else if (max === G) h = (B - R) / delta + 2;
+  else h = (R - G) / delta + 4;
+  h = (h * 60 + 360) % 360;
+  return Math.round(h);
+}
+
+function NavLink({ href, children, active, moodRgb }) {
+  const moodStyle = {
+    background: `linear-gradient(to right, rgb(${moodRgb}), rgba(${moodRgb}, 0.85))`,
+    boxShadow: `0 0 8px rgba(${moodRgb}, 0.6)`,
+  };
   return (
     <Link href={href} className={`${navLinkBase} group inline-block`}>
       <span className="relative inline-block transition-transform duration-300 ease-out group-hover:scale-105">
         {children}
       </span>
       <span
-        className={`absolute bottom-0 left-0 h-0.5 w-full origin-left transition-all duration-300 ease-out ${
-          active
-            ? "scale-x-100 bg-gradient-to-r from-[#B22222] to-[#FF4444] shadow-[0_0_8px_rgba(178,34,34,0.6)]"
-            : "scale-x-0 bg-gradient-to-r from-[#B22222] to-[#FF4444] group-hover:scale-x-100 group-hover:shadow-[0_0_8px_rgba(178,34,34,0.6)]"
-        }`}
+        className={`absolute bottom-0 left-0 h-0.5 w-full origin-left transition-all duration-300 ease-out ${active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`}
+        style={moodStyle}
         aria-hidden
       />
     </Link>
@@ -38,9 +54,12 @@ function NavLink({ href, children, active }) {
 export default function Header() {
   const pathname = usePathname();
   const { user, signOut, hydrated } = useAuth();
+  const { moodGlowColor } = useMoodGlow();
   const [moreOpen, setMoreOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isSignInPage = pathname === "/signin";
+  const moodRgb = `${moodGlowColor[0]}, ${moodGlowColor[1]}, ${moodGlowColor[2]}`;
+  const moodHue = rgbToHue(moodGlowColor[0], moodGlowColor[1], moodGlowColor[2]);
 
   const isMoreActive = morePaths.some((p) => pathname === p);
 
@@ -56,30 +75,44 @@ export default function Header() {
 
   return (
     <header
-      className="sticky top-0 z-30 h-[70px] sm:h-[100px] w-full bg-[#05050A] border-b border-white/5"
-      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+      className="header-mood sticky top-0 z-30 h-[70px] sm:h-[100px] w-full bg-[#05050A] border-b border-white/5"
+      style={{
+        fontFamily: "'Inter', sans-serif",
+        ["--mood-r"]: moodGlowColor[0],
+        ["--mood-g"]: moodGlowColor[1],
+        ["--mood-b"]: moodGlowColor[2],
+      }}
     >
       <div className="mx-auto flex h-full max-w-[1403px] items-center justify-between px-4 sm:px-6 md:px-12">
         {/* Logo */}
         <Link href="/" className="group inline-flex items-center transition-all duration-300 ease-out opacity-90 hover:opacity-100 hover:scale-105 z-50">
-          <img 
-            src="/feelvie-logo.png" 
-            alt="Feelvie" 
-            className="h-10 sm:h-14 w-auto transition-transform duration-300 ease-out group-hover:drop-shadow-[0_0_12px_rgba(178,34,34,0.4)]" 
+          <img
+            src="/feelvie-logo.png"
+            alt="Feelvie"
+            className="h-10 sm:h-14 w-auto transition-all duration-300 ease-out"
+            style={{
+              filter: `hue-rotate(${moodHue}deg)`,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.filter = `hue-rotate(${moodHue}deg) drop-shadow(0 0 12px rgba(${moodRgb}, 0.4))`;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.filter = `hue-rotate(${moodHue}deg)`;
+            }}
           />
         </Link>
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
-          <NavLink href="/" active={pathname === "/"}>
+          <NavLink href="/" active={pathname === "/"} moodRgb={moodRgb}>
             Home
           </NavLink>
           {user && (
             <>
-              <NavLink href="/watch-list" active={pathname === "/watch-list"}>
+              <NavLink href="/watch-list" active={pathname === "/watch-list"} moodRgb={moodRgb}>
                 Watch list
               </NavLink>
-              <NavLink href="/watched" active={pathname === "/watched"}>
+              <NavLink href="/watched" active={pathname === "/watched"} moodRgb={moodRgb}>
                 Watched
               </NavLink>
             </>
@@ -103,11 +136,8 @@ export default function Header() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
               <span
-                className={`absolute bottom-0 left-0 h-0.5 w-full origin-left transition-all duration-300 ease-out ${
-                  isMoreActive
-                    ? "scale-x-100 bg-gradient-to-r from-[#B22222] to-[#FF4444] shadow-[0_0_8px_rgba(178,34,34,0.6)]"
-                    : "scale-x-0 bg-gradient-to-r from-[#B22222] to-[#FF4444] group-hover:scale-x-100 group-hover:shadow-[0_0_8px_rgba(178,34,34,0.6)]"
-                }`}
+                className={`absolute bottom-0 left-0 h-0.5 w-full origin-left transition-all duration-300 ease-out ${isMoreActive ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"}`}
+                style={{ background: `linear-gradient(to right, rgb(${moodRgb}), rgba(${moodRgb}, 0.85))`, boxShadow: `0 0 8px rgba(${moodRgb}, 0.6)` }}
                 aria-hidden
               />
             </button>
@@ -131,7 +161,7 @@ export default function Header() {
                 onClick={() => setMoreOpen(false)}
               >
                 <span className="relative z-10">How it works</span>
-                <span className="absolute left-0 top-1/2 h-0 w-1 -translate-y-1/2 rounded-r bg-gradient-to-b from-[#B22222] to-[#FF4444] opacity-0 transition-all duration-300 group-hover:h-8 group-hover:opacity-100" />
+                <span className="absolute left-0 top-1/2 h-0 w-1 -translate-y-1/2 rounded-r opacity-0 transition-all duration-300 group-hover:h-8 group-hover:opacity-100" style={{ background: `linear-gradient(to bottom, rgb(${moodRgb}), rgba(${moodRgb}, 0.85))` }} />
               </Link>
               <Link
                 href="/about"
@@ -139,7 +169,7 @@ export default function Header() {
                 onClick={() => setMoreOpen(false)}
               >
                 <span className="relative z-10">About us</span>
-                <span className="absolute left-0 top-1/2 h-0 w-1 -translate-y-1/2 rounded-r bg-gradient-to-b from-[#B22222] to-[#FF4444] opacity-0 transition-all duration-300 group-hover:h-8 group-hover:opacity-100" />
+                <span className="absolute left-0 top-1/2 h-0 w-1 -translate-y-1/2 rounded-r opacity-0 transition-all duration-300 group-hover:h-8 group-hover:opacity-100" style={{ background: `linear-gradient(to bottom, rgb(${moodRgb}), rgba(${moodRgb}, 0.85))` }} />
               </Link>
               <Link
                 href="/contact"
@@ -147,7 +177,7 @@ export default function Header() {
                 onClick={() => setMoreOpen(false)}
               >
                 <span className="relative z-10">Contact</span>
-                <span className="absolute left-0 top-1/2 h-0 w-1 -translate-y-1/2 rounded-r bg-gradient-to-b from-[#B22222] to-[#FF4444] opacity-0 transition-all duration-300 group-hover:h-8 group-hover:opacity-100" />
+                <span className="absolute left-0 top-1/2 h-0 w-1 -translate-y-1/2 rounded-r opacity-0 transition-all duration-300 group-hover:h-8 group-hover:opacity-100" style={{ background: `linear-gradient(to bottom, rgb(${moodRgb}), rgba(${moodRgb}, 0.85))` }} />
               </Link>
 
             </div>
@@ -160,14 +190,34 @@ export default function Header() {
             <button
               type="button"
               onClick={signOut}
-              className="feelvie-button flex h-9 min-w-[80px] items-center justify-center rounded-full px-5 text-sm font-semibold text-white shadow-sm transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95"
+              className="flex h-9 min-w-[80px] items-center justify-center rounded-full px-5 text-sm font-semibold text-white shadow-sm transition-all duration-300 ease-out hover:scale-105 active:scale-95"
+              style={{
+                background: `rgb(${moodRgb})`,
+                borderBottom: `4px solid rgba(${moodRgb}, 0.6)`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = `0 0 20px rgba(${moodRgb}, 0.5)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = "";
+              }}
             >
               Sign out
             </button>
           ) : (
             <Link
               href={isSignInPage ? "/signup" : "/signin"}
-              className="feelvie-button flex h-9 min-w-[80px] items-center justify-center rounded-full px-5 text-sm font-semibold text-white shadow-sm transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95"
+              className="flex h-9 min-w-[80px] items-center justify-center rounded-full px-5 text-sm font-semibold text-white shadow-sm transition-all duration-300 ease-out hover:scale-105 active:scale-95"
+              style={{
+                background: `rgb(${moodRgb})`,
+                borderBottom: `4px solid rgba(${moodRgb}, 0.6)`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = `0 0 20px rgba(${moodRgb}, 0.5)`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = "";
+              }}
             >
               {isSignInPage ? "Sign up" : "Sign in"}
             </Link>
@@ -275,7 +325,8 @@ export default function Header() {
                     signOut();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full feelvie-button flex h-10 items-center justify-center rounded-full px-5 text-sm font-semibold text-white"
+                  className="w-full flex h-10 items-center justify-center rounded-full px-5 text-sm font-semibold text-white"
+                  style={{ background: `rgb(${moodRgb})`, borderBottom: `4px solid rgba(${moodRgb}, 0.6)` }}
                 >
                   Sign out
                 </button>
@@ -283,7 +334,8 @@ export default function Header() {
                 <Link
                   href={isSignInPage ? "/signup" : "/signin"}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full feelvie-button flex h-10 items-center justify-center rounded-full px-5 text-sm font-semibold text-white"
+                  className="w-full flex h-10 items-center justify-center rounded-full px-5 text-sm font-semibold text-white"
+                  style={{ background: `rgb(${moodRgb})`, borderBottom: `4px solid rgba(${moodRgb}, 0.6)` }}
                 >
                   {isSignInPage ? "Sign up" : "Sign in"}
                 </Link>

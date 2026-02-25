@@ -114,7 +114,7 @@ function SignInContent() {
           value={emailOrUser}
           onChange={(e) => setEmailOrUser(e.target.value)}
           placeholder="Enter your email or username"
-          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30"
+          className="feelvie-input rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:ring-2"
           required
         />
         <label className="text-xs sm:text-sm font-semibold text-white/90">
@@ -125,7 +125,7 @@ function SignInContent() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
-          className="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white placeholder:text-white/40 outline-none transition focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30"
+          className="feelvie-input rounded-xl border border-white/10 bg-white/5 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white placeholder:text-white/40 outline-none transition focus:ring-2"
         />
         <button
           type="submit"
@@ -136,17 +136,29 @@ function SignInContent() {
         </button>
         <Link
           href="#"
-          className="text-center text-xs sm:text-sm text-white/50 transition-all duration-300 ease-out hover:scale-105 hover:text-red-400"
+          className="feelvie-link-mood text-center text-xs sm:text-sm text-white/50 transition-all duration-300 ease-out hover:scale-105"
         >
           Forgot password?
         </Link>
       </form>
       <p className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-white/70">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-semibold text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:text-red-300">
+        <Link href="/signup" className="feelvie-link-mood font-semibold transition-all duration-300 ease-out hover:scale-105">
           Sign up
         </Link>
       </p>
+      {process.env.NODE_ENV === "development" && (
+        <button
+          type="button"
+          onClick={() => {
+            signIn("Test User", "test@example.com");
+            router.push("/");
+          }}
+          className="mt-6 w-full rounded-xl border border-dashed border-white/30 bg-white/5 py-3 text-xs font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
+        >
+          Demo login (offline test)
+        </button>
+      )}
       </div>
     </div>
   );

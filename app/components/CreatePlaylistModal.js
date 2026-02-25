@@ -1,10 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useMoodGlow } from "../context/MoodGlowContext";
+
+const DEFAULT_MOOD = [178, 34, 34];
 
 export default function CreatePlaylistModal({ open, onClose, onCreate, type = "watchlist" }) {
   const [name, setName] = useState("");
   const inputRef = useRef(null);
+  const { moodGlowColor } = useMoodGlow();
+  const [r, g, b] = moodGlowColor ?? DEFAULT_MOOD;
 
   useEffect(() => {
     if (open) {
@@ -24,7 +29,11 @@ export default function CreatePlaylistModal({ open, onClose, onCreate, type = "w
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true">
-      <div className="glass w-full max-w-md rounded-2xl p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="app-mood glass w-full max-w-md rounded-2xl p-6 shadow-2xl"
+        style={{ ["--mood-r"]: r, ["--mood-g"]: g, ["--mood-b"]: b }}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-white">New playlist</h3>
           <button type="button" onClick={onClose} className="rounded p-1 text-white/50 hover:bg-slate-700">
@@ -52,7 +61,7 @@ export default function CreatePlaylistModal({ open, onClose, onCreate, type = "w
           <button
             type="button"
             onClick={handleConfirm}
-            className="rounded-xl bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-500"
+            className="feelvie-button rounded-xl px-4 py-2 text-sm font-medium text-white transition-all duration-300 ease-out hover:scale-105 active:scale-95"
           >
             Create
           </button>

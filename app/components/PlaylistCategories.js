@@ -74,7 +74,7 @@ export default function PlaylistCategories({
         <button
           type="button"
           onClick={onCreatePlaylist}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-red-400/60 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:border-red-400 hover:bg-red-500/20 hover:shadow-[0_0_12px_rgba(220,38,38,0.4)] active:scale-95"
+          className="mood-accent-dashed inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border-2 border-dashed px-4 py-2.5 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 active:scale-95"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -87,10 +87,10 @@ export default function PlaylistCategories({
         <button
           type="button"
           onClick={() => onSelectPlaylist(null)}
-          className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
+          className={`playlist-pill rounded-xl px-4 py-2 text-sm font-medium text-white transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
             activePlaylistId === null
-              ? "bg-red-600 text-white shadow-md hover:scale-105 hover:shadow-[0_0_16px_rgba(178,34,34,0.5)] active:scale-95"
-              : "bg-slate-700 text-white/90 hover:bg-slate-600 hover:scale-105 hover:shadow-[0_0_8px_rgba(178,34,34,0.3)]"
+              ? "playlist-pill--active shadow-md hover:scale-105 active:scale-95"
+              : "bg-slate-700 text-white/90 hover:bg-slate-600 hover:scale-105"
           }`}
         >
           All
@@ -107,10 +107,10 @@ export default function PlaylistCategories({
             <div
               key={pl.id}
               ref={isEditing ? editingRef : null}
-              className={`inline-flex items-center gap-1 rounded-xl border transition-all duration-300 ease-out focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900 hover:scale-105 ${
+              className={`playlist-pill inline-flex items-center gap-1 rounded-xl border transition-all duration-300 ease-out focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900 hover:scale-105 ${
                 isActive
-                  ? "border-red-500/50 bg-red-600 text-white shadow-md hover:shadow-[0_0_16px_rgba(178,34,34,0.5)]"
-                  : "border-white/10 bg-slate-700 text-white/90 hover:bg-slate-600 hover:shadow-[0_0_8px_rgba(178,34,34,0.3)]"
+                  ? "playlist-pill--active border-red-500/50 bg-red-600 text-white shadow-md"
+                  : "border-white/10 bg-slate-700 text-white/90 hover:bg-slate-600"
               }`}
             >
               {isEditing ? (
@@ -120,7 +120,7 @@ export default function PlaylistCategories({
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleConfirmRename()}
-                    className="w-24 rounded border border-white/20 bg-slate-800 px-2 py-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="playlist-edit-input w-24 rounded border border-white/20 bg-slate-800 px-2 py-1 text-sm text-white focus:outline-none"
                     autoFocus
                   />
                   <button
