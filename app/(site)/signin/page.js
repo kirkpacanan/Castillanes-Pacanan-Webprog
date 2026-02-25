@@ -18,6 +18,12 @@ function SignInContent() {
     if (searchParams.get("error") === "auth") setAuthError("Sign-in was cancelled or failed. Please try again.");
   }, [searchParams]);
 
+  useEffect(() => {
+    if (user) {
+      router.replace("/");
+    }
+  }, [user, router]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setAuthError("");
@@ -43,11 +49,6 @@ function SignInContent() {
     }
   };
 
-  if (user) {
-    router.replace("/");
-    return null;
-  }
-
   if (!hydrated) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -56,25 +57,36 @@ function SignInContent() {
     );
   }
 
+  if (user) {
+    return null;
+  }
+
   return (
-    <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-center text-2xl font-bold uppercase tracking-wide text-white">
-        Sign in to Feelvie
-      </h1>
-      <p className="mt-4 text-center text-sm text-white/70">
-        Create an account if you don&apos;t have one.
-      </p>
-      {authError && (
-        <p className="mt-6 rounded-xl bg-red-900/40 px-4 py-2 text-sm text-red-200">
-          {authError}
+    <div className="feelvie-page relative min-h-screen">
+      <div className="feelvie-ambient" aria-hidden>
+        <div className="feelvie-ambient-spot feelvie-ambient-spot-1" />
+        <div className="feelvie-ambient-spot feelvie-ambient-spot-2" />
+        <div className="feelvie-grid" />
+      </div>
+      
+      <div className="relative z-10 mx-auto max-w-md px-4 sm:px-6 py-10 sm:py-16">
+        <h1 className="feelvie-title text-center text-2xl sm:text-3xl md:text-4xl font-semibold text-white">
+          Sign in to Feelvie
+        </h1>
+        <p className="mt-3 sm:mt-4 text-center text-xs sm:text-sm text-white/70">
+          Create an account if you don&apos;t have one.
         </p>
+      {authError && (
+        <div className="feelvie-card mt-4 sm:mt-6 border border-red-500/30 bg-red-500/10 px-4 py-3">
+          <p className="text-xs sm:text-sm text-red-200">{authError}</p>
+        </div>
       )}
       {hasSupabase ? (
         <>
           <button
             type="button"
             onClick={signInWithGoogle}
-            className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-white/20"
+            className="feelvie-button-ghost mt-6 sm:mt-8 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium text-white shadow-sm transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden>
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -84,7 +96,7 @@ function SignInContent() {
             </svg>
             Continue with Google
           </button>
-          <p className="mt-4 text-center text-xs text-white/50">or sign in with email</p>
+          <p className="mt-3 sm:mt-4 text-center text-xs text-white/50">or sign in with email</p>
         </>
       ) : (
         <p className="mt-6 text-center text-xs text-white/50">
@@ -93,8 +105,8 @@ function SignInContent() {
             : "Sign in with email below."}
         </p>
       )}
-      <form onSubmit={handleSubmit} className={`flex flex-col gap-4 ${hasSupabase ? "mt-6" : "mt-8"}`}>
-        <label className="text-sm font-semibold text-slate-700 dark:text-white/80">
+      <form onSubmit={handleSubmit} className={`feelvie-card flex flex-col gap-4 sm:gap-5 p-5 sm:p-6 ${hasSupabase ? "mt-4 sm:mt-6" : "mt-6 sm:mt-8"}`}>
+        <label className="text-sm font-semibold text-white/90">
           Email or Username
         </label>
         <input
@@ -102,10 +114,10 @@ function SignInContent() {
           value={emailOrUser}
           onChange={(e) => setEmailOrUser(e.target.value)}
           placeholder="Enter your email or username"
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-red-500/30 dark:border-white/15 dark:bg-slate-900 dark:text-white"
+          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30"
           required
         />
-        <label className="text-sm font-semibold text-slate-700 dark:text-white/80">
+        <label className="text-xs sm:text-sm font-semibold text-white/90">
           Password
         </label>
         <input
@@ -113,28 +125,29 @@ function SignInContent() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none focus:ring-2 focus:ring-red-500/30 dark:border-white/15 dark:bg-slate-900 dark:text-white"
+          className="rounded-xl border border-white/10 bg-white/5 px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base text-white placeholder:text-white/40 outline-none transition focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30"
         />
         <button
           type="submit"
           disabled={loading}
-          className="mt-4 rounded-xl bg-red-600 py-3 text-sm font-bold text-white hover:bg-red-500 disabled:opacity-60 disabled:pointer-events-none"
+          className="feelvie-button mt-3 sm:mt-4 rounded-xl py-2.5 sm:py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95 disabled:opacity-60 disabled:pointer-events-none disabled:hover:scale-100 disabled:hover:shadow-none"
         >
           {loading ? "Signing in…" : "Sign In"}
         </button>
         <Link
           href="#"
-          className="text-center text-sm text-white/50 hover:text-red-400"
+          className="text-center text-xs sm:text-sm text-white/50 transition-all duration-300 ease-out hover:scale-105 hover:text-red-400"
         >
           Forgot password?
         </Link>
       </form>
-      <p className="mt-6 text-center text-sm text-white/70">
+      <p className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-white/70">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="font-semibold text-red-400 hover:underline">
+        <Link href="/signup" className="font-semibold text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:text-red-300">
           Sign up
         </Link>
       </p>
+      </div>
     </div>
   );
 }

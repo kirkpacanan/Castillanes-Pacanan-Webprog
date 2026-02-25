@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@400;500;600&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,6 +10,103 @@
   --bg-gradient-red: rgba(229, 9, 20, 0.22);
   --glass-bg: rgba(18, 18, 18, 0.92);
   --glass-border: rgba(255, 255, 255, 0.08);
+  --feelvie-red: #b22222;
+  --feelvie-deep: #05050a;
+  --feelvie-maroon: #350a0a;
+  --feelvie-glow: rgba(178, 34, 34, 0.35);
+}
+
+.feelvie-page {
+  font-family: "Space Grotesk", sans-serif;
+  background: var(--feelvie-deep);
+  color: #fff;
+}
+
+.feelvie-title {
+  font-family: "Fraunces", serif;
+  letter-spacing: -0.01em;
+}
+
+.feelvie-kicker {
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.feelvie-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.feelvie-ambient-spot {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.55;
+}
+
+.feelvie-ambient-spot-1 {
+  top: -20vmax;
+  left: -10vmax;
+  background: radial-gradient(circle, rgba(178, 34, 34, 0.55) 0%, transparent 65%);
+}
+
+.feelvie-ambient-spot-2 {
+  bottom: -30vmax;
+  right: -15vmax;
+  background: radial-gradient(circle, rgba(120, 20, 20, 0.55) 0%, transparent 70%);
+}
+
+.feelvie-grid {
+  position: absolute;
+  inset: -10%;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 120px 120px;
+  opacity: 0.2;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.9), transparent 70%);
+}
+
+.feelvie-card {
+  background: rgba(9, 9, 12, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(12px);
+}
+
+.feelvie-card-muted {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+}
+
+.feelvie-chip {
+  background: rgba(178, 34, 34, 0.16);
+  border: 1px solid rgba(178, 34, 34, 0.45);
+  color: #fff;
+  border-radius: 9999px;
+}
+
+.feelvie-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.feelvie-button {
+  background: var(--feelvie-red);
+  border-bottom: 4px solid #8e1b1b;
+}
+
+.feelvie-button-ghost {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .glass {
@@ -526,4 +625,301 @@
 }
 .hiw-section.hiw-in-view .hiw-overlay-right {
   animation: hiw-slide-in-right 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+}
+
+/* ========== Additional page enhancements ========== */
+/* Smooth hover transitions for interactive elements */
+.feelvie-button:hover {
+  filter: brightness(1.1);
+}
+
+.feelvie-button-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.feelvie-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.4);
+}
+
+.feelvie-chip:hover {
+  background: rgba(178, 34, 34, 0.25);
+  border-color: rgba(178, 34, 34, 0.6);
+}
+
+/* Smooth page entry animations */
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.feelvie-page > div:first-child {
+  animation: page-fade-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Improved focus states */
+.feelvie-card:focus-within {
+  box-shadow: 0 0 0 3px rgba(178, 34, 34, 0.3), 0 24px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* Loading skeleton pulsing */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.skeleton {
+  animation: skeleton-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ========== Enhanced navbar hover effects ========== */
+/* Logo hover glow */
+@keyframes logo-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(178, 34, 34, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(178, 34, 34, 0.5));
+  }
+}
+
+/* Nav link underline glow pulse */
+@keyframes underline-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(178, 34, 34, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 12px rgba(178, 34, 34, 0.8), 0 0 20px rgba(178, 34, 34, 0.4);
+  }
+}
+
+/* Dropdown menu entrance */
+@keyframes dropdown-bounce {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(2px) scale(1.01);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Button press effect */
+@keyframes button-press {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.95);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Smooth transitions for header elements */
+header nav a,
+header nav button {
+  position: relative;
+  overflow: visible;
+}
+
+header nav a::before,
+header nav button::before {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 8px;
+  background: radial-gradient(circle at center, rgba(178, 34, 34, 0.15) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
+}
+
+header nav a:hover::before,
+header nav button:hover::before {
+  opacity: 1;
+}
+
+/* Enhanced focus states for accessibility */
+header nav a:focus-visible,
+header nav button:focus-visible {
+  outline: 2px solid rgba(178, 34, 34, 0.6);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Dropdown item stagger animation */
+header nav a[href="/how-it-works"] {
+  animation-delay: 0ms;
+}
+
+header nav a[href="/about"] {
+  animation-delay: 50ms;
+}
+
+header nav a[href="/contact"] {
+  animation-delay: 100ms;
+}
+/* ========================================
+   MOBILE RESPONSIVE OPTIMIZATIONS
+   ======================================== */
+
+/* Improve tap targets for mobile */
+@media (max-width: 640px) {
+  /* Ensure minimum touch target size */
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
+
+  /* Adjust poster animations for mobile performance */
+  .poster-track {
+    animation-duration: 100s;
+  }
+
+  .page-home-red-glow,
+  .contact-page-red-glow {
+    filter: blur(60px);
+  }
+
+  /* Reduce ambient spot sizes on mobile */
+  .feelvie-ambient-spot {
+    width: 90vmax;
+    height: 90vmax;
+    filter: blur(70px);
+  }
+
+  /* Optimize card padding on mobile */
+  .feelvie-card {
+    border-radius: 16px;
+    padding: 1rem;
+  }
+
+  /* Better text sizing for readability */
+  .feelvie-title {
+    letter-spacing: -0.02em;
+  }
+
+  /* Adjust poster sizes for smaller screens */
+  .page-home .poster-card {
+    width: 100px;
+    height: 150px;
+  }
+
+  .page-home .poster-image {
+    width: 100px;
+    height: 100px;
+  }
+
+  /* Optimize grid spacing */
+  .feelvie-grid {
+    background-size: 80px 80px;
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .poster-track {
+    animation-duration: 90s;
+  }
+
+  .feelvie-ambient-spot {
+    width: 75vmax;
+    height: 75vmax;
+    filter: blur(85px);
+  }
+
+  .page-home .poster-card {
+    width: 120px;
+    height: 180px;
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .poster-track {
+    animation: none;
+  }
+
+  .page-home-red-glow-1,
+  .page-home-red-glow-2 {
+    animation: none;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Remove hover effects on touch devices */
+  .feelvie-button:hover,
+  .feelvie-button-ghost:hover {
+    transform: none;
+  }
+
+  /* Add active states instead */
+  .feelvie-button:active {
+    transform: scale(0.95);
+  }
+
+  .feelvie-button-ghost:active {
+    transform: scale(0.95);
+  }
+
+  /* Improve tap feedback */
+  button, a {
+    -webkit-tap-highlight-color: rgba(178, 34, 34, 0.3);
+  }
+}
+
+/* Landscape phone/small tablet adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Reduce vertical padding in landscape */
+  .feelvie-page {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  /* Adjust header height in landscape */
+  header {
+    height: 60px !important;
+  }
+
+  header img {
+    height: 2rem !important;
+  }
+}
+
+/* Safe area padding for notched devices */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+  }
+
+  header {
+    padding-left: max(1rem, env(safe-area-inset-left) + 1rem);
+    padding-right: max(1rem, env(safe-area-inset-right) + 1rem);
+  }
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
+
 /**
  * Shared playlist/categories section for Watch list and Watched pages.
  * @param {Object} props
@@ -7,6 +9,7 @@
  * @param {string|null} props.activePlaylistId - Currently selected playlist id (null = All)
  * @param {Function} props.onSelectPlaylist - (id: string | null) => void
  * @param {Function} props.onDeletePlaylist - (id: string) => void
+ * @param {Function} props.onRenamePlaylist - (id: string, newName: string) => void
  * @param {Function} props.onCreatePlaylist - () => void
  * @param {Array} props.items - Current page items (watchList or watched) for count
  */
@@ -15,10 +18,44 @@ export default function PlaylistCategories({
   activePlaylistId,
   onSelectPlaylist,
   onDeletePlaylist,
+  onRenamePlaylist,
   onCreatePlaylist,
   items = [],
 }) {
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState("");
+  const editingRef = useRef(null);
+
   const countInPlaylist = (pl) => items.filter((m) => pl.movieIds.includes(m.imdbID)).length;
+
+  // Exit edit mode when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (editingRef.current && !editingRef.current.contains(e.target)) {
+        setEditingId(null);
+        setEditName("");
+      }
+    };
+
+    if (editingId) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [editingId]);
+
+  const handleStartEdit = (pl) => {
+    setEditingId(pl.id);
+    setEditName(pl.name);
+  };
+
+  const handleConfirmRename = () => {
+    const trimmed = (editName || "").trim();
+    if (trimmed && trimmed !== playlists.find((p) => p.id === editingId)?.name) {
+      onRenamePlaylist(editingId, trimmed);
+    }
+    setEditingId(null);
+    setEditName("");
+  };
 
   return (
     <section
@@ -37,7 +74,7 @@ export default function PlaylistCategories({
         <button
           type="button"
           onClick={onCreatePlaylist}
-          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-red-400/60 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 transition hover:border-red-400 hover:bg-red-500/20"
+          className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border-2 border-dashed border-red-400/60 bg-red-500/10 px-4 py-2.5 text-sm font-medium text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:border-red-400 hover:bg-red-500/20 hover:shadow-[0_0_12px_rgba(220,38,38,0.4)] active:scale-95"
         >
           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -50,10 +87,10 @@ export default function PlaylistCategories({
         <button
           type="button"
           onClick={() => onSelectPlaylist(null)}
-          className={`rounded-xl px-4 py-2 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
+          className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-900 ${
             activePlaylistId === null
-              ? "bg-red-600 text-white shadow-md"
-              : "bg-slate-700 text-white/90 hover:bg-slate-600"
+              ? "bg-red-600 text-white shadow-md hover:scale-105 hover:shadow-[0_0_16px_rgba(178,34,34,0.5)] active:scale-95"
+              : "bg-slate-700 text-white/90 hover:bg-slate-600 hover:scale-105 hover:shadow-[0_0_8px_rgba(178,34,34,0.3)]"
           }`}
         >
           All
@@ -64,47 +101,101 @@ export default function PlaylistCategories({
         {playlists.map((pl) => {
           const count = countInPlaylist(pl);
           const isActive = activePlaylistId === pl.id;
+          const isEditing = editingId === pl.id;
+
           return (
             <div
               key={pl.id}
-              className={`inline-flex items-center gap-1 rounded-xl border transition focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900 ${
+              ref={isEditing ? editingRef : null}
+              className={`inline-flex items-center gap-1 rounded-xl border transition-all duration-300 ease-out focus-within:ring-2 focus-within:ring-red-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900 hover:scale-105 ${
                 isActive
-                  ? "border-red-500/50 bg-red-600 text-white shadow-md"
-                  : "border-white/10 bg-slate-700 text-white/90"
+                  ? "border-red-500/50 bg-red-600 text-white shadow-md hover:shadow-[0_0_16px_rgba(178,34,34,0.5)]"
+                  : "border-white/10 bg-slate-700 text-white/90 hover:bg-slate-600 hover:shadow-[0_0_8px_rgba(178,34,34,0.3)]"
               }`}
             >
-              <button
-                type="button"
-                onClick={() => onSelectPlaylist(pl.id)}
-                className="rounded-l-xl pl-4 pr-2 py-2 text-left text-sm font-medium hover:opacity-90"
-              >
-                {pl.name}
-                <span
-                  className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs ${
-                    isActive ? "bg-white/20" : "bg-white/20"
-                  }`}
-                >
-                  {count}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onDeletePlaylist(pl.id);
-                  if (isActive) onSelectPlaylist(null);
-                }}
-                className={`rounded-r-xl p-2 transition ${
-                  isActive
-                    ? "hover:bg-white/20"
-                    : "hover:bg-white/10"
-                }`}
-                aria-label={`Delete playlist ${pl.name}`}
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
+              {isEditing ? (
+                <div className="flex items-center gap-1 pl-4 pr-2 py-2">
+                  <input
+                    type="text"
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleConfirmRename()}
+                    className="w-24 rounded border border-white/20 bg-slate-800 px-2 py-1 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    onClick={handleConfirmRename}
+                    className="rounded p-1 text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    aria-label="Confirm rename"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingId(null);
+                      setEditName("");
+                    }}
+                    className="rounded p-1 text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                    aria-label="Cancel rename"
+                  >
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onSelectPlaylist(pl.id)}
+                    className={`${isActive ? "rounded-l-xl" : "rounded-r-xl"} pl-4 pr-2 py-2 text-left text-sm font-medium transition-opacity duration-200 hover:opacity-90`}
+                  >
+                    {pl.name}
+                    <span
+                      className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs ${
+                        isActive ? "bg-white/20" : "bg-white/20"
+                      }`}
+                    >
+                      {count}
+                    </span>
+                  </button>
+                  {isActive && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleStartEdit(pl);
+                        }}
+                        className="p-2 transition hover:bg-white/20"
+                        aria-label={`Rename playlist ${pl.name}`}
+                      >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeletePlaylist(pl.id);
+                          if (isActive) onSelectPlaylist(null);
+                        }}
+                        className="rounded-r-xl p-2 transition hover:bg-white/20"
+                        aria-label={`Delete playlist ${pl.name}`}
+                      >
+                        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </>
+                  )}
+                </>
+              )}
             </div>
           );
         })}

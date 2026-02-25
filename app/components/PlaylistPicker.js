@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import CreatePlaylistModal from "./CreatePlaylistModal";
+import ClientPortal from "./ClientPortal";
 
 export default function PlaylistPicker({
   imdbID,
@@ -13,37 +15,15 @@ export default function PlaylistPicker({
   deletePlaylist,
   renamePlaylist,
   className = "",
-  label = "Add to playlist",
+  label = "Playlists",
+  type = "watchlist",
 }) {
-  const [open, setOpen] = useState(false);
-  const [creating, setCreating] = useState(false);
-  const [newName, setNewName] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [createPlaylistOpen, setCreatePlaylistOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState("");
-  const dropdownRef = useRef(null);
 
   const containing = getPlaylistsContaining(imdbID);
-
-  useEffect(() => {
-    function handleClickOutside(e) {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setOpen(false);
-        setCreating(false);
-        setEditingId(null);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleCreate = () => {
-    const name = newName.trim();
-    if (name) {
-      createPlaylist(name);
-      setNewName("");
-      setCreating(false);
-    }
-  };
 
   const handleRename = () => {
     if (editingId && editName.trim()) {
@@ -53,142 +33,160 @@ export default function PlaylistPicker({
     }
   };
 
+  const handleCreatePlaylist = (name, type) => {
+    createPlaylist(name, type);
+    setCreatePlaylistOpen(false);
+  };
+
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <>
       <button
         type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-2 text-sm font-medium text-white/80 hover:border-red-500 hover:bg-white/5"
-        aria-expanded={open}
-        aria-haspopup="true"
+        onClick={() => setModalOpen(true)}
+        className={`inline-flex items-center gap-1.5 rounded-lg border border-white/20 px-3 py-2 text-sm font-medium text-white/80 transition-all duration-300 ease-out hover:scale-105 hover:border-red-500 hover:bg-white/5 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)] active:scale-95 ${className}`}
+        aria-expanded={modalOpen}
+        aria-haspopup="dialog"
       >
         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
         </svg>
         {label}
       </button>
-      {open && (
-        <div className="absolute left-full top-0 z-50 ml-2 w-64 max-h-96 flex flex-col rounded-xl border border-white/10 bg-slate-800 shadow-lg overflow-hidden">
-          <div className="flex-1 overflow-y-auto">
-            {containing.length > 0 && (
-              <div className="border-b border-white/10 px-3 py-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                  In playlists
-                </p>
-                {containing.map((p) => (
-                  <div
-                    key={p.id}
-                    className="mt-1 flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-700"
-                  >
-                    {editingId === p.id ? (
-                      <div className="flex flex-1 items-center gap-1">
-                        <input
-                          type="text"
-                          value={editName}
-                          onChange={(e) => setEditName(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && handleRename()}
-                          className="flex-1 rounded border border-white/20 bg-transparent px-2 py-0.5 text-sm text-white"
-                          autoFocus
-                        />
-                        <button type="button" onClick={handleRename} className="text-xs text-red-400">
-                          Save
-                        </button>
+
+      {/* Playlist Modal */}
+      {modalOpen && (
+        <ClientPortal>
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4" onClick={() => setModalOpen(false)} role="dialog" aria-modal="true">
+            <div className="glass w-full max-w-2xl max-h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/10 px-6 py-4 shrink-0">
+              <h3 className="text-xl font-semibold text-white">Manage Playlists</h3>
+              <button type="button" onClick={() => setModalOpen(false)} className="rounded p-1 text-white/50 transition-colors hover:bg-white/10 hover:text-white">
+                <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto px-6 py-4">
+              {/* In Playlists Section */}
+              {containing.length > 0 && (
+                <div className="mb-6">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-white/60 mb-3">
+                    In playlists
+                  </p>
+                  <div className="space-y-2">
+                    {containing.map((p) => (
+                      <div
+                        key={p.id}
+                        className="flex items-center justify-between gap-2 rounded-lg px-3 py-3 bg-slate-800/50 border border-white/5 hover:bg-slate-800 hover:border-white/10 transition-all duration-200"
+                      >
+                        {editingId === p.id ? (
+                          <div className="flex flex-1 items-center gap-2">
+                            <input
+                              type="text"
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              onKeyDown={(e) => e.key === "Enter" && handleRename()}
+                              className="flex-1 rounded border border-white/20 bg-slate-700 px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                              autoFocus
+                            />
+                            <button type="button" onClick={handleRename} className="text-xs font-medium text-red-400 hover:text-red-300 transition-colors">
+                              Save
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <span className="truncate text-sm text-white">{p.name}</span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingId(p.id);
+                                  setEditName(p.name);
+                                }}
+                                className="rounded p-1.5 text-white/50 hover:bg-slate-700 hover:text-white transition-all duration-200"
+                                aria-label="Rename playlist"
+                              >
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => removeMovieFromPlaylist(p.id, imdbID)}
+                                className="rounded p-1.5 text-white/50 hover:bg-red-900/30 hover:text-red-400 transition-all duration-200"
+                                aria-label="Remove from playlist"
+                              >
+                                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
-                    ) : (
-                      <>
-                        <span className="truncate text-sm text-white">{p.name}</span>
-                        <div className="flex items-center gap-0.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingId(p.id);
-                              setEditName(p.name);
-                            }}
-                            className="rounded p-0.5 text-white/50 hover:bg-slate-600 hover:text-white"
-                            aria-label="Rename playlist"
-                          >
-                            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M6 17v-3a2 2 0 012-2h2.5M12 4.5v6m0 0l2-2m-2 2l-2-2" />
-                            </svg>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => removeMovieFromPlaylist(p.id, imdbID)}
-                            className="rounded p-0.5 text-white/50 hover:bg-red-900/30 hover:text-red-400"
-                            aria-label="Remove from playlist"
-                          >
-                            <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
-                        </div>
-                      </>
-                    )}
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-            <div className="px-2 pt-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                Add to
-              </p>
-              {playlists.filter((p) => !p.movieIds.includes(imdbID)).length === 0 && !creating && (
-                <p className="mt-1 text-xs text-white/50">No other playlists. Create one below.</p>
+                </div>
               )}
-              {playlists
-                .filter((p) => !p.movieIds.includes(imdbID))
-                .map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => addMovieToPlaylist(p.id, imdbID)}
-                    className="mt-1 flex w-full items-center rounded-lg px-2 py-1.5 text-left text-sm text-white/80 hover:bg-slate-700"
-                  >
-                    {p.name}
-                  </button>
-                ))}
+
+              {/* Available Playlists Section */}
+              {playlists.filter((p) => !p.movieIds.includes(imdbID)).length > 0 && (
+                <div className="mb-6">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-white/60 mb-3">
+                    Add to
+                  </p>
+                  <div className="space-y-2">
+                    {playlists
+                      .filter((p) => !p.movieIds.includes(imdbID))
+                      .map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          onClick={() => addMovieToPlaylist(p.id, imdbID)}
+                          className="w-full flex items-center rounded-lg px-3 py-2 text-left text-sm text-white/80 bg-slate-800/50 border border-white/5 hover:bg-red-500/10 hover:border-red-500/30 hover:text-white transition-all duration-200"
+                        >
+                          {p.name}
+                        </button>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {playlists.length === 0 && containing.length === 0 && (
+                <p className="text-sm text-white/50 text-center py-6">No playlists yet. Create one to get started!</p>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-white/10 px-6 py-4 shrink-0">
+              <button
+                type="button"
+                onClick={() => setCreatePlaylistOpen(true)}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-red-400/60 bg-red-500/10 px-4 py-3 text-sm font-medium text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:border-red-400 hover:bg-red-500/20 hover:shadow-[0_0_12px_rgba(220,38,38,0.4)] active:scale-95"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                New Playlist
+              </button>
             </div>
           </div>
-          {creating ? (
-            <div className="flex items-center gap-1 border-t border-white/10 px-3 py-2">
-              <input
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleCreate()}
-                placeholder="Playlist name"
-                className="flex-1 rounded border border-white/20 bg-slate-700 px-2 py-1.5 text-sm text-white placeholder:text-white/50"
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={handleCreate}
-                className="rounded bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-500"
-              >
-                Create
-              </button>
-              <button
-                type="button"
-                onClick={() => { setCreating(false); setNewName(""); }}
-                className="rounded px-2 py-1 text-xs text-white/70 hover:text-white/90 hover:bg-slate-700"
-              >
-                Cancel
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setCreating(true)}
-              className="flex items-center gap-2 rounded-lg border border-dashed border-white/20 px-3 py-2 text-sm text-white/60 hover:border-red-500 hover:text-red-400 border-t"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              New playlist
-            </button>
-          )}
-        </div>
+          </div>
+        </ClientPortal>
       )}
-    </div>
+
+      {/* Create Playlist Modal */}
+      <ClientPortal>
+        <CreatePlaylistModal
+          open={createPlaylistOpen}
+          onClose={() => setCreatePlaylistOpen(false)}
+          onCreate={handleCreatePlaylist}
+          type={type}
+        />
+      </ClientPortal>
+    </>
   );
 }

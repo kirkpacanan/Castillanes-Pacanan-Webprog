@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
@@ -17,6 +17,12 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showPrivacy, setShowPrivacy] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.replace("/");
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -47,11 +53,6 @@ export default function SignUpPage() {
     }
   };
 
-  if (user) {
-    router.replace("/");
-    return null;
-  }
-
   if (!hydrated) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -60,17 +61,28 @@ export default function SignUpPage() {
     );
   }
 
+  if (user) {
+    return null;
+  }
+
   return (
-    <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-center text-2xl font-bold uppercase tracking-wide text-white">
-        Sign up to Feelvie
-      </h1>
+    <div className="feelvie-page relative min-h-screen">
+      <div className="feelvie-ambient" aria-hidden>
+        <div className="feelvie-ambient-spot feelvie-ambient-spot-1" />
+        <div className="feelvie-ambient-spot feelvie-ambient-spot-2" />
+        <div className="feelvie-grid" />
+      </div>
+      
+      <div className="relative z-10 mx-auto max-w-md px-4 sm:px-6 py-10 sm:py-16">
+        <h1 className="feelvie-title text-center text-2xl sm:text-3xl md:text-4xl font-semibold text-white">
+          Sign up to Feelvie
+        </h1>
       {hasSupabase ? (
         <>
           <button
             type="button"
             onClick={signInWithGoogle}
-            className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-white/20"
+            className="feelvie-button-ghost mt-8 flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-medium text-white shadow-sm transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24" aria-hidden>
               <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -89,13 +101,13 @@ export default function SignUpPage() {
             : "Sign up with email below."}
         </p>
       )}
-      <form onSubmit={handleSubmit} className={`flex flex-col gap-4 ${hasSupabase ? "mt-6" : "mt-8"}`}>
+      <form onSubmit={handleSubmit} className={`feelvie-card flex flex-col gap-5 p-6 ${hasSupabase ? "mt-6" : "mt-8"}`}>
         {error && (
-          <p className="rounded-xl bg-red-900/40 px-4 py-2 text-sm text-red-200">
-            {error}
-          </p>
+          <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3">
+            <p className="text-sm text-red-200">{error}</p>
+          </div>
         )}
-        <label className="text-sm font-semibold text-white/80">
+        <label className="text-sm font-semibold text-white/90">
           Username
         </label>
         <input
@@ -103,10 +115,10 @@ export default function SignUpPage() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter your username"
-          className="rounded-xl border border-white/15 bg-slate-900 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-red-500/30"
+          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30"
           required
         />
-        <label className="text-sm font-semibold text-white/80">
+        <label className="text-sm font-semibold text-white/90">
           Email
         </label>
         <input
@@ -114,9 +126,9 @@ export default function SignUpPage() {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email"
-          className="rounded-xl border border-white/15 bg-slate-900 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-red-500/30"
+          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30"
         />
-        <label className="text-sm font-semibold text-white/80">
+        <label className="text-sm font-semibold text-white/90">
           Password
         </label>
         <input
@@ -124,16 +136,16 @@ export default function SignUpPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter your password"
-          className="rounded-xl border border-white/15 bg-slate-900 px-4 py-3 text-white outline-none focus:ring-2 focus:ring-red-500/30"
+          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/40 outline-none transition focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30"
         />
         <p className="text-xs text-white/60">
           By clicking Sign Up, you agree to Feelvie&apos;s
           {' '}
-          <button type="button" onClick={() => setShowTerms(true)} className="underline text-red-400 hover:text-red-300">
+          <button type="button" onClick={() => setShowTerms(true)} className="underline text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:text-red-300">
             Terms of Service
           </button>
           {' '} (including arbitration provisions) and acknowledge that you have read our {' '}
-          <button type="button" onClick={() => setShowPrivacy(true)} className="underline text-red-400 hover:text-red-300">
+          <button type="button" onClick={() => setShowPrivacy(true)} className="underline text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:text-red-300">
             Privacy Policy
           </button>
           .
@@ -141,27 +153,28 @@ export default function SignUpPage() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 rounded-xl bg-red-600 py-3 text-sm font-bold text-white hover:bg-red-500 disabled:opacity-60 disabled:pointer-events-none"
+          className="feelvie-button mt-2 rounded-xl py-3 text-sm font-semibold text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95 disabled:opacity-60 disabled:pointer-events-none disabled:hover:scale-100 disabled:hover:shadow-none"
         >
           {loading ? "Creating account…" : "Sign Up"}
         </button>
       </form>
       <p className="mt-6 text-center text-sm text-white/70">
         Already have an account?{" "}
-        <Link href="/signin" className="font-semibold text-red-400 hover:underline">
+        <Link href="/signin" className="font-semibold text-red-400 transition-all duration-300 ease-out hover:scale-105 hover:text-red-300">
           Sign in
         </Link>
       </p>
       <p className="mt-4 text-center">
         <Link
           href="/"
-          className="text-sm font-medium text-white/70 hover:text-white"
+          className="text-sm font-medium text-white/70 transition-all duration-300 ease-out hover:scale-105 hover:text-white"
         >
           Continue as Guest
         </Link>
       </p>
       <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
       <PrivacyModal open={showPrivacy} onClose={() => setShowPrivacy(false)} />
+      </div>
     </div>
   );
 }

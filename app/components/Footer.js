@@ -2,15 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import CookiesModal from "./CookiesModal";
+import PrivacyModal from "./PrivacyModal";
+import TermsModal from "./TermsModal";
 
 const DISCOVER_LINKS = [
   { href: "/how-it-works", label: "How it works" },
   { href: "/", label: "Movie suggestion" },
-];
-
-const ABOUT_LINKS = [
+  { href: "/about", label: "About us" },
   { href: "/contact", label: "Contact" },
-  { href: "#", label: "Follow us" },
 ];
 
 const SOCIAL_LINKS = [
@@ -58,6 +58,9 @@ function SocialIcon({ name, className = "h-4 w-4" }) {
 
 export default function Footer() {
   const [email, setEmail] = useState("");
+  const [showTerms, setShowTerms] = useState(false);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showCookies, setShowCookies] = useState(false);
 
   const handleSubscribe = (e) => {
     e.preventDefault();
@@ -67,59 +70,66 @@ export default function Footer() {
 
   return (
     <footer
-      className="flex w-full flex-col items-center bg-[#05050A] px-6 py-20 md:px-16"
-      style={{ fontFamily: "Inter, sans-serif", gap: 80 }}
+      className="flex w-full flex-col items-center border-t border-white/5 bg-[#05050A] px-4 sm:px-6 py-12 sm:py-20 md:px-16"
+      style={{ fontFamily: "'Space Grotesk', sans-serif", gap: 60 }}
     >
-      <div className="flex w-full max-w-[1152px] flex-col gap-20">
+      <div className="flex w-full max-w-[1152px] flex-col gap-12 sm:gap-20">
         {/* Content: row, gap 128px */}
-        <div className="flex flex-col gap-12 lg:flex-row lg:gap-32">
+        <div className="flex flex-col gap-8 sm:gap-12 lg:flex-row lg:items-start lg:justify-between lg:gap-32">
           {/* Newsletter – width 500px, gap 24px */}
-          <div className="flex w-full max-w-[500px] flex-col gap-6">
+          <div className="flex w-full lg:max-w-[500px] flex-col gap-4 sm:gap-6">
             <img 
               src="/feelvie-full-logo.png" 
               alt="Feelvie" 
-              className="h-12 w-auto flex-shrink-0 max-w-fit" 
+              className="h-12 w-auto flex-shrink-0 max-w-fit transition-all duration-300 ease-out hover:scale-105 hover:drop-shadow-[0_0_12px_rgba(178,34,34,0.4)] cursor-pointer" 
             />
             <p
-              className="text-white"
-              style={{ fontSize: 14, fontWeight: 400, lineHeight: "160%" }}
+              className="text-white/85"
+              style={{ fontSize: 14, fontWeight: 400, lineHeight: "170%" }}
             >
               Get Feelvie updates delivered to your inbox.
             </p>
             <div className="flex flex-col gap-3">
-              <form onSubmit={handleSubscribe} className="flex flex-row gap-4">
+              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Your email"
-                  className="min-h-[40px] flex-1 rounded-xl border-0 bg-white/10 px-3 py-2 text-white placeholder:text-white/60 outline-none focus:ring-1 focus:ring-white/30"
+                  className="min-h-[40px] w-full sm:flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white placeholder:text-white/50 outline-none transition-all duration-300 ease-out hover:border-white/20 hover:bg-white/8 focus:border-red-500/50 focus:ring-2 focus:ring-red-500/30 focus:bg-white/10"
                   style={{ fontSize: 14, lineHeight: "160%" }}
                 />
                 <button
                   type="submit"
-                  className="flex h-[40px] min-w-[120px] shrink-0 items-center justify-center rounded-full bg-white/10 text-sm font-medium text-white transition hover:bg-white/15"
+                  className="feelvie-button flex h-[40px] w-full sm:w-auto sm:min-w-[120px] shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95"
                   style={{ lineHeight: "160%" }}
                 >
                   Subscribe
                 </button>
               </form>
               <p
-                className="text-white"
-                style={{ fontSize: 11, fontWeight: 400, lineHeight: "160%" }}
+                className="text-white/70"
+                style={{ fontSize: 11, fontWeight: 400, lineHeight: "170%" }}
               >
-                By subscribing you agree to our Privacy Policy and consent to
-                receive updates from Feelvie.
+                By subscribing you agree to our{" "}
+                <button
+                  type="button"
+                  onClick={() => setShowPrivacy(true)}
+                  className="underline text-red-400 transition-all duration-300 ease-out hover:text-red-300 hover:scale-105 inline-block"
+                >
+                  Privacy Policy
+                </button>{" "}
+                and consent to receive updates from Feelvie.
               </p>
             </div>
           </div>
 
           {/* Links – row, gap 40px */}
-          <div className="flex flex-1 flex-row flex-wrap gap-10">
+          <div className="flex flex-1 flex-row flex-wrap gap-10 lg:ml-auto lg:justify-end">
             {/* Discover – 148px, gap 16px */}
             <div className="flex w-[148px] flex-col gap-4">
               <p
-                className="text-white"
+                className="font-semibold text-white"
                 style={{ fontSize: 14, fontWeight: 600, lineHeight: "160%" }}
               >
                 Discover
@@ -129,32 +139,13 @@ export default function Footer() {
                   <Link
                     key={label}
                     href={href}
-                    className="block py-1.5 text-white hover:opacity-90"
+                    className="group relative block py-1.5 text-white/85 transition-all duration-300 ease-out hover:text-white hover:translate-x-2"
                     style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
                   >
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* About us – 148px, gap 16px */}
-            <div className="flex w-[148px] flex-col gap-4">
-              <p
-                className="text-white"
-                style={{ fontSize: 14, fontWeight: 600, lineHeight: "160%" }}
-              >
-                About us
-              </p>
-              <div className="flex flex-col">
-                {ABOUT_LINKS.map(({ href, label }) => (
-                  <Link
-                    key={label}
-                    href={href}
-                    className="block py-1.5 text-white hover:opacity-90"
-                    style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
-                  >
-                    {label}
+                    <span className="relative inline-block">
+                      <span className="absolute -left-3 top-1/2 -translate-y-1/2 text-red-400 opacity-0 transition-all duration-300 ease-out group-hover:opacity-100 group-hover:-left-4">→</span>
+                      {label}
+                    </span>
                   </Link>
                 ))}
               </div>
@@ -163,7 +154,7 @@ export default function Footer() {
             {/* Socials – 148px, gap 16px */}
             <div className="flex w-[148px] flex-col gap-4">
               <p
-                className="text-white"
+                className="font-semibold text-white"
                 style={{ fontSize: 14, fontWeight: 600, lineHeight: "160%" }}
               >
                 Socials
@@ -175,10 +166,10 @@ export default function Footer() {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 py-1.5 text-white hover:opacity-90"
+                    className="group flex items-center gap-2 py-1.5 text-white/85 transition-all duration-300 ease-out hover:text-white hover:translate-x-2"
                     style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
                   >
-                    <SocialIcon name={icon} className="h-4 w-4 shrink-0" />
+                    <SocialIcon name={icon} className="h-4 w-4 shrink-0 transition-all duration-300 ease-out group-hover:scale-110 group-hover:rotate-6 group-hover:text-red-400" />
                     {label}
                   </a>
                 ))}
@@ -188,32 +179,48 @@ export default function Footer() {
         </div>
 
         {/* Credits – gap 32px, divider + row */}
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-6 sm:gap-8">
           <div
             className="w-full border-t border-white/20"
             style={{ height: 0 }}
             aria-hidden
           />
-          <div className="flex flex-row justify-center">
-            <div className="flex flex-row items-center gap-6" style={{ width: 280 }}>
-              <a
-                href="#"
-                className="text-white underline hover:opacity-90"
+          <div className="flex flex-col sm:flex-row justify-center">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 px-4 sm:px-0" style={{ maxWidth: 360 }}>
+              <button
+                type="button"
+                onClick={() => setShowTerms(true)}
+                className="group relative text-white/80 transition-all duration-300 ease-out hover:text-white text-sm sm:text-xs"
                 style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
               >
                 Terms of Service
-              </a>
-              <a
-                href="#"
-                className="text-white underline hover:opacity-90"
+                <span className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-red-400 to-red-300 transition-all duration-300 ease-out group-hover:w-full" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowPrivacy(true)}
+                className="group relative text-white/80 transition-all duration-300 ease-out hover:text-white text-sm sm:text-xs"
+                style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
+              >
+                Privacy Policy
+                <span className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-red-400 to-red-300 transition-all duration-300 ease-out group-hover:w-full" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCookies(true)}
+                className="group relative text-white/80 transition-all duration-300 ease-out hover:text-white text-sm sm:text-xs"
                 style={{ fontSize: 13, fontWeight: 400, lineHeight: "160%" }}
               >
                 Cookies Settings
-              </a>
+                <span className="absolute bottom-0 left-0 h-px w-0 bg-gradient-to-r from-red-400 to-red-300 transition-all duration-300 ease-out group-hover:w-full" />
+              </button>
             </div>
           </div>
         </div>
       </div>
+      <TermsModal open={showTerms} onClose={() => setShowTerms(false)} />
+      <PrivacyModal open={showPrivacy} onClose={() => setShowPrivacy(false)} />
+      <CookiesModal open={showCookies} onClose={() => setShowCookies(false)} />
     </footer>
   );
 }

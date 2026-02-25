@@ -7,6 +7,8 @@ import { useAuth } from "../context/AuthContext";
 import { useWatchlist } from "../context/WatchlistContext";
 import PosterPlaceholder from "../components/PosterPlaceholder";
 import MovieModal from "../components/MovieModal";
+import MoviePosterCard from "../components/MoviePosterCard";
+import PlaylistPicker from "../components/PlaylistPicker";
 import ClientPortal from "../components/ClientPortal";
 
 const suggestions = [
@@ -43,6 +45,7 @@ export default function HomePage() {
   const [movie, setMovie] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [history, setHistory] = useState([]);
+  const [relatedMovies, setRelatedMovies] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [chatMessages, setChatMessages] = useState([
@@ -83,18 +86,26 @@ export default function HomePage() {
 
   const keywordChips = useMemo(() => {
     if (!analysis) return [];
-    return [analysis.genre, analysis.mood, ...(analysis.themes || [])].filter(Boolean);
+    const chips = [analysis.genre, analysis.mood, ...(analysis.themes || [])].filter(Boolean);
+    return [...new Set(chips)];
   }, [analysis]);
 
   const posterUrls = useMemo(() => {
     const posters = [
       ...backgroundPosters,
-      ...[movie, ...history].map((item) => item?.Poster)
+      ...[movie, ...history, ...relatedMovies].map((item) => item?.Poster)
     ].filter((p) => p && p !== "N/A");
     const unique = [...new Set(posters)];
     if (unique.length < 4) return [];
     return [...unique, ...unique, ...unique].slice(0, 18);
-  }, [movie, history, backgroundPosters]);
+  }, [movie, history, relatedMovies, backgroundPosters]);
+
+  const relatedList = useMemo(() => {
+    const base = relatedMovies?.length ? relatedMovies : history;
+    return base
+      .filter((item) => item && (!movie || item.imdbID !== movie.imdbID))
+      .slice(0, 25);
+  }, [relatedMovies, history, movie]);
 
   const posterRowItems = useMemo(() => {
     if (posterUrls.length >= 4) return posterUrls;
@@ -119,6 +130,7 @@ export default function HomePage() {
   const applyRecommendation = (payload, promptText) => {
     setMovie(payload.movie);
     setAnalysis(payload.analysis);
+    setRelatedMovies(payload.relatedMovies || []);
     setHistory((prev) => [payload.movie, ...prev].slice(0, 5));
     setLastPrompt(promptText);
   };
@@ -279,38 +291,38 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-[1280px] px-4 pb-24 pt-10 md:px-8 md:pt-14 animate-fade-in">
+      <div className="relative z-10 mx-auto w-full max-w-[1280px] px-3 sm:px-4 pb-16 sm:pb-24 pt-6 sm:pt-10 md:px-8 md:pt-14 animate-fade-in">
         {/* Logo and hero */}
         <section className="text-center">
           <img 
             src="/feelvie-full-logo.png" 
             alt="Feelvie" 
-            className="mx-auto h-auto w-auto max-w-xs md:max-w-sm"
+            className="mx-auto h-auto w-auto max-w-[200px] sm:max-w-xs md:max-w-sm"
           />
-          <p className="mt-5 max-w-xl mx-auto text-lg leading-relaxed text-white/95 md:text-xl md:leading-relaxed" style={{ fontFamily: "Inter, sans-serif" }}>
-            Tell us how you feel… and we&apos;ll tell you what to watch.
+          <p className="mt-4 sm:mt-6 max-w-2xl mx-auto text-sm sm:text-base leading-[170%] text-white/85 md:text-lg px-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            Tell us how you feel, and we&apos;ll match you with films that resonate.
           </p>
         </section>
 
         {/* Search bar + year */}
-        <section className="mx-auto mt-10 w-full max-w-[904px]">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex h-[92px] items-center gap-3 rounded-[50px] bg-[#1E1E1E]/95 px-6 shadow-lg ring-1 ring-white/5 transition focus-within:ring-2 focus-within:ring-[#8E1B1B]/50">
+        <section className="mx-auto mt-6 sm:mt-10 w-full max-w-[904px]">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-4">
+            <div className="feelvie-card flex h-[70px] sm:h-[92px] items-center gap-2 sm:gap-3 px-4 sm:px-6 transition focus-within:ring-2 focus-within:ring-[#8E1B1B]/50">
               <input
                 type="text"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 placeholder="Type a sentence or phrase."
-                className="min-w-0 flex-1 bg-transparent text-xl text-white placeholder:text-white/60 outline-none md:text-2xl"
-                style={{ fontFamily: "Inter, sans-serif" }}
+                className="min-w-0 flex-1 bg-transparent text-base sm:text-xl md:text-2xl text-white placeholder:text-white/50 outline-none"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-[#8E1B1B] text-white transition hover:bg-[#a02020] hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                className="feelvie-button flex h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 items-center justify-center rounded-full text-white transition hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
                 aria-label="Search"
               >
-                <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
                 </svg>
               </button>
@@ -319,8 +331,8 @@ export default function HomePage() {
               <select
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
-                className="h-[42px] w-full appearance-none rounded-[50px] bg-[#1E1E1E]/95 pl-6 pr-10 text-lg text-white ring-1 ring-white/5 outline-none transition focus:ring-2 focus:ring-[#8E1B1B]/50"
-                style={{ fontFamily: "Inter, sans-serif" }}
+                className="h-[42px] w-full appearance-none rounded-[50px] border border-white/10 bg-[#1E1E1E]/95 pl-6 pr-10 text-base text-white outline-none transition focus:border-[#8E1B1B]/50 focus:ring-2 focus:ring-[#8E1B1B]/30"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 <option value="">Any year</option>
                 {Array.from({ length: 50 }, (_, i) => (
@@ -339,14 +351,14 @@ export default function HomePage() {
               <p className="mt-2 text-sm font-medium text-red-400">{error}</p>
             )}
           </form>
-          <div className="mt-5 flex flex-wrap justify-center gap-2">
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
             {suggestions.map((item) => (
               <button
                 key={item}
                 type="button"
                 onClick={() => { setPrompt(item); requestRecommendation(item); }}
-                className="rounded-full border border-white/20 bg-white/5 px-4 py-2 text-sm text-white/90 transition hover:border-red-400/60 hover:bg-white/10 hover:text-white"
-                style={{ fontFamily: "Inter, sans-serif" }}
+                className="feelvie-chip px-4 py-2 text-xs font-medium text-white transition-all duration-300 ease-out hover:bg-[rgba(178,34,34,0.35)] hover:scale-105 hover:shadow-[0_0_12px_rgba(178,34,34,0.4)] active:scale-95"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 {item}
               </button>
@@ -355,119 +367,238 @@ export default function HomePage() {
         </section>
 
         {/* Main: Result Section (left) + Mood Chat (right) */}
-        <section className="mt-12 grid gap-6 lg:grid-cols-[696px_1fr] lg:gap-8 xl:grid-cols-[minmax(0,696px)_minmax(0,504px)]">
+        <section className="mt-8 sm:mt-12 grid gap-4 sm:gap-6 lg:grid-cols-[1fr_380px] lg:gap-8">
           {/* Result Section */}
-          <div className="min-h-[608px] rounded-2xl border border-slate-200 dark:border-white/5 bg-white/90 dark:bg-[#0a0505]/95 p-6 shadow-xl backdrop-blur-sm md:p-8">
-            <h2 className="text-2xl font-medium tracking-tight text-slate-900 dark:text-white md:text-[32px] md:leading-[39px]" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
-              Recommended Movie
-            </h2>
-            {!movie && (
-              <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-start">
-                <div className="aspect-[2/3] w-full max-w-[380px] flex-shrink-0 overflow-hidden rounded-[8px] bg-transparent">
-                  <PosterPlaceholder className="h-full w-full rounded-[8px]" />
-                </div>
-                <div className="flex flex-1 flex-col justify-center">
-                  <p className="text-slate-600 dark:text-[#838383] text-[11px] leading-[14px] md:text-sm" style={{ fontFamily: "Inder, sans-serif" }}>
+          <div className="feelvie-card min-h-[400px] sm:h-[608px] flex flex-col">
+            <div className="px-4 pt-4 pb-3 sm:px-6 sm:pt-8 sm:pb-4 flex-shrink-0">
+              <h2 className="feelvie-title text-xl sm:text-2xl md:text-[32px] font-semibold tracking-tight text-white md:leading-[39px]">
+                Recommended movie
+              </h2>
+            </div>
+            <div className="flex flex-1 min-h-0 w-full flex-col md:flex-row md:gap-3">
+              {!movie && (
+              <div className="flex flex-1 items-center justify-center px-6 py-8 text-center">
+                <div>
+                  <div className="mb-4 flex justify-center">
+                    <div className="aspect-[2/3] w-40 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-slate-800">
+                      <PosterPlaceholder className="aspect-[2/3] w-full" />
+                    </div>
+                  </div>
+                  <p className="text-sm leading-relaxed text-slate-300 dark:text-white/80">
                     Submit a prompt or pick a suggestion above to get a personalized movie recommendation.
                   </p>
                 </div>
               </div>
             )}
             {movie && (
-              <div className="mt-6 flex flex-col gap-6 md:flex-row">
-                <div className="aspect-[2/3] w-full max-w-[380px] flex-shrink-0 overflow-hidden rounded-[8px] bg-transparent">
-                  {movie.Poster && movie.Poster !== "N/A" ? (
-                    <img
-                      src={movie.Poster}
-                      alt={`${movie.Title} poster`}
-                      className="h-full w-full rounded-[8px] object-contain"
-                    />
-                  ) : (
-                    <PosterPlaceholder className="h-full w-full rounded-[8px]" />
-                  )}
-                </div>
-                <div className="flex flex-1 flex-col">
-                  <p className="font-['Inria_Sans'] text-lg leading-[22px] text-red-600 dark:text-[#DD7575]" style={{ fontFamily: "'Inria Sans', sans-serif" }}>
-                    {movie.Genre}
-                  </p>
-                  <h3 className="font-['Inclusive_Sans'] text-2xl leading-[29px] text-white" style={{ fontFamily: "'Inclusive Sans', sans-serif" }}>
-                    {movie.Title}
-                  </h3>
-                  <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="rounded-[20px] border border-slate-400 dark:border-[#838383] px-2 py-0.5 font-['Inder'] text-xs leading-[15px] text-slate-600 dark:text-[#838383]" style={{ fontFamily: "Inder, sans-serif" }}>{movie.Year}</span>
-                    <span className="rounded-[20px] border border-slate-400 dark:border-[#838383] px-2 py-0.5 font-['Inder'] text-xs leading-[15px] text-slate-600 dark:text-[#838383]">⭐ {movie.imdbRating}</span>
-                    <span className="font-['Inder'] text-xs leading-[15px] text-slate-600 dark:text-[#838383]">{movie.Runtime}</span>
+              <>
+                {/* Left: Fixed Poster Container */}
+                <div className="shrink-0 flex items-start justify-start px-4 py-4 md:px-6 md:py-0">
+                  <div className="w-40 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-slate-800 sm:w-44 md:w-48 translate-x-2">
+                    {movie.Poster && movie.Poster !== "N/A" ? (
+                      <img
+                        src={movie.Poster}
+                        alt={movie.Title}
+                        className="aspect-[2/3] w-full object-cover scale-115"
+                      />
+                    ) : (
+                      <PosterPlaceholder className="aspect-[2/3] w-full scale-115" />
+                    )}
                   </div>
-                  <p className="mt-2 font-['Inder'] text-[11px] leading-[14px] text-slate-600 dark:text-[#838383] line-clamp-2" style={{ fontFamily: "Inder, sans-serif" }}>
-                    {movie.Plot}
-                  </p>
-                  {keywordChips.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {keywordChips.map((chip) => (
-                        <span
-                          key={chip}
-                          className="rounded-[20px] bg-red-100 px-2 py-0.5 font-['Inclusive_Sans'] text-[9px] leading-[11px] text-red-700 dark:bg-[rgba(142,27,27,0.5)] dark:text-[#FF8C8C]"
-                          style={{ fontFamily: "'Inclusive Sans', sans-serif" }}
-                        >
-                          {chip}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  {user && (
-                    <div className="mt-5 flex flex-wrap gap-3">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          isInWatchList(movie.imdbID)
-                            ? removeFromWatchList(movie.imdbID)
-                            : addToWatchList(movie)
-                        }
-                        className="rounded-xl bg-[#8E1B1B] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#a02020] hover:scale-[1.02] active:scale-[0.98]"
-                      >
-                        {isInWatchList(movie.imdbID) ? "Remove from Watch list" : "Add to Watch list"}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => markWatched(movie)}
-                        className="rounded-xl bg-[#8E1B1B] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#a02020] hover:scale-[1.02] active:scale-[0.98]"
-                      >
-                        Watched
-                      </button>
-                    </div>
-                  )}
                 </div>
-              </div>
+
+                {/* Right: Scrollable Details */}
+                <div className="modal-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pb-4 pr-4 md:px-2 md:pb-6 md:pr-6">
+                  <div className="flex flex-col gap-3 pb-4 sm:pb-6 md:pb-8">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
+                      {movie.Genre || "Movie"}
+                    </p>
+                    <h2 className="text-2xl font-bold text-white md:text-3xl">
+                      {movie.Title}
+                    </h2>
+                    <div className="flex flex-wrap gap-3 text-sm text-slate-400 dark:text-white/70">
+                      <span>{movie.Year}</span>
+                      {movie.Runtime && <span>•</span>}
+                      <span>{movie.Runtime}</span>
+                      {movie.imdbRating && <span>•</span>}
+                      <span>⭐ {movie.imdbRating}</span>
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-slate-300 dark:text-white/80">
+                      {movie.Plot || "No description available."}
+                    </p>
+
+                    {/* Director */}
+                    {movie.Director && movie.Director !== "N/A" && (
+                      <div className="mt-0 flex flex-col gap-1">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+                          Director
+                        </p>
+                        <p className="text-sm text-slate-300 dark:text-white/80">
+                          {movie.Director}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Cast */}
+                    {movie.Actors && movie.Actors !== "N/A" && (
+                      <div className="mt-0 flex flex-col gap-1">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+                          Cast
+                        </p>
+                        <p className="text-sm leading-relaxed text-slate-300 dark:text-white/80">
+                          {movie.Actors}
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Keyword Chips */}
+                    {keywordChips.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {keywordChips.map((chip) => (
+                          <span
+                            key={chip}
+                            className="rounded-full bg-red-500/10 px-3 py-1 text-xs font-medium text-red-400 dark:text-red-300 transition-all duration-300 ease-out hover:bg-red-500/20 hover:scale-110 hover:shadow-[0_0_8px_rgba(220,38,38,0.5)] cursor-default"
+                          >
+                            {chip}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Guest: Sign in prompt */}
+                    {!user && (
+                      <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 transition-all duration-300">
+                        <p className="text-sm text-white/90">
+                          Want to save this movie to your Watchlist or mark it as Watched? Sign in to start tracking your movies!
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => router.push("/signin")}
+                          className="mt-3 w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-all duration-300 ease-out hover:scale-105 hover:brightness-110 hover:shadow-[0_0_20px_rgba(178,34,34,0.6)] active:scale-95"
+                        >
+                          Sign In
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Logged-in: Full controls */}
+                    {user && (
+                      <>
+                        {/* Watchlist Section */}
+                        <div className="mt-4 flex flex-col gap-3 border-t border-white/10 pt-4">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+                            Watch list
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                isInWatchList(movie.imdbID)
+                                  ? removeFromWatchList(movie.imdbID)
+                                  : addToWatchList(movie)
+                              }
+                              className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 ${
+                                isInWatchList(movie.imdbID)
+                                  ? "border border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:shadow-[0_0_12px_rgba(220,38,38,0.4)]"
+                                  : "border border-white/20 text-white/80 hover:border-red-500 hover:text-white hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+                              }`}
+                            >
+                              {isInWatchList(movie.imdbID) ? "✓ In Watch list" : "Add to Watch list"}
+                            </button>
+                            {isInWatchList(movie.imdbID) && (
+                              <PlaylistPicker
+                                imdbID={movie.imdbID}
+                                playlists={watchlistPlaylists}
+                                getPlaylistsContaining={(id) => getPlaylistsContaining(id, "watchlist")}
+                                isMovieInPlaylist={(pId, id) => isMovieInPlaylist(pId, id, "watchlist")}
+                                addMovieToPlaylist={(pId, id) => addMovieToPlaylist(pId, id, "watchlist")}
+                                removeMovieFromPlaylist={(pId, id) => removeMovieFromPlaylist(pId, id, "watchlist")}
+                                createPlaylist={(name) => createPlaylist(name, "watchlist")}
+                                renamePlaylist={(pId, name) => renamePlaylist(pId, name, "watchlist")}
+                                deletePlaylist={(pId) => deletePlaylist(pId, "watchlist")}
+                                label="Playlists"
+                                type="watchlist"
+                              />
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Watched Section */}
+                        <div className="mt-4 flex flex-col gap-3 border-t border-white/10 pt-4">
+                          <p className="text-xs font-semibold uppercase tracking-wider text-white/60">
+                            Watched
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => markWatched(movie)}
+                              className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 ${
+                                isWatched(movie.imdbID)
+                                  ? "border border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:shadow-[0_0_12px_rgba(220,38,38,0.4)]"
+                                  : "border border-white/20 text-white/80 hover:border-red-500 hover:text-white hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+                              }`}
+                            >
+                              {isWatched(movie.imdbID) ? "✓ Watched" : "Mark as Watched"}
+                            </button>
+                            {isWatched(movie.imdbID) && (
+                              <PlaylistPicker
+                                imdbID={movie.imdbID}
+                                playlists={watchedPlaylists}
+                                getPlaylistsContaining={(id) => getPlaylistsContaining(id, "watched")}
+                                isMovieInPlaylist={(pId, id) => isMovieInPlaylist(pId, id, "watched")}
+                                addMovieToPlaylist={(pId, id) => addMovieToPlaylist(pId, id, "watched")}
+                                removeMovieFromPlaylist={(pId, id) => removeMovieFromPlaylist(pId, id, "watched")}
+                                createPlaylist={(name) => createPlaylist(name, "watched")}
+                                renamePlaylist={(pId, name) => renamePlaylist(pId, name, "watched")}
+                                deletePlaylist={(pId) => deletePlaylist(pId, "watched")}
+                                label="Playlists"
+                                type="watched"
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </>
             )}
+          </div>
           </div>
 
           {/* Mood Chat */}
           {showMoodChat && (
-            <aside className="min-h-[608px] rounded-2xl border border-slate-200 dark:border-white/5 bg-white/90 dark:bg-[#0a0505]/95 p-6 shadow-xl backdrop-blur-sm md:p-8">
-              <div className="rounded-xl border border-red-200 dark:border-[#8E1B1B]/50 bg-red-50/80 dark:bg-[rgba(178,34,34,0.15)] px-4 py-3">
-                <h2 className="text-xl font-medium text-white" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
+            <aside className="feelvie-card min-h-[608px] p-6 md:p-8">
+              <div 
+                className="rounded-xl px-4 py-3"
+                style={{ 
+                  background: "rgba(178, 34, 34, 0.15)",
+                  border: "1px solid rgba(178, 34, 34, 0.3)",
+                  boxShadow: "0 0 30px rgba(178, 34, 34, 0.6), 0 0 60px rgba(178, 34, 34, 0.3), inset 0 0 20px rgba(178, 34, 34, 0.1)" 
+                }}
+              >
+                <h2 className="feelvie-title text-xl font-semibold text-white">
                   Mood Chat
                 </h2>
-                <p className="mt-1 text-xs text-slate-600 dark:text-white/60" style={{ fontFamily: "Inder, sans-serif" }}>
+                <p className="mt-1 text-xs text-white/60">
                   Talk to the AI about how you feel.
                 </p>
               </div>
-              <div className="mt-4 max-h-[200px] overflow-y-auto space-y-2">
+              <div className="modal-scroll mt-4 max-h-[200px] overflow-y-auto space-y-2">
                 {chatMessages.map((msg, i) => (
                   <div
                     key={i}
                     className={
                       msg.role === "user"
-                        ? "ml-auto max-w-[85%] rounded-2xl bg-[#8E1B1B]/90 px-4 py-2.5 text-sm text-white"
-                        : "rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs leading-relaxed text-white/70"
+                        ? "feelvie-button ml-auto max-w-[85%] rounded-2xl px-4 py-2.5 text-sm text-white"
+                        : "feelvie-card-muted rounded-2xl px-4 py-3 text-xs leading-[170%] text-white/70"
                     }
-                    style={msg.role === "assistant" ? { fontFamily: "Inder, sans-serif" } : undefined}
                   >
                     {msg.content}
                   </div>
                 ))}
                 {chatLoading && (
-                  <div className="rounded-2xl border border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-white/5 px-4 py-3 text-xs text-slate-500 dark:text-white/50" style={{ fontFamily: "Inder, sans-serif" }}>
+                  <div className="feelvie-card-muted rounded-2xl px-4 py-3 text-xs text-white/50">
                     Typing…
                   </div>
                 )}
@@ -484,35 +615,34 @@ export default function HomePage() {
                   onChange={(e) => setChatInput(e.target.value)}
                   placeholder="Type how you feel..."
                   className="flex-1 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/40 outline-none transition focus:border-red-400/50 focus:ring-1 focus:ring-red-400/30"
-                  style={{ fontFamily: "Inder, sans-serif" }}
                 />
                 <button
                   type="submit"
                   disabled={chatLoading}
-                  className="rounded-xl bg-[#8E1B1B] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#a02020] hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
+                  className="feelvie-button rounded-xl px-4 py-2.5 text-sm font-medium text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:hover:shadow-none"
                 >
                   Send
                 </button>
               </form>
               <div className="mt-6">
-                <h3 className="text-sm font-medium text-white">Previous Picks</h3>
+                <h3 className="text-sm font-semibold text-white">Previous picks</h3>
                 {!user ? (
-                  <p className="mt-2 text-xs text-slate-500 dark:text-white/50" style={{ fontFamily: "Inder, sans-serif" }}>
+                  <p className="mt-2 text-xs text-white/50">
                     Sign in to save your recommendations.
                   </p>
                 ) : history.length === 0 ? (
-                  <p className="mt-2 text-xs text-slate-500 dark:text-white/50" style={{ fontFamily: "Inder, sans-serif" }}>
+                  <p className="mt-2 text-xs text-white/50">
                     Your recommendations will appear here.
                   </p>
                 ) : (
                   <ul className="mt-2 space-y-2">
-                    {history.slice(0, 5).map((item) => (
+                    {history.slice(0, 5).map((item, index) => (
                       <li
-                        key={item.imdbID}
-                        className="rounded-xl border border-slate-200 dark:border-white/10 bg-slate-100/80 dark:bg-white/5 px-3 py-2 transition hover:bg-slate-200/80 dark:hover:bg-white/10"
+                        key={`${item.imdbID}-${index}`}
+                        className="feelvie-card-muted rounded-xl px-3 py-2 transition hover:bg-white/10 cursor-pointer"
                       >
-                        <span className="text-sm font-medium text-white" style={{ fontFamily: "'Inclusive Sans', sans-serif" }}>{item.Title}</span>
-                        <span className="text-xs text-slate-500 dark:text-white/50"> · {item.Year} · {item.imdbRating}</span>
+                        <span className="text-sm font-medium text-white">{item.Title}</span>
+                        <span className="text-xs text-white/50"> · {item.Year} · {item.imdbRating}</span>
                       </li>
                     ))}
                   </ul>
@@ -523,38 +653,19 @@ export default function HomePage() {
         </section>
 
         {/* Other Related Movies */}
-        {(movie || history.length > 0) && (
-          <section className="mx-auto mt-14 w-full max-w-[1216px] rounded-2xl border border-slate-200 dark:border-white/5 bg-white/90 dark:bg-[#0a0505]/95 p-6 shadow-xl backdrop-blur-sm md:p-8">
-            <h2 className="text-2xl font-medium tracking-tight text-slate-900 dark:text-white md:text-[32px] md:leading-[39px]" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
-              Other Related Movies
+        {(movie || relatedList.length > 0) && (
+          <section className="feelvie-card mx-auto mt-14 w-full max-w-[1216px] p-6 md:p-8">
+            <h2 className="feelvie-title text-2xl font-semibold tracking-tight text-white md:text-[32px] md:leading-[39px]">
+              Other related movies
             </h2>
             <div className="mt-8 grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-              {[...(movie ? [movie] : []), ...history.filter((m) => !movie || m.imdbID !== movie.imdbID)]
-                .slice(0, 15)
-                .map((m) => (
-                  <div key={m.imdbID} className="group flex flex-col">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedMovie(m)}
-                      className="block overflow-hidden rounded-lg shadow-lg transition duration-200 hover:scale-[1.03] hover:shadow-xl w-full"
-                    >
-                      <div className="flex aspect-[2/3] w-full items-center justify-center bg-slate-100 dark:bg-white/5">
-                        {m.Poster && m.Poster !== "N/A" ? (
-                          <img
-                            src={m.Poster}
-                            alt=""
-                            className="h-full w-full object-contain rounded-lg"
-                          />
-                        ) : (
-                          <PosterPlaceholder className="h-full w-full rounded-lg" />
-                        )}
-                      </div>
-                    </button>
-                    <p className="mt-3 text-center text-sm font-medium text-white/95 line-clamp-2 group-hover:text-white" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
-                      {m.Title}
-                    </p>
-                  </div>
-                ))}
+              {relatedList.map((m) => (
+                <MoviePosterCard
+                  key={m.imdbID}
+                  movie={m}
+                  onClick={() => setSelectedMovie(m)}
+                />
+              ))}
             </div>
           </section>
         )}

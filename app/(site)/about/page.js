@@ -20,6 +20,12 @@ const FEATURES = [
   { title: "Fast and efficient browsing", icon: "browse" },
 ];
 
+const SNAPSHOT = [
+  { title: "Mood-first matching", body: "Every prompt is analyzed for tone and intent." },
+  { title: "Curated discovery", body: "Films are aligned with emotional context, not just genre." },
+  { title: "Designed for focus", body: "A minimal interface keeps the experience calm and clear." }
+];
+
 function FeatureIcon({ type }) {
   const cls = "h-16 w-16 flex-shrink-0 text-white md:h-20 md:w-20";
   if (type === "robot") {
@@ -55,66 +61,92 @@ function FeatureIcon({ type }) {
 
 export default function AboutPage() {
   return (
-    <div
-      className="min-h-screen overflow-x-hidden bg-slate-100 dark:bg-[#350A0A]"
-      style={{ fontFamily: "Inter, sans-serif" }}
-    >
-      {/* About Us – no background, text on page */}
-      <section className="relative z-10 px-4 py-16 md:py-20">
-        <div className="about-section-in mx-auto w-[min(1280px,94%)] text-center" style={{ animationDelay: "0.1s" }}>
-          <h1
-            className="text-4xl font-bold leading-[160%] text-slate-900 dark:text-white md:text-6xl lg:text-[84px]"
-            style={{ textShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)" }}
-          >
-            About Us
-          </h1>
-          <p className="mx-auto mt-6 max-w-[772px] text-center text-lg font-medium leading-[160%] text-slate-600 dark:text-white/95 md:text-xl">
-            Feelvie is an AI-powered movie discovery platform that generates personalized movie recommendations based on your mood and emotions.
-          </p>
+    <div className="feelvie-page relative min-h-screen overflow-x-hidden">
+      <div className="feelvie-ambient" aria-hidden>
+        <div className="feelvie-ambient-spot feelvie-ambient-spot-1" />
+        <div className="feelvie-ambient-spot feelvie-ambient-spot-2" />
+        <div className="feelvie-grid" />
+      </div>
+
+      {/* Hero */}
+      <section className="relative z-10 px-4 sm:px-6 pt-12 sm:pt-20 pb-8 sm:pb-12 md:pt-28">
+        <div className="about-section-in mx-auto grid w-full max-w-[1200px] items-center gap-8 sm:gap-10 md:grid-cols-[1.15fr_0.85fr]" style={{ animationDelay: "0.1s" }}>
+          <div className="flex flex-col gap-4 sm:gap-6 text-left">
+            <p className="feelvie-kicker">About Feelvie</p>
+            <h1 className="feelvie-title text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-semibold leading-[120%] text-white">
+              A calmer way to discover films.
+            </h1>
+            <p className="max-w-[680px] text-base sm:text-lg md:text-xl leading-[170%] text-white/85">
+              Feelvie is an AI-powered movie discovery platform that generates personalized recommendations based on your mood and emotions.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link
+                href="/how-it-works"
+                className="feelvie-button inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm sm:text-base font-semibold text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95"
+              >
+                See how it works
+              </Link>
+              <Link
+                href="/contact"
+                className="feelvie-button-ghost inline-flex items-center justify-center rounded-full px-6 py-2.5 text-sm sm:text-base font-semibold text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+              >
+                Contact us
+              </Link>
+            </div>
+          </div>
+          <div className="feelvie-card flex flex-col gap-5 sm:gap-6 p-5 sm:p-6 md:p-8">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">Project snapshot</p>
+            <div className="flex flex-col gap-5">
+              {SNAPSHOT.map((item) => (
+                <div key={item.title} className="flex flex-col gap-2">
+                  <p className="text-base font-semibold text-white">{item.title}</p>
+                  <p className="text-sm leading-[170%] text-white/70">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Our Mission – wide black rectangle to edges of screen */}
-      <section className="relative z-10 py-12 md:py-16">
-        <div className="relative left-1/2 w-[105vw] max-w-none -translate-x-1/2 px-0">
-          <div className="about-section-in rounded-lg bg-slate-800 px-6 py-12 text-center dark:bg-[#05050A] md:rounded-xl md:px-10 md:py-16" style={{ animationDelay: "0.25s" }}>
-            <h2
-              className="text-3xl font-bold leading-[160%] text-white md:text-5xl lg:text-[60px]"
-              style={{ textShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)" }}
-            >
-              Our Mission
+      <section className="relative z-10 px-4 sm:px-6 py-8 sm:py-12 md:py-16">
+        <div className="about-section-in mx-auto w-full max-w-[1200px]" style={{ animationDelay: "0.25s" }}>
+          <div className="feelvie-card flex flex-col gap-5 sm:gap-6 p-6 sm:p-8 md:p-12 text-left transition-all duration-300 ease-out hover:shadow-[0_8px_24px_rgba(178,34,34,0.3)] hover:border-red-500/30">
+            <p className="feelvie-kicker">Our mission</p>
+            <h2 className="feelvie-title text-2xl sm:text-3xl md:text-5xl lg:text-[60px] font-semibold leading-[130%] text-white">
+              Eliminate decision fatigue by honoring how people feel.
             </h2>
-            <p className="mx-auto mt-6 max-w-[772px] text-center text-base font-medium leading-[170%] text-white/95 md:text-xl">
-              Our mission is to eliminate decision fatigue in movie selection by using artificial intelligence to understand how users feel and recommend movies that match their emotional state.
+            <p className="max-w-[860px] text-sm sm:text-base md:text-lg leading-[175%] text-white/80">
+              Our mission is to reduce decision fatigue in movie selection by using artificial intelligence to understand how users feel and recommend films that match their emotional state.
             </p>
           </div>
         </div>
       </section>
 
       {/* What Makes Us Different – Group 1, Rectangle 34, border-radius 138px */}
-      <section className="relative z-10 px-4 py-12 md:py-16">
-        <div className="mx-auto w-full max-w-[1186px]">
-          <div className="about-section-in rounded-[80px] bg-slate-800 px-6 py-12 shadow-lg dark:bg-[#05050A] md:rounded-[138px] md:px-12 md:py-16 dark:shadow-[0_4px_4px_rgba(0,0,0,0.25)]" style={{ animationDelay: "0.4s" }}>
-            <h2
-              className="text-center text-3xl font-bold leading-[160%] text-white md:text-5xl lg:text-[60px]"
-              style={{ textShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)" }}
-            >
-              What Makes Us Different
-            </h2>
-            <p className="mx-auto mt-6 max-w-[929px] text-center text-base font-medium leading-[170%] text-white/95 md:text-xl">
-              We stand out by combining intelligent, mood-based AI recommendations with a highly personalized movie discovery experience, all delivered through a clean, minimal interface. Our platform is designed for fast and efficient browsing, making it easy for users to find the right movie at the right moment—without distractions.
-            </p>
-            <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <section className="relative z-10 px-4 sm:px-6 py-8 sm:py-12 md:py-16">
+        <div className="mx-auto w-full max-w-[1200px]">
+          <div className="about-section-in flex flex-col gap-6 sm:gap-8" style={{ animationDelay: "0.4s" }}>
+            <div className="flex flex-col gap-3 sm:gap-4 text-left">
+              <p className="feelvie-kicker">What makes us different</p>
+              <h2 className="feelvie-title text-2xl sm:text-3xl md:text-5xl lg:text-[60px] font-semibold leading-[130%] text-white">
+                Emotion-led discovery, refined and focused.
+              </h2>
+              <p className="max-w-[940px] text-sm sm:text-base md:text-lg leading-[175%] text-white/80">
+                We combine intelligent, mood-based recommendations with a clean, minimal interface. The platform is designed for fast, focused browsing, making it easy to find the right film at the right moment.
+              </p>
+            </div>
+            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
               {FEATURES.map((f, i) => (
                 <div
                   key={f.title}
-                  className="about-section-in flex flex-col items-center text-center"
+                  className="about-section-in feelvie-card flex flex-col items-start gap-4 p-6 transition-all duration-300 ease-out hover:shadow-[0_8px_24px_rgba(178,34,34,0.3)] hover:scale-[1.02] hover:border-red-500/30"
                   style={{ animationDelay: `${0.5 + i * 0.08}s` }}
                 >
                   <span className="text-white">
                     <FeatureIcon type={f.icon} />
                   </span>
-                  <p className="mt-4 text-base font-medium leading-[160%] text-white md:text-xl">
+                  <p className="text-base font-semibold leading-[160%] text-white md:text-lg">
                     {f.title}
                   </p>
                 </div>
@@ -125,41 +157,46 @@ export default function AboutPage() {
       </section>
 
       {/* Meet the Developers */}
-      <section className="relative z-10 px-4 py-16 md:py-20">
-        <div className="mx-auto w-[min(1280px,94%)] text-center">
+      <section className="relative z-10 px-6 py-16 md:py-20">
+        <div className="mx-auto w-full max-w-[1200px] text-left">
           <h2
-            className="about-section-in text-3xl font-bold leading-[160%] text-slate-900 dark:text-white md:text-5xl lg:text-[60px]"
-            style={{ textShadow: "0px 4px 4px rgba(0, 0, 0, 0.25)", animationDelay: "0.55s" }}
+            className="about-section-in feelvie-title text-3xl font-semibold leading-[130%] text-white md:text-5xl lg:text-[60px]"
+            style={{ animationDelay: "0.55s" }}
           >
-            Meet the Developers
+            Meet the developers
           </h2>
 
-          <div className="mx-auto mt-12 flex max-w-[900px] flex-wrap justify-center gap-8 overflow-visible md:gap-12">
+          <div className="mx-auto mt-10 grid gap-6 md:grid-cols-2">
             {DEVELOPERS.map((dev, i) => (
               <div
                 key={dev.name}
-                className="about-dev-card about-section-in flex w-[288px] flex-col items-center rounded-[64px] bg-slate-800 px-6 py-10 shadow-lg dark:bg-[#05050A] md:min-h-[344px] dark:shadow-[0_4px_4px_rgba(0,0,0,0.25)]"
+                className="about-dev-card about-section-in feelvie-card flex flex-col gap-6 p-6 transition-all duration-300 ease-out hover:shadow-[0_8px_24px_rgba(178,34,34,0.3)] hover:scale-[1.02] hover:border-red-500/30"
                 style={{ animationDelay: `${0.7 + i * 0.15}s` }}
               >
-                <div className="about-dev-float h-24 w-24 rounded-full bg-white/10" aria-hidden />
-                <p className="mt-6 text-lg font-bold leading-[160%] text-slate-900 dark:text-white md:text-xl">
-                  {dev.name}
-                </p>
+                <div className="about-dev-float h-20 w-20 rounded-full bg-white/10" aria-hidden />
+                <div className="flex flex-col gap-3">
+                  <p className="text-lg font-semibold text-white md:text-xl">{dev.name}</p>
+                  <p className="text-sm leading-[170%] text-white/75 md:text-base">{dev.bio}</p>
+                </div>
               </div>
             ))}
           </div>
 
-          <p className="about-section-in mx-auto mt-10 max-w-[889px] text-center text-base font-medium leading-[160%] text-slate-700 dark:text-white md:text-xl" style={{ animationDelay: "1s" }}>
-            {DEVELOPERS[0].bio}
-          </p>
-
-          <Link
-            href="/contact"
-            className="about-section-in mt-12 inline-flex items-center justify-center rounded-full bg-slate-600 px-8 py-3 text-lg font-medium leading-[160%] text-white transition hover:opacity-90 dark:bg-white/10 dark:hover:bg-white/15"
-            style={{ animationDelay: "1.15s" }}
-          >
-            Contact Us
-          </Link>
+          <div className="about-section-in mt-10 flex flex-wrap items-center gap-4" style={{ animationDelay: "1s" }}>
+            <div className="feelvie-divider w-full" />
+            <Link
+              href="/contact"
+              className="feelvie-button inline-flex items-center justify-center rounded-full px-7 py-3 text-base font-semibold text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95"
+            >
+              Contact us
+            </Link>
+            <Link
+              href="/how-it-works"
+              className="feelvie-button-ghost inline-flex items-center justify-center rounded-full px-7 py-3 text-base font-semibold text-white transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+            >
+              Read the process
+            </Link>
+          </div>
         </div>
       </section>
     </div>

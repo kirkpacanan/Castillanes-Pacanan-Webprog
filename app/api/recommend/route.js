@@ -199,7 +199,7 @@ const callOpenAI = async (prompt) => {
         {
           role: "system",
           content:
-            "Suggest ONE movie title based on the prompt and extract keywords. Respond ONLY with valid JSON matching: {\"title\":\"\", \"year\":\"\", \"genre\":\"\", \"mood\":\"\", \"themes\":[\"\"], \"keywords\":[\"\"]}."
+            "Suggest ONE main movie title and up to 25 related movie titles based on the prompt. Respond ONLY with valid JSON matching: {\"title\":\"\", \"year\":\"\", \"genre\":\"\", \"mood\":\"\", \"themes\":[\"\"], \"keywords\":[\"\"], \"related\":[\"\"]}."
         },
         {
           role: "user",
@@ -237,6 +237,12 @@ const buildQuery = (analysis, prompt, year) => {
 };
 
 const uniqueList = (items) => [...new Set(items.filter(Boolean))];
+
+const extractRelatedTitles = (analysis) => {
+  const raw =
+    analysis?.related || analysis?.relatedTitles || analysis?.recommendations || [];
+  return Array.isArray(raw) ? raw : [];
+};
 
 const pickFallbackTitles = (prompt, analysis) => {
   const moodBias = detectMoodBias(prompt);
@@ -316,6 +322,21 @@ const searchOmdb = async (query, excludeIds, year) => {
     (item) => !excludeIds.includes(item.imdbID)
   );
   return results[0] || null;
+};
+
+const searchOmdbMany = async (query, excludeIds, year, limit = 10) => {
+  const searchUrl = `https://www.omdbapi.com/?apikey=${OMDB_API_KEY}&s=${encodeURIComponent(
+    query
+  )}&type=movie${year ? `&y=${encodeURIComponent(year)}` : ""}`;
+  const response = await fetch(searchUrl);
+  const data = await response.json();
+  if (data.Response === "False") {
+    return [];
+  }
+  const results = (data.Search || []).filter(
+    (item) => !excludeIds.includes(item.imdbID)
+  );
+  return results.slice(0, limit);
 };
 
 const fetchByTitle = async (title, year) => {
@@ -432,8 +453,55 @@ export async function POST(request) {
     );
   }
 
+  const relatedTitles = uniqueList([
+    ...extractRelatedTitles(analysis),
+    ...pickFallbackTitles(prompt, analysis)
+  ])
+    .filter((title) => title && title !== analysis?.title)
+    .slice(0, 30);
+
+  const relatedMovies = [];
+  const seenIds = new Set([...(excludeIds || []), movie?.imdbID].filter(Boolean));
+
+  const addRelated = (candidate) => {
+    if (!candidate || candidate.Response === "False") return false;
+    if (seenIds.has(candidate.imdbID)) return false;
+    relatedMovies.push(candidate);
+    seenIds.add(candidate.imdbID);
+    return true;
+  };
+
+  for (const title of relatedTitles) {
+    if (relatedMovies.length >= 25) break;
+    const preferredYear = year || analysis?.year;
+    let titleResult = await fetchByTitle(title, preferredYear);
+    if (titleResult?.Response === "False" && preferredYear) {
+      titleResult = await fetchByTitle(title);
+    }
+    addRelated(titleResult);
+  }
+
+  if (relatedMovies.length < 25) {
+    const query = buildQuery(analysis, prompt, year);
+    const searchResults = await searchOmdbMany(query, [...seenIds], year, 10);
+    for (const result of searchResults) {
+      if (relatedMovies.length >= 25) break;
+      const details = await fetchMovieDetails(result.imdbID);
+      addRelated(details);
+    }
+    if (relatedMovies.length < 25 && year) {
+      const relaxedResults = await searchOmdbMany(query, [...seenIds], null, 10);
+      for (const result of relaxedResults) {
+        if (relatedMovies.length >= 25) break;
+        const details = await fetchMovieDetails(result.imdbID);
+        addRelated(details);
+      }
+    }
+  }
+
   return Response.json({
     movie,
+    relatedMovies,
     meta: {
       yearRelaxed
     },
@@ -443,7 +511,8 @@ export async function POST(request) {
       genre: analysis?.genre || null,
       mood: analysis?.mood || null,
       themes: analysis?.themes || [],
-      keywords: analysis?.keywords || []
+      keywords: analysis?.keywords || [],
+      related: extractRelatedTitles(analysis)
     }
   });
 }

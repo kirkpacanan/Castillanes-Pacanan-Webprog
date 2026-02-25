@@ -1,5 +1,6 @@
 "use client";
 
+import ClientPortal from "./ClientPortal";
 import PlaylistPicker from "./PlaylistPicker";
 import PosterPlaceholder from "./PosterPlaceholder";
 
@@ -30,15 +31,16 @@ export default function MovieModal({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4"
-      onClick={handleBackdropClick}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="movie-modal-title"
-    >
+    <ClientPortal>
       <div
-        className="glass flex h-[85vh] w-full max-w-6xl flex-col rounded-3xl shadow-2xl transition-all duration-300 sm:max-h-[90vh] sm:h-auto sm:max-w-5xl md:max-w-6xl"
+        className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 p-4"
+        onClick={handleBackdropClick}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="movie-modal-title"
+      >
+      <div
+        className="glass flex h-[85vh] w-full max-w-6xl flex-col rounded-3xl shadow-2xl transition-all duration-300 sm:max-h-[90vh] sm:h-auto sm:max-w-5xl md:max-w-6xl overflow-visible"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -56,7 +58,7 @@ export default function MovieModal({
         </div>
 
         {/* Main Content Area with Poster and Details */}
-        <div className="flex min-h-0 flex-1 gap-4 overflow-hidden px-4 pb-4 sm:px-6 sm:pb-6 md:px-8 md:pb-8 md:gap-8">
+        <div className="flex min-h-0 flex-1 gap-4 px-4 pb-4 sm:px-6 sm:pb-6 md:px-8 md:pb-8 md:gap-8">
           {/* Left: Fixed Poster Container */}
           <div className="shrink-0">
             <div className="w-40 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-slate-800 sm:w-48 md:w-56">
@@ -73,7 +75,7 @@ export default function MovieModal({
           </div>
 
           {/* Right: Scrollable Details */}
-          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto pr-2 sm:pr-3">
+          <div className="modal-scroll flex min-h-0 flex-1 flex-col overflow-y-auto pl-2 pr-2 sm:pl-3 sm:pr-3">
             <div className="flex flex-col gap-3 pb-4 sm:pb-6 md:pb-8">
               <p className="text-xs font-semibold uppercase tracking-wider text-red-500 dark:text-red-400">
                 {movie.Genre || "Movie"}
@@ -125,7 +127,7 @@ export default function MovieModal({
                   <button
                     type="button"
                     onClick={onSignIn}
-                    className="mt-3 w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition duration-200 hover:bg-red-500"
+                    className="mt-3 w-full rounded-xl bg-red-600 px-4 py-2.5 text-sm font-medium text-white transition-all duration-300 ease-out hover:scale-105 hover:brightness-110 hover:shadow-[0_0_20px_rgba(178,34,34,0.6)] active:scale-95"
                   >
                     Sign In
                   </button>
@@ -144,10 +146,10 @@ export default function MovieModal({
                       <button
                         type="button"
                         onClick={onToggleWatchlist}
-                        className={`rounded-xl px-4 py-2 text-sm font-medium transition duration-200 ${
+                        className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 ${
                           isInWatchList
-                            ? "border border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500/20"
-                            : "border border-white/20 text-white/80 hover:border-red-500 hover:text-white"
+                            ? "border border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:shadow-[0_0_12px_rgba(220,38,38,0.4)]"
+                            : "border border-white/20 text-white/80 hover:border-red-500 hover:text-white hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
                         }`}
                       >
                         {isInWatchList ? "✓ In Watch list" : "Add to Watch list"}
@@ -164,6 +166,7 @@ export default function MovieModal({
                           renamePlaylist={(pId, name) => renamePlaylist(pId, name, "watchlist")}
                           deletePlaylist={(pId) => deletePlaylist(pId, "watchlist")}
                           label="Playlists"
+                          type="watchlist"
                         />
                       )}
                     </div>
@@ -178,10 +181,10 @@ export default function MovieModal({
                       <button
                         type="button"
                         onClick={onToggleWatched}
-                        className={`rounded-xl px-4 py-2 text-sm font-medium transition duration-200 ${
+                        className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 ${
                           isWatched
-                            ? "border border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500/20"
-                            : "border border-white/20 text-white/80 hover:border-red-500 hover:text-white"
+                            ? "border border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:shadow-[0_0_12px_rgba(220,38,38,0.4)]"
+                            : "border border-white/20 text-white/80 hover:border-red-500 hover:text-white hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
                         }`}
                       >
                         {isWatched ? "✓ Watched" : "Mark as Watched"}
@@ -198,6 +201,7 @@ export default function MovieModal({
                           renamePlaylist={(pId, name) => renamePlaylist(pId, name, "watched")}
                           deletePlaylist={(pId) => deletePlaylist(pId, "watched")}
                           label="Playlists"
+                          type="watched"
                         />
                       )}
                     </div>
@@ -213,7 +217,7 @@ export default function MovieModal({
                       key={index}
                       type="button"
                       onClick={button.onClick}
-                      className={button.className || "rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80 transition duration-200 hover:border-red-500 hover:text-white"}
+                      className={button.className || "rounded-xl border border-white/20 px-4 py-2 text-sm font-medium text-white/80 transition-all duration-300 ease-out hover:scale-105 hover:border-red-500 hover:text-white hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"}
                     >
                       {button.label}
                     </button>
@@ -224,6 +228,7 @@ export default function MovieModal({
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </ClientPortal>
   );
 }

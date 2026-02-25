@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import { useWatchlist } from "../../context/WatchlistContext";
-import PosterPlaceholder from "../../components/PosterPlaceholder";
+import MoviePosterCard from "../../components/MoviePosterCard";
 import PlaylistPicker from "../../components/PlaylistPicker";
 import PlaylistCategories from "../../components/PlaylistCategories";
 import MovieModal from "../../components/MovieModal";
@@ -51,20 +51,30 @@ export default function WatchedPage() {
     : watched;
 
   return (
-    <div className="mx-auto w-[min(1280px,94%)] px-4 py-12 md:py-16">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">
-          Watched
-        </h1>
-        <Link
-          href="/"
-          className="inline-block rounded-xl bg-red-600 px-6 py-3 text-sm font-bold text-white hover:bg-red-500"
-        >
-          Back to Home
-        </Link>
+    <div className="feelvie-page relative min-h-screen">
+      <div className="feelvie-ambient" aria-hidden>
+        <div className="feelvie-ambient-spot feelvie-ambient-spot-1" />
+        <div className="feelvie-ambient-spot feelvie-ambient-spot-2" />
+        <div className="feelvie-grid" />
       </div>
+      
+      <div className="relative z-10 mx-auto w-[min(1280px,100%)] px-3 sm:px-4 md:px-6 py-8 sm:py-12 md:py-16">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="flex flex-col gap-1.5 sm:gap-2">
+            <h1 className="feelvie-title text-2xl sm:text-3xl md:text-4xl font-semibold text-white">
+              Watched
+            </h1>
+            <p className="text-xs sm:text-sm text-white/70">Your watched movies collection</p>
+          </div>
+          <Link
+            href="/"
+            className="feelvie-button inline-flex items-center justify-center rounded-full px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold text-white w-full sm:w-auto transition-all duration-300 ease-out hover:scale-105 hover:shadow-[0_0_20px_rgba(178,34,34,0.5)] active:scale-95"
+          >
+            Back to home
+          </Link>
+        </div>
 
-      <div className="mt-6">
+      <div className="mt-4 sm:mt-6">
         <PlaylistCategories
           playlists={watchedPlaylists}
           activePlaylistId={activePlaylistId}
@@ -73,6 +83,7 @@ export default function WatchedPage() {
             deletePlaylist(id, "watched");
             if (activePlaylistId === id) setActivePlaylistId(null);
           }}
+          onRenamePlaylist={(id, newName) => renamePlaylist(id, newName, "watched")}
           onCreatePlaylist={() => setCreateOpen(true)}
           items={watched}
         />
@@ -86,42 +97,25 @@ export default function WatchedPage() {
       />
 
       {watched.length === 0 ? (
-        <p className="mt-6 text-slate-600 dark:text-white/70">
-          You haven&apos;t marked any movies as watched yet.
-        </p>
+        <div className="feelvie-card mt-6 sm:mt-8 p-6 sm:p-8 text-center transition-all duration-300 ease-out">
+          <p className="text-sm sm:text-base text-white/70">
+            You haven&apos;t marked any movies as watched yet.
+          </p>
+        </div>
       ) : filteredWatched.length === 0 ? (
-        <p className="mt-6 text-slate-600 dark:text-white/70">
-          No movies in this category. Add watched movies to playlists using &quot;Playlists&quot; when you open a movie.
-        </p>
+        <div className="feelvie-card mt-6 sm:mt-8 p-6 sm:p-8 text-center transition-all duration-300 ease-out">
+          <p className="text-sm sm:text-base text-white/70">
+            No movies in this category. Add watched movies to playlists using &quot;Playlists&quot; when you open a movie.
+          </p>
+        </div>
       ) : (
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="mt-6 sm:mt-8 grid gap-3 sm:gap-4 grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
           {filteredWatched.map((movie) => (
-            <button
-              type="button"
+            <MoviePosterCard
               key={movie.imdbID}
+              movie={movie}
               onClick={() => setSelectedMovie(movie)}
-              className="glass rounded-2xl overflow-hidden text-left transition hover:ring-2 hover:ring-red-500/40 focus:outline-none focus:ring-2 focus:ring-red-500"
-            >
-              <div className="aspect-[2/3] bg-slate-200 dark:bg-slate-800">
-                {movie.Poster && movie.Poster !== "N/A" ? (
-                  <img
-                    src={movie.Poster}
-                    alt={movie.Title}
-                    className="h-full w-full object-contain"
-                  />
-                ) : (
-                  <PosterPlaceholder className="h-full w-full" />
-                )}
-              </div>
-              <div className="p-4">
-                <h2 className="font-semibold text-white line-clamp-2">
-                  {movie.Title}
-                </h2>
-                <p className="mt-1 text-xs text-slate-500 dark:text-white/50">
-                  {movie.Year} · ⭐ {movie.imdbRating}
-                </p>
-              </div>
-            </button>
+            />
           ))}
         </div>
       )}
@@ -160,6 +154,7 @@ export default function WatchedPage() {
         user={user}
         onSignIn={() => router.push("/signin")}
       />
+      </div>
     </div>
   );
 }
