@@ -147,9 +147,7 @@ export default function HomePage() {
       ...backgroundPosters,
       ...[movie, ...history, ...relatedMovies].map((item) => item?.Poster)
     ].filter((p) => p && p !== "N/A");
-    const unique = [...new Set(posters)];
-    if (unique.length < 4) return [];
-    return [...unique, ...unique, ...unique].slice(0, 18);
+    return [...new Set(posters)];
   }, [movie, history, relatedMovies, backgroundPosters]);
 
   const relatedList = useMemo(() => {
@@ -159,9 +157,33 @@ export default function HomePage() {
       .slice(0, 25);
   }, [relatedMovies, history, movie]);
 
-  const posterRowItems = useMemo(() => {
-    if (posterUrls.length >= 4) return posterUrls;
-    return Array(18).fill(null);
+  /** Each row gets a different slice/rotation of the poster list so they don’t repeat the same sequence. */
+  const posterRow1Items = useMemo(() => {
+    if (posterUrls.length < 4) return Array(18).fill(null);
+    const n = posterUrls.length;
+    const repeat = Math.ceil(18 / n);
+    const base = Array(repeat).fill(posterUrls).flat().slice(0, 18);
+    return base;
+  }, [posterUrls]);
+
+  const posterRow2Items = useMemo(() => {
+    if (posterUrls.length < 4) return Array(18).fill(null);
+    const n = posterUrls.length;
+    const offset = Math.max(1, Math.floor(n / 3));
+    const rotated = [...posterUrls.slice(offset), ...posterUrls.slice(0, offset)];
+    const repeat = Math.ceil(18 / n);
+    const base = Array(repeat).fill(rotated).flat().slice(0, 18);
+    return base;
+  }, [posterUrls]);
+
+  const posterRow3Items = useMemo(() => {
+    if (posterUrls.length < 4) return Array(18).fill(null);
+    const n = posterUrls.length;
+    const offset = Math.max(1, Math.floor((n * 2) / 3));
+    const rotated = [...posterUrls.slice(offset), ...posterUrls.slice(0, offset)];
+    const repeat = Math.ceil(18 / n);
+    const base = Array(repeat).fill(rotated).flat().slice(0, 18);
+    return base;
   }, [posterUrls]);
 
   const fetchRecommendation = async (promptText, yearOverride = year, options = {}) => {
@@ -317,11 +339,11 @@ export default function HomePage() {
           }}
         />
       </div>
-      {/* Floating poster rows (opacity 0.4) – behind content, spaced to avoid overlap */}
+      {/* Floating poster rows (opacity 0.4) – each row uses a different rotation so they don’t repeat the same sequence */}
       <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
         <div className="poster-row poster-row-1">
           <div className="poster-track">
-            {posterRowItems.map((url, i) => (
+            {posterRow1Items.map((url, i) => (
               <div key={`row1-${i}`} className="poster-card">
                 {url ? (
                   <img src={url} alt="" loading="lazy" />
@@ -334,7 +356,7 @@ export default function HomePage() {
         </div>
         <div className="poster-row poster-row-2">
           <div className="poster-track reverse">
-            {posterRowItems.map((url, i) => (
+            {posterRow2Items.map((url, i) => (
               <div key={`row2-${i}`} className="poster-card">
                 {url ? (
                   <img src={url} alt="" loading="lazy" />
@@ -347,7 +369,7 @@ export default function HomePage() {
         </div>
         <div className="poster-row poster-row-3">
           <div className="poster-track">
-            {posterRowItems.map((url, i) => (
+            {posterRow3Items.map((url, i) => (
               <div key={`row3-${i}`} className="poster-card">
                 {url ? (
                   <img src={url} alt="" loading="lazy" />
