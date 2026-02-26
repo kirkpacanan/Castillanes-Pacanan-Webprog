@@ -65,24 +65,24 @@ export default function MovieModal({
         </div>
 
         {/* Main Content Area with Poster and Details */}
-        <div className="flex min-h-0 flex-1 gap-4 px-4 pb-4 sm:px-6 sm:pb-6 md:px-8 md:pb-8 md:gap-8">
-          {/* Left: Fixed Poster Container */}
-          <div className="shrink-0">
-            <div className="w-40 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-slate-800 sm:w-48 md:w-56">
+        <div className="flex min-h-0 flex-1 flex-col gap-4 px-4 pb-4 sm:px-6 sm:pb-6 md:flex-row md:px-8 md:pb-8 md:gap-8">
+          {/* Poster Container - Centered on mobile, left-aligned on desktop */}
+          <div className="shrink-0 flex justify-center md:justify-start md:self-start">
+            <div className="w-40 max-h-60 sm:w-48 sm:max-h-72 md:w-56 md:max-h-[336px] aspect-[2/3] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-slate-800">
               {movie.Poster && movie.Poster !== "N/A" ? (
                 <img
                   src={movie.Poster}
                   alt={movie.Title}
-                  className="aspect-[2/3] w-full object-cover"
+                  className="h-full w-full object-contain"
                 />
               ) : (
-                <PosterPlaceholder className="aspect-[2/3] w-full" />
+                <PosterPlaceholder className="h-full w-full" />
               )}
             </div>
           </div>
 
-          {/* Right: Scrollable Details */}
-          <div className="modal-scroll flex min-h-0 flex-1 flex-col overflow-y-auto pl-2 pr-2 sm:pl-3 sm:pr-3">
+          {/* Scrollable Details - Starts below poster on mobile, right side on desktop */}
+          <div className="modal-scroll flex min-h-0 flex-1 flex-col overflow-y-auto pl-0 pr-0 md:pl-2 md:pr-2">
             <div className="flex flex-col gap-3 pb-4 sm:pb-6 md:pb-8">
               <p className="mood-accent-text text-xs font-semibold uppercase tracking-wider">
                 {movie.Genre || "Movie"}

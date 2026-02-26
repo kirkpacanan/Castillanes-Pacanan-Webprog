@@ -53,7 +53,7 @@ export default function ContactPage() {
       </div>
 
       {/* Hero */}
-      <section className="relative z-10 -mt-8 sm:-mt-10 md:-mt-12 pb-4 sm:pb-6 md:pb-8 left-1/2 -translate-x-1/2 px-0 w-full sm:w-[105vw] max-w-none">
+      <section className="relative z-10 -mt-8 sm:-mt-10 md:-mt-12 pb-4 sm:pb-6 md:pb-8 left-1/2 -translate-x-1/2 px-0 w-[110vw] sm:w-[108vw] md:w-[105vw] max-w-none">
         <div className="w-full">
           <div className="contact-pill-hover">
             <div
@@ -71,7 +71,7 @@ export default function ContactPage() {
 
       {/* Contact form: centered, floating notification circles */}
       <section className="relative z-20 flex flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-12 md:px-8 md:py-16 md:pb-24">
-        <div className="relative flex min-h-[420px] w-full max-w-5xl flex-col items-center justify-center xl:max-w-6xl">
+        <div className="relative flex min-h-[420px] w-full max-w-5xl flex-col items-center justify-center pt-16 lg:pt-0 xl:max-w-6xl">
           {/* Floating bubble: Before you send (left) */}
           <div ref={beforeRef} className="contact-bubble contact-bubble-left">
             <button
@@ -125,14 +125,14 @@ export default function ContactPage() {
             </button>
             {openBubble === "helps" && (
               <div className="contact-bubble-card contact-bubble-card-right">
-                <div className="feelvie-card-muted flex flex-col gap-4 p-5 sm:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+                <div className="feelvie-card flex flex-col gap-5 p-5 sm:p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-sm font-semibold text-white">What helps us most</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">What helps us most</p>
                     <button type="button" onClick={() => setOpenBubble(null)} className="rounded p-1 text-white/50 hover:bg-white/10 hover:text-white transition-colors" aria-label="Close">
                       <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                   </div>
-                  <ul className="flex flex-col gap-2 text-sm text-white/70">
+                  <ul className="flex flex-col gap-2 text-sm text-white/75">
                     <li>What you were trying to find</li>
                     <li>Your preferred mood or theme</li>
                     <li>Any issues you ran into</li>

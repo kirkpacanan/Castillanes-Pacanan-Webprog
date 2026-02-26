@@ -13,45 +13,163 @@ import ClientPortal from "../components/ClientPortal";
 import { useMoodGlow } from "../context/MoodGlowContext";
 
 const suggestions = [
-  "I want a mind-bending sci-fi that feels emotional.",
-  "Give me a cozy feel-good movie about friendship.",
-  "Something dark and suspenseful with twists.",
-  "An inspiring true story that feels hopeful."
+  "I want a mind-bending fantasy that feels magical.",        // Purple (mystical)
+  "Give me a cozy heartwarming movie about friendship.",      // Orange (warm)
+  "Something dark and suspenseful with twists.",              // Black (dark)
+  "An inspiring story that feels hopeful and uplifting.",     // Yellow (joyful)
+  "A passionate romantic drama with intense emotions.",       // Red (passionate)
+  "A healing journey set in nature with beautiful landscapes.", // Green (natural)
+  "A simple and minimalist film with pure storytelling.",     // White (pure)
+  "A calm and peaceful film with a serene atmosphere."        // Blue (calm)
 ];
 
-/** Mood → RGB for ambient glow. Default: Red (love, passion, energy). */
+/** Mood → RGB for ambient glow. Each color represents one unique mood category. */
 const MOOD_GLOW_COLORS = {
-  blue: [59, 130, 246],     // Trust, calmness, security
-  red: [178, 34, 34],       // Love, passion, energy (default)
-  yellow: [234, 179, 8],   // Happiness, optimism
-  green: [34, 197, 94],    // Balance, nature, relaxation
-  black: [38, 38, 48],     // Power, elegance, sadness (dark tint for glow)
-  white: [200, 210, 230],  // Purity, cleanliness, simplicity
-  purple: [147, 51, 234],  // Creativity, luxury, mystery
-  orange: [249, 115, 22],  // Enthusiasm, warmth, friendliness
+  blue: [59, 130, 246],     // CALM: Trust, peace, serenity
+  red: [220, 38, 38],       // PASSION: Love, intensity, danger
+  yellow: [234, 179, 8],    // JOY: Happiness, optimism, hope
+  green: [34, 197, 94],     // NATURE: Balance, growth, harmony
+  black: [38, 38, 48],      // DARK: Sadness, tension, mystery
+  white: [200, 210, 230],   // PURITY: Simplicity, clarity, innocence
+  purple: [147, 51, 234],   // MYSTICAL: Fantasy, imagination, wonder
+  orange: [249, 115, 22],   // WARM: Coziness, comedy, friendliness
 };
 
-/** Keyword phrases (lowercase) that map to a mood color. First match wins. */
+/** 
+ * Mood keyword mapping - each mood has exclusive keywords to prevent conflicts.
+ * Keywords are ordered by specificity (most specific first) for better matching.
+ */
 const MOOD_KEYWORDS = [
-  { color: "blue", words: ["calm", "trust", "security", "peace", "peaceful", "relax", "reliable", "safe", "serene"] },
-  { color: "red", words: ["love", "passion", "energy", "excitement", "power", "danger", "urgency", "intense", "romantic"] },
-  { color: "yellow", words: ["happy", "happiness", "optimism", "joy", "warmth", "positivity", "sunshine", "cheerful", "feel-good", "hopeful", "inspiring", "heartwarming", "uplifting", "uplift"] },
-  { color: "green", words: ["balance", "nature", "relaxation", "health", "fresh", "stress", "healing", "natural"] },
-  { color: "black", words: ["sad", "sadness", "elegant", "sophisticated", "mourning", "dark", "noir", "gothic", "serious", "emotional", "grief", "tense", "gritty"] },
-  { color: "white", words: ["pure", "purity", "clean", "simplicity", "clarity", "minimal"] },
-  { color: "purple", words: ["creativity", "luxury", "mystery", "imagination", "wisdom", "fantasy", "magical", "mind-bending"] },
-  { color: "orange", words: ["enthusiasm", "warm", "friendly", "fun", "social", "adventure", "cozy", "funny", "comedy"] },
+  // MYSTICAL (Purple) - Fantasy, imagination, supernatural - checked first for specificity
+  { 
+    color: "purple", 
+    mood: "mystical",
+    words: [
+      "mind-bending", "fantasy", "magical", "magic", "mystic", "mystical",
+      "supernatural", "surreal", "dreamlike", "imaginative", "imagination",
+      "wonderland", "enchanted", "wizard", "witch", "spell", "cosmic"
+    ]
+  },
+  
+  // DARK (Black) - Sadness, tension, noir, gothic
+  { 
+    color: "black", 
+    mood: "dark",
+    words: [
+      "dark", "noir", "gothic", "gritty", "bleak", "somber", "melancholic",
+      "sad", "sadness", "grief", "mourning", "despair", "grim", "brooding",
+      "tense", "tension", "thriller", "suspense", "suspenseful", "sinister"
+    ]
+  },
+  
+  // NATURE (Green) - Natural world, balance, growth, healing - moved up for better access
+  { 
+    color: "green", 
+    mood: "natural",
+    words: [
+      "nature", "natural", "outdoors", "wilderness", "forest", "jungle",
+      "garden", "countryside", "rural", "scenic", "landscape", "mountain",
+      "ocean", "sea", "beach", "river", "lake", "island",
+      "healing", "therapeutic", "rejuvenating", "renewal", "restorative",
+      "survival", "expedition", "trek", "camping", "hiking",
+      "animals", "wildlife", "environmental", "eco", "sustainable",
+      "balance", "balanced", "harmony", "harmonious", "zen", "grounded",
+      "growth", "fresh", "organic", "earth", "green", "lush"
+    ]
+  },
+  
+  // PASSION (Red) - Love, intensity, danger, energy
+  { 
+    color: "red", 
+    mood: "passionate",
+    words: [
+      "passionate", "passion", "intense", "intensity", "love", "romantic", "romance",
+      "steamy", "desire", "lust", "fiery", "fierce", "powerful", "dramatic",
+      "danger", "dangerous", "urgent", "adrenaline", "action-packed"
+    ]
+  },
+  
+  // JOY (Yellow) - Happiness, optimism, hope, inspiration
+  { 
+    color: "yellow", 
+    mood: "joyful",
+    words: [
+      "happy", "happiness", "joyful", "joy", "cheerful", "optimistic", "optimism",
+      "hopeful", "hope", "inspiring", "inspirational", "uplifting", "uplift",
+      "positive", "bright", "sunny", "delightful", "gleeful", "jubilant"
+    ]
+  },
+  
+  // WARM (Orange) - Coziness, comedy, friendliness, comfort
+  { 
+    color: "orange", 
+    mood: "warm",
+    words: [
+      "cozy", "warm", "warmth", "heartwarming", "comforting", "comfort",
+      "friendly", "welcoming", "wholesome", "charming",
+      "funny", "comedy", "comedic", "humorous", "hilarious", "laugh",
+      "fun", "playful", "lighthearted", "entertaining"
+    ]
+  },
+  
+  // CALM (Blue) - Peace, tranquility, trust, security
+  { 
+    color: "blue", 
+    mood: "calm",
+    words: [
+      "calm", "calming", "peaceful", "peace", "tranquil", "tranquility",
+      "serene", "serenity", "relaxing", "relax", "mellow", "quiet",
+      "trust", "trustworthy", "safe", "safety", "security", "secure", "stable",
+      "soothing", "gentle", "meditative", "contemplative", "still", "soft"
+    ]
+  },
+  
+  // PURITY (White) - Simplicity, clarity, minimalism, innocence
+  { 
+    color: "white", 
+    mood: "pure",
+    words: [
+      "pure", "purity", "innocent", "innocence", "pristine",
+      "clean", "clarity", "clear", "simple", "simplicity",
+      "minimal", "minimalist", "minimalism", "understated"
+    ]
+  },
 ];
 
+/**
+ * Determines mood color based on keyword analysis with improved conflict resolution.
+ * Uses weighted scoring to handle multiple keyword matches.
+ */
 function getMoodGlowColor(analysis, lastPrompt) {
   const text = [lastPrompt, analysis?.mood, analysis?.genre, ...(analysis?.themes || [])]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
+  
   if (!text) return MOOD_GLOW_COLORS.red;
-  for (const { color, words } of MOOD_KEYWORDS) {
-    if (words.some((w) => text.includes(w))) return MOOD_GLOW_COLORS[color];
+  
+  // Score each mood based on keyword matches
+  const moodScores = {};
+  
+  for (const { color, mood, words } of MOOD_KEYWORDS) {
+    const matches = words.filter(keyword => {
+      // Use word boundary matching to avoid partial matches
+      const regex = new RegExp(`\\b${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      return regex.test(text);
+    });
+    
+    if (matches.length > 0) {
+      // Weight by number of matches and keyword specificity
+      moodScores[color] = (moodScores[color] || 0) + matches.length;
+    }
   }
+  
+  // Return the mood with highest score, or default to red
+  if (Object.keys(moodScores).length > 0) {
+    const topMood = Object.entries(moodScores).sort((a, b) => b[1] - a[1])[0][0];
+    return MOOD_GLOW_COLORS[topMood];
+  }
+  
   return MOOD_GLOW_COLORS.red;
 }
 
@@ -536,11 +654,14 @@ export default function HomeClient({ initialPosters = [] }) {
         <button
           type="button"
           onClick={() => setChatOpen(true)}
-          className="mood-chat-icon fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black"
+          className="mood-chat-icon fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black"
           style={{
             background: `linear-gradient(135deg, rgb(${moodRgb}) 0%, rgba(${moodRgb}, 0.85) 100%)`,
             boxShadow: `0 4px 20px rgba(${moodRgb}, 0.5)`,
             ["--tw-ring-color"]: `rgba(${moodRgb}, 0.6)`,
+            ["--mood-r"]: moodR,
+            ["--mood-g"]: moodG,
+            ["--mood-b"]: moodB,
           }}
           aria-label="Open Mood Chat"
         >
@@ -576,17 +697,17 @@ export default function HomeClient({ initialPosters = [] }) {
             )}
             {movie && (
               <>
-                {/* Left: Fixed Poster Container */}
-                <div className="shrink-0 flex items-start justify-start px-4 py-4 md:px-6 md:py-0">
-                  <div className="w-40 overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-slate-800 sm:w-44 md:w-48 translate-x-2">
+                {/* Poster Container - Centered on mobile, left-aligned on desktop */}
+                <div className="shrink-0 flex items-start justify-center px-4 py-4 md:justify-start md:px-6 md:py-0">
+                  <div className="w-40 max-h-60 sm:w-44 sm:max-h-[264px] md:w-48 md:max-h-72 aspect-[2/3] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 dark:border-white/10 dark:bg-slate-800 md:translate-x-2">
                     {movie.Poster && movie.Poster !== "N/A" ? (
                       <img
                         src={movie.Poster}
                         alt={movie.Title}
-                        className="aspect-[2/3] w-full object-cover scale-115"
+                        className="h-full w-full object-cover"
                       />
                     ) : (
-                      <PosterPlaceholder className="aspect-[2/3] w-full scale-115" />
+                      <PosterPlaceholder className="h-full w-full" />
                     )}
                   </div>
                 </div>
@@ -774,13 +895,13 @@ export default function HomeClient({ initialPosters = [] }) {
         {chatOpen && (
           <ClientPortal>
             <div
-              className="fixed inset-0 z-50 flex items-end justify-end p-4 sm:p-6"
+              className="mood-chat-backdrop fixed inset-0 z-50 flex items-end justify-end p-4 sm:p-6"
               aria-modal="true"
               role="dialog"
               aria-label="Mood Chat"
             >
               <div
-                className="absolute inset-0 bg-black/40"
+                className="absolute inset-0 bg-black/40 mood-chat-overlay"
                 onClick={() => setChatOpen(false)}
                 aria-hidden="true"
               />

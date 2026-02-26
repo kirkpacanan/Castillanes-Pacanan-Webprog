@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRef, useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
+import { useMoodGlow } from "@/app/context/MoodGlowContext";
 
 const STEPS = [
   {
@@ -87,6 +88,7 @@ function Icon({ name, className = "h-12 w-12" }) {
 
 export default function HowItWorksPage() {
   const { user } = useAuth();
+  const { moodGlowColor } = useMoodGlow();
   const [inView, setInView] = useState(new Set());
   const headerRef = useRef(null);
   const pathRef = useRef(null);
@@ -125,7 +127,14 @@ export default function HowItWorksPage() {
   }, []);
 
   return (
-    <div className="feelvie-page relative flex flex-col items-stretch overflow-hidden">
+    <div 
+      className="feelvie-page app-mood relative flex flex-col items-stretch overflow-hidden"
+      style={{
+        "--mood-r": moodGlowColor[0],
+        "--mood-g": moodGlowColor[1],
+        "--mood-b": moodGlowColor[2]
+      }}
+    >
       <div className="feelvie-ambient" aria-hidden>
         <div className="feelvie-ambient-spot feelvie-ambient-spot-1" />
         <div className="feelvie-ambient-spot feelvie-ambient-spot-2" />

@@ -55,22 +55,62 @@ html::-webkit-scrollbar-thumb:hover {
   letter-spacing: -0.01em;
 }
 
-/* Mood-based outer glow from the logo text shape (default red, smooth transition) */
+/* Mood-based outer glow from the logo text shape - works for all 8 mood colors */
 .logo-mood-glow {
-  --mood-r: 178;
-  --mood-g: 34;
-  --mood-b: 34;
+  --mood-r: 220;
+  --mood-g: 38;
+  --mood-b: 38;
+  position: relative;
 }
+
+.logo-mood-glow::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.12) 0%,
+    transparent 70%
+  );
+  filter: blur(30px);
+  z-index: -1;
+  pointer-events: none;
+  transition: background 1.4s ease;
+}
+
 .logo-mood-glow img {
   display: block;
   width: 100%;
   height: auto;
-  filter: drop-shadow(0 0 20px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.65))
-    drop-shadow(0 0 48px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.4))
-    drop-shadow(0 0 80px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3))
-    drop-shadow(0 0 120px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.15));
+  filter: 
+    drop-shadow(0 0 16px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.75))
+    drop-shadow(0 0 36px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5))
+    drop-shadow(0 0 64px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.35))
+    drop-shadow(0 0 96px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2))
+    brightness(1.05)
+    contrast(1.02);
   transition: filter 1.4s ease;
 }
+
+.logo-mood-glow-footer {
+  position: relative;
+}
+
+.logo-mood-glow-footer::before {
+  content: '';
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.1) 0%,
+    transparent 65%
+  );
+  filter: blur(20px);
+  z-index: -1;
+  pointer-events: none;
+  transition: background 1.4s ease;
+}
+
 .logo-mood-glow-footer img {
   width: auto;
   height: 2.25rem; /* 36px – footer logo */
@@ -380,8 +420,78 @@ html::-webkit-scrollbar-thumb:hover {
 }
 
 /* Mood chat icon (floating button): gentle float like contact circles; icon is hidden when panel is open so no need to stop animation */
+@keyframes mood-chat-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes mood-chat-glow {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(var(--mood-r, 239), var(--mood-g, 68), var(--mood-b, 68), 0.5),
+                0 0 0 0 rgba(var(--mood-r, 239), var(--mood-g, 68), var(--mood-b, 68), 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(var(--mood-r, 239), var(--mood-g, 68), var(--mood-b, 68), 0.5),
+                0 0 0 10px rgba(var(--mood-r, 239), var(--mood-g, 68), var(--mood-b, 68), 0);
+  }
+}
+
 .mood-chat-icon {
-  animation: contact-bubble-float 3s ease-in-out infinite;
+  animation: mood-chat-float 3s ease-in-out infinite, mood-chat-glow 2.5s ease-in-out infinite;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(8px);
+}
+
+.mood-chat-icon:hover {
+  transform: scale(1.15) rotate(5deg) translateY(-2px) !important;
+  box-shadow: 0 8px 32px rgba(var(--mood-r, 239), var(--mood-g, 68), var(--mood-b, 68), 0.7),
+              0 0 20px rgba(var(--mood-r, 239), var(--mood-g, 68), var(--mood-b, 68), 0.5) !important;
+}
+
+/* Mood chat backdrop fade-in */
+@keyframes mood-chat-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mood-chat-backdrop {
+  animation: mood-chat-backdrop-in 0.3s ease-out forwards;
+}
+
+.mood-chat-overlay {
+  transition: background-color 0.3s ease-out;
+}
+
+/* Mood chat panel entrance animation */
+@keyframes mood-chat-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) translateX(20px) scale(0.92);
+    filter: blur(4px);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(-4px) translateX(0) scale(1.02);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.mood-chat-panel {
+  animation: mood-chat-slide-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform-origin: bottom right;
 }
 
 /* Mood chat panel (portaled): Send button uses mood color */
@@ -853,27 +963,50 @@ html::-webkit-scrollbar-thumb:hover {
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-8px);
+    transform: translateY(-10px);
   }
 }
+
+@keyframes contact-bubble-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--mood-r, 239), var(--mood-g, 68), var(--mood-b, 68), 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(var(--mood-r, 239), var(--mood-g, 68), var(--mood-b, 68), 0);
+  }
+}
+
 .contact-bubble {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
   z-index: 20;
 }
+
+/* Mobile: position bubbles horizontally between header and form */
 .contact-bubble-left {
-  left: 8px;
+  top: 0;
+  left: 50%;
+  transform: translateX(-70px);
 }
 .contact-bubble-right {
-  right: 8px;
+  top: 0;
+  left: 50%;
+  transform: translateX(18px);
 }
+
+/* Desktop: position bubbles on the sides */
 @media (min-width: 1024px) {
+  .contact-bubble {
+    top: 50%;
+    transform: translateY(-50%);
+  }
   .contact-bubble-left {
     left: 0;
+    transform: translateY(-50%);
   }
   .contact-bubble-right {
     right: 0;
+    left: auto;
+    transform: translateY(-50%);
   }
 }
 .contact-bubble-circle {
@@ -881,33 +1014,44 @@ html::-webkit-scrollbar-thumb:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(9, 9, 12, 0.9);
   border: 2px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-  animation: contact-bubble-float 3s ease-in-out infinite;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: contact-bubble-float 3.5s ease-in-out infinite;
+  backdrop-filter: blur(8px);
+}
+@media (min-width: 1024px) {
+  .contact-bubble-circle {
+    width: 52px;
+    height: 52px;
+  }
 }
 .contact-bubble-circle-right {
   animation-delay: 0.5s;
 }
 .contact-bubble-circle:hover {
-  transform: scale(1.08);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
-  border-color: rgba(255, 255, 255, 0.2);
+  transform: scale(1.12) rotate(5deg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(9, 9, 12, 0.95);
 }
 .contact-bubble-circle[aria-expanded="true"] {
   animation: none;
   transform: scale(1.05);
-  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
-  box-shadow: 0 0 20px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.6);
+  box-shadow: 0 0 24px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.4),
+              0 8px 32px rgba(0, 0, 0, 0.5);
+  background: rgba(9, 9, 12, 0.95);
 }
 .app-mood .contact-bubble-circle[aria-expanded="true"] {
-  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.5);
-  box-shadow: 0 0 20px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.3);
+  border-color: rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.6);
+  box-shadow: 0 0 24px rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.4),
+              0 8px 32px rgba(0, 0, 0, 0.5);
 }
 .contact-bubble-dot {
   position: absolute;
@@ -918,7 +1062,7 @@ html::-webkit-scrollbar-thumb:hover {
   border-radius: 50%;
   background: rgb(239, 68, 68);
   box-shadow: 0 0 0 2px rgba(9, 9, 12, 0.9);
-  animation: contact-bubble-float 2s ease-in-out infinite;
+  animation: contact-bubble-pulse 2s ease-in-out infinite;
 }
 .app-mood .contact-bubble-dot {
   background: rgb(var(--mood-r), var(--mood-g), var(--mood-b));
@@ -930,26 +1074,41 @@ html::-webkit-scrollbar-thumb:hover {
   width: 280px;
   max-width: calc(100vw - 2rem);
   z-index: 30;
-  animation: contact-bubble-card-in 0.25s ease-out;
+  animation: contact-bubble-card-in-mobile 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: top center;
 }
-@keyframes contact-bubble-card-in {
-  from {
+
+/* Mobile animation - includes translateX for centering */
+@keyframes contact-bubble-card-in-mobile {
+  0% {
     opacity: 0;
-    transform: scale(0.95) translateY(-4px);
+    transform: translateX(-50%) scale(0.85) translateY(-16px);
   }
-  to {
+  50% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateX(-50%) scale(1.02) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1) translateY(0);
   }
 }
+
+/* Mobile: center bubble cards below their buttons */
 .contact-bubble-card-left {
-  left: 0;
+  left: 50%;
+  transform: translateX(-50%);
 }
 .contact-bubble-card-right {
-  right: 0;
-  left: auto;
+  left: 50%;
+  transform: translateX(-50%);
 }
+
+/* Desktop: position bubble cards to the sides */
 @media (min-width: 1024px) {
+  .contact-bubble-card {
+    animation: contact-bubble-card-in-desktop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
   .contact-bubble-card-left {
     top: 50%;
     left: 100%;
@@ -957,6 +1116,7 @@ html::-webkit-scrollbar-thumb:hover {
     margin-top: 0;
     margin-left: 12px;
     transform: translateY(-50%);
+    transform-origin: left center;
   }
   .contact-bubble-card-right {
     top: 50%;
@@ -965,16 +1125,22 @@ html::-webkit-scrollbar-thumb:hover {
     margin-top: 0;
     margin-right: 12px;
     transform: translateY(-50%);
+    transform-origin: right center;
   }
-  @keyframes contact-bubble-card-in {
-    from {
-      opacity: 0;
-      transform: translateY(-50%) scale(0.95);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(-50%) scale(1);
-    }
+}
+
+@keyframes contact-bubble-card-in-desktop {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-16px) scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
   }
 }
 
@@ -1110,7 +1276,7 @@ html::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(180deg, #350A0A 0%, #1a0a0a 55%, #05050A 100%);
 }
 .app-mood .hiw-header-bg {
-  background: linear-gradient(180deg, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.22) 0%, rgba(20, 8, 8, 0.95) 35%, #1a0a0a 55%, #05050A 100%);
+  background: linear-gradient(180deg, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.22) 0%, rgba(8, 8, 10, 0.95) 35%, #0a0a0a 55%, #05050A 100%);
 }
 .hiw-overlay-bg {
   background: linear-gradient(120deg, rgba(53, 10, 10, 0.55), rgba(5, 5, 10, 0.9)), #05050A;
@@ -1122,7 +1288,7 @@ html::-webkit-scrollbar-thumb:hover {
   background: linear-gradient(160deg, #350A0A 0%, #1a0a0a 60%, #05050A 100%);
 }
 .app-mood .hiw-list-bg {
-  background: linear-gradient(160deg, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2) 0%, #1a0a0a 60%, #05050A 100%);
+  background: linear-gradient(160deg, rgba(var(--mood-r), var(--mood-g), var(--mood-b), 0.2) 0%, #0a0a0a 60%, #05050A 100%);
 }
 .hiw-list-panel {
   background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.1), transparent);
@@ -1373,6 +1539,28 @@ header nav a[href="/about"] {
 header nav a[href="/contact"] {
   animation-delay: 100ms;
 }
+
+/* Header logo animations - optimized for smooth color transitions */
+.header-logo-img {
+  will-change: filter;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Smooth color transition for logo on mood change */
+@keyframes logo-mood-transition {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.97;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 /* ========================================
    MOBILE RESPONSIVE OPTIMIZATIONS
    ======================================== */

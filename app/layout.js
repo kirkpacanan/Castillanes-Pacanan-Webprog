@@ -7,7 +7,7 @@ export const metadata = {
   title: "Feelvie",
   description: "AI-powered movie recommender using OpenAI + OMDb.",
   icons: {
-    icon: "/feelvie-logo.png"
+    icon: "/favicon.ico"
   }
 };
 
