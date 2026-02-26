@@ -183,6 +183,36 @@ function preloadPosterUrls(urls) {
   });
 }
 
+/** RGB [0-255] to hue in degrees for CSS hue-rotate. */
+function rgbToHue(r, g, b) {
+  const R = r / 255, G = g / 255, B = b / 255;
+  const max = Math.max(R, G, B), min = Math.min(R, G, B);
+  const delta = max - min;
+  if (delta === 0) return 0;
+  let h = 0;
+  if (max === R) h = ((G - B) / delta) % 6;
+  else if (max === G) h = (B - R) / delta + 2;
+  else h = (R - G) / delta + 4;
+  h = (h * 60 + 360) % 360;
+  return Math.round(h);
+}
+
+/** CSS filter to tint the mood chat B&W PNG by mood color. */
+function getMoodChatIconFilter(moodR, moodG, moodB, moodRgb) {
+  const hue = rgbToHue(moodR, moodG, moodB);
+  const max = Math.max(moodR, moodG, moodB) / 255;
+  const min = Math.min(moodR, moodG, moodB) / 255;
+  const saturation = max === 0 ? 0 : (max - min) / max;
+  if (saturation < 0.3) {
+    return max > 0.6
+      ? `grayscale(1) brightness(2) contrast(1.05) drop-shadow(0 0 8px rgba(${moodRgb}, 0.5))`
+      : `grayscale(1) brightness(0.5) contrast(1.2) drop-shadow(0 0 6px rgba(${moodRgb}, 0.5))`;
+  }
+  if (hue >= 40 && hue <= 60) return `hue-rotate(${hue + 5}deg) saturate(2) brightness(1.2) drop-shadow(0 0 8px rgba(${moodRgb}, 0.5))`;
+  if (hue >= 15 && hue <= 39) return `hue-rotate(${hue + 3}deg) saturate(1.9) brightness(1.15) drop-shadow(0 0 8px rgba(${moodRgb}, 0.5))`;
+  return `hue-rotate(${hue}deg) saturate(1.3) brightness(1.05) drop-shadow(0 0 8px rgba(${moodRgb}, 0.5))`;
+}
+
 export default function HomeClient({ initialPosters = [] }) {
   const router = useRouter();
   const { user, signIn, signOut, hydrated } = useAuth();
@@ -230,9 +260,15 @@ export default function HomeClient({ initialPosters = [] }) {
   const [cursorVisible, setCursorVisible] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
   const [chatOpen, setChatOpen] = useState(false);
+  const [moodChatPopupState, setMoodChatPopupState] = useState("hidden"); // "hidden" | "visible" | "leaving"
+  const [logoAnimationKey, setLogoAnimationKey] = useState(0);
+  const [logoIntroPlaying, setLogoIntroPlaying] = useState(false);
   const chatScrollRef = useRef(null);
+  const moodChatPopupTimersRef = useRef({ show: null, hide: null, leave: null });
   const posterPoolRef = useRef([]);
+  const chatOpenRef = useRef(chatOpen);
   const { moodGlowColor, setMoodGlowColor } = useMoodGlow();
+  chatOpenRef.current = chatOpen;
 
   useEffect(() => {
     if (!chatOpen) return;
@@ -263,6 +299,41 @@ export default function HomeClient({ initialPosters = [] }) {
       }
     }
   }, [backgroundPosters]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setLogoIntroPlaying(false), 1500);
+    return () => clearTimeout(t);
+  }, [logoAnimationKey]);
+
+  /* Mood Chat popup: show "I'm Feelvie's Mood Chat" once in a while, then animate out */
+  useEffect(() => {
+    const timers = moodChatPopupTimersRef.current;
+    let isFirst = true;
+    function scheduleNext() {
+      const delay = isFirst ? 6000 : 14000;
+      isFirst = false;
+      timers.show = setTimeout(() => {
+        if (chatOpenRef.current) {
+          scheduleNext();
+          return;
+        }
+        setMoodChatPopupState("visible");
+        timers.hide = setTimeout(() => {
+          setMoodChatPopupState("leaving");
+          timers.leave = setTimeout(() => {
+            setMoodChatPopupState("hidden");
+            scheduleNext();
+          }, 350);
+        }, 4000);
+      }, delay);
+    }
+    scheduleNext();
+    return () => {
+      if (timers.show) clearTimeout(timers.show);
+      if (timers.hide) clearTimeout(timers.hide);
+      if (timers.leave) clearTimeout(timers.leave);
+    };
+  }, []);
 
   useEffect(() => {
     if (Array.isArray(initialPosters) && initialPosters.length > 0) return;
@@ -376,6 +447,8 @@ export default function HomeClient({ initialPosters = [] }) {
     setHistory((prev) => [payload.movie, ...prev].slice(0, 5));
     setLastPrompt(promptText);
     setMoodGlowColor(getMoodGlowColor(payload.analysis, promptText));
+    setLogoAnimationKey((prev) => prev + 1);
+    setLogoIntroPlaying(true);
   };
 
   const requestRecommendation = async (promptText) => {
@@ -549,21 +622,28 @@ export default function HomeClient({ initialPosters = [] }) {
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-[1280px] px-3 sm:px-4 pb-16 sm:pb-24 pt-6 sm:pt-10 md:px-8 md:pt-14 animate-fade-in">
-        {/* Logo and hero – mood-based outer glow (default red) */}
+        {/* Logo and hero – text-only logo with mood-based outer glow */}
         <section className="text-center">
           <div
-            className="logo-mood-glow mx-auto inline-block max-w-[180px] sm:max-w-[220px] md:max-w-[260px]"
+            className="logo-mood-glow mx-auto inline-block max-w-[220px] sm:max-w-[260px] md:max-w-[320px]"
             style={{
               ["--mood-r"]: moodGlowColor[0],
               ["--mood-g"]: moodGlowColor[1],
               ["--mood-b"]: moodGlowColor[2],
             }}
           >
-            <img
-              src="/feelvie-full-logo.png"
-              alt="Feelvie"
-              className="h-auto w-auto max-w-full"
-            />
+            <div
+              key={logoAnimationKey}
+              className={`feelvie-logo-text text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight${loading ? " feelvie-logo-text--looping" : ""}${movie && !loading && !logoIntroPlaying ? " feelvie-logo-text--stopped" : ""}`}
+              aria-label="Feelvie"
+              data-text="feelvie"
+            >
+              {"feelvie".split("").map((ch, index) => (
+                <span key={index} className="feelvie-logo-letter" data-char={ch}>
+                  {ch}
+                </span>
+              ))}
+            </div>
           </div>
           <p className="mt-4 sm:mt-6 max-w-2xl mx-auto text-sm sm:text-base leading-[170%] text-white/85 md:text-lg px-4" style={{ fontFamily: "'Inter', sans-serif" }}>
             Tell us how you feel, and we&apos;ll match you with films that resonate.
@@ -649,26 +729,41 @@ export default function HomeClient({ initialPosters = [] }) {
           </div>
         </section>
 
-        {/* Mood Chat floating button – hidden when chat is open; icon floats until clicked */}
+        {/* Mood Chat – PNG is the clickable; no circle, larger */}
         {!chatOpen && (
-        <button
-          type="button"
-          onClick={() => setChatOpen(true)}
-          className="mood-chat-icon fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black"
-          style={{
-            background: `linear-gradient(135deg, rgb(${moodRgb}) 0%, rgba(${moodRgb}, 0.85) 100%)`,
-            boxShadow: `0 4px 20px rgba(${moodRgb}, 0.5)`,
-            ["--tw-ring-color"]: `rgba(${moodRgb}, 0.6)`,
-            ["--mood-r"]: moodR,
-            ["--mood-g"]: moodG,
-            ["--mood-b"]: moodB,
-          }}
-          aria-label="Open Mood Chat"
-        >
-          <svg className="h-7 w-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-          </svg>
-        </button>
+        <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2">
+          {/* Popup: "I'm Feelvie's Mood Chat" – shows once in a while with animation */}
+          {(moodChatPopupState === "visible" || moodChatPopupState === "leaving") && (
+            <div
+              className={`mood-chat-popup px-3 py-2 rounded-xl text-sm font-medium text-white whitespace-nowrap shadow-lg pointer-events-none ${
+                moodChatPopupState === "leaving" ? "mood-chat-popup-leave" : "mood-chat-popup-enter"
+              }`}
+              style={{
+                background: `linear-gradient(135deg, rgba(${moodRgb}, 0.95) 0%, rgba(${moodRgb}, 0.85) 100%)`,
+                border: `1px solid rgba(${moodRgb}, 0.6)`,
+                boxShadow: `0 4px 20px rgba(${moodRgb}, 0.4)`,
+              }}
+              aria-live="polite"
+            >
+              I&apos;m Feelvie&apos;s Mood Chat
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setChatOpen(true)}
+            className="mood-chat-icon block p-0 border-0 bg-transparent cursor-pointer transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black"
+            style={{ ["--tw-ring-color"]: `rgba(${moodR}, ${moodG}, ${moodB}, 0.6)` }}
+            aria-label="Open Mood Chat"
+          >
+            <img
+              src="/mood-chat-icon.png"
+              alt=""
+              className="h-24 w-24 sm:h-28 sm:w-28 object-contain pointer-events-none select-none transition-[filter] duration-700 ease-out"
+              style={{ filter: getMoodChatIconFilter(moodR, moodG, moodB, moodRgb) }}
+              aria-hidden
+            />
+          </button>
+        </div>
         )}
 
         {/* Result Section – show whenever a movie was found (visible when chat is closed; when chat is open, chat panel is on the right so this stays visible on the left) */}
