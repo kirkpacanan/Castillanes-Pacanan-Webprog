@@ -147,18 +147,6 @@ function SignInContent() {
           Sign up
         </Link>
       </p>
-      {process.env.NODE_ENV === "development" && (
-        <button
-          type="button"
-          onClick={() => {
-            signIn("Test User", "test@example.com");
-            router.push("/");
-          }}
-          className="mt-6 w-full rounded-xl border border-dashed border-white/30 bg-white/5 py-3 text-xs font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
-        >
-          Demo login (offline test)
-        </button>
-      )}
       </div>
     </div>
   );

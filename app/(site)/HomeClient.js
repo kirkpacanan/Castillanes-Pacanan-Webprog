@@ -227,6 +227,8 @@ export default function HomeClient({ initialPosters = [] }) {
         prompt: promptText,
         year: yearOverride || null,
         excludeIds: history.map((item) => item.imdbID),
+        watchlistIds: watchList.map((item) => item.imdbID),
+        watchedIds: watched.map((item) => item.imdbID),
         quick
       })
     });

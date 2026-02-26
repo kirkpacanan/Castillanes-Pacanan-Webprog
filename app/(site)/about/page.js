@@ -1,15 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 
 const DEVELOPERS = [
   {
     name: "Nicholas Klein Y. Castillanes",
     bio: "2nd Year Student at Mapúa Malayan Colleges Mindanao BSCS. Passionate about building AI-powered experiences and clean, user-focused interfaces.",
+    image: "/klein-profile.png.png",
   },
   {
     name: "Kirk Roden C. Pacanan",
     bio: "2nd Year Student at Mapúa Malayan Colleges Mindanao BSCS. Passionate about building AI-powered experiences and clean, user-focused interfaces.",
+    image: "/kirk-profile.png.png",
   },
 ];
 
@@ -158,7 +161,7 @@ export default function AboutPage() {
 
       {/* Meet the Developers */}
       <section className="relative z-10 px-6 py-16 md:py-20">
-        <div className="mx-auto w-full max-w-[1200px] text-left">
+        <div className="mx-auto w-full max-w-[1200px] text-center">
           <h2
             className="about-section-in feelvie-title text-3xl font-semibold leading-[130%] text-white md:text-5xl lg:text-[60px]"
             style={{ animationDelay: "0.55s" }}
@@ -170,11 +173,19 @@ export default function AboutPage() {
             {DEVELOPERS.map((dev, i) => (
               <div
                 key={dev.name}
-                className="about-dev-card about-section-in feelvie-card flex flex-col gap-6 p-6 transition-all duration-300 ease-out hover:shadow-[0_8px_24px_rgba(178,34,34,0.3)] hover:scale-[1.02] hover:border-red-500/30"
+                className="about-dev-card about-section-in feelvie-card flex flex-col items-center gap-6 p-6 transition-all duration-300 ease-out hover:shadow-[0_8px_24px_rgba(178,34,34,0.3)] hover:scale-[1.02] hover:border-red-500/30"
                 style={{ animationDelay: `${0.7 + i * 0.15}s` }}
               >
-                <div className="about-dev-float h-20 w-20 rounded-full bg-white/10" aria-hidden />
-                <div className="flex flex-col gap-3">
+                <div className="about-dev-float h-28 w-28 md:h-36 md:w-36 rounded-full bg-white/10 overflow-hidden relative" aria-hidden>
+                  <Image
+                    src={dev.image}
+                    alt={dev.name}
+                    fill
+                    sizes="(min-width: 768px) 144px, 112px"
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex flex-col gap-3 text-center">
                   <p className="text-lg font-semibold text-white md:text-xl">{dev.name}</p>
                   <p className="text-sm leading-[170%] text-white/75 md:text-base">{dev.bio}</p>
                 </div>
@@ -182,7 +193,7 @@ export default function AboutPage() {
             ))}
           </div>
 
-          <div className="about-section-in mt-10 flex flex-wrap items-center gap-4" style={{ animationDelay: "1s" }}>
+          <div className="about-section-in mt-10 flex flex-wrap items-center justify-center gap-4" style={{ animationDelay: "1s" }}>
             <div className="feelvie-divider w-full" />
             <Link
               href="/contact"

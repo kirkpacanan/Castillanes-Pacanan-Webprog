@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useRef, useEffect, useState } from "react";
+import { useAuth } from "@/app/context/AuthContext";
 
 const STEPS = [
   {
@@ -84,6 +86,7 @@ function Icon({ name, className = "h-12 w-12" }) {
 }
 
 export default function HowItWorksPage() {
+  const { user } = useAuth();
   const [inView, setInView] = useState(new Set());
   const headerRef = useRef(null);
   const pathRef = useRef(null);
@@ -283,9 +286,17 @@ export default function HowItWorksPage() {
             </div>
           </div>
           <div
-            className="hiw-list-panel hiw-list-card hiw-delay-4 min-h-[300px] w-full rounded-[40px] border border-white/10 md:min-h-[400px]"
+            className="hiw-list-panel hiw-list-card feelvie-card hiw-delay-4 min-h-[300px] w-full rounded-[40px] border border-white/10 md:min-h-[400px] overflow-hidden relative"
             style={{ maxWidth: 536 }}
-          />
+          >
+            <Image
+              src="/how-it-works-movies2.webp"
+              alt="Movie browsing interface"
+              fill
+              sizes="(min-width: 1024px) 536px, (min-width: 768px) 50vw, 100vw"
+              className="object-cover"
+            />
+          </div>
         </div>
       </section>
 
@@ -340,22 +351,38 @@ export default function HowItWorksPage() {
           <p className="text-lg leading-[170%] text-white/80 md:text-xl">
             Start searching by feeling right now or explore what others are watching.
           </p>
-          <div className="flex flex-row items-center gap-4">
+          {user ? (
             <Link
               href="/"
               className="feelvie-button rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105 active:scale-95"
             >
-              Sign in
+              Discover
             </Link>
-            <Link
-              href="/"
-              className="feelvie-button-ghost rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105"
-            >
-              Create account
-            </Link>
-          </div>
+          ) : (
+            <div className="flex flex-row items-center gap-4">
+              <Link
+                href="/signin"
+                className="feelvie-button rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105 active:scale-95"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/signup"
+                className="feelvie-button-ghost rounded-full px-6 py-2.5 text-lg font-medium text-white transition-all duration-300 ease-out hover:scale-105"
+              >
+                Create account
+              </Link>
+            </div>
+          )}
         </div>
-        <div className="feelvie-card h-[320px] w-full max-w-[1280px] rounded-[28px] bg-gradient-to-br from-white/10 via-transparent to-transparent md:h-[420px] lg:h-[720px]" />
+        <div className="feelvie-card h-[320px] w-full max-w-[1280px] rounded-[28px] overflow-hidden relative md:h-[420px] lg:h-[720px]">
+          <Image
+            src="/how-it-works-movies.jpg"
+            alt="Movie discovery interface"
+            fill
+            className="object-cover"
+          />
+        </div>
       </section>
     </div>
   );

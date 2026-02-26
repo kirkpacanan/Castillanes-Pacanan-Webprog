@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useMoodGlow } from "../context/MoodGlowContext";
@@ -53,6 +53,7 @@ function NavLink({ href, children, active, moodRgb }) {
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, signOut, hydrated } = useAuth();
   const { moodGlowColor } = useMoodGlow();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -189,7 +190,10 @@ export default function Header() {
           {user ? (
             <button
               type="button"
-              onClick={signOut}
+              onClick={async () => {
+                await signOut();
+                router.push("/signin");
+              }}
               className="flex h-9 min-w-[80px] items-center justify-center rounded-full px-5 text-sm font-semibold text-white shadow-sm transition-all duration-300 ease-out hover:scale-105 active:scale-95"
               style={{
                 background: `rgb(${moodRgb})`,
@@ -321,9 +325,10 @@ export default function Header() {
               {user ? (
                 <button
                   type="button"
-                  onClick={() => {
-                    signOut();
+                  onClick={async () => {
+                    await signOut();
                     setMobileMenuOpen(false);
+                    router.push("/signin");
                   }}
                   className="w-full flex h-10 items-center justify-center rounded-full px-5 text-sm font-semibold text-white"
                   style={{ background: `rgb(${moodRgb})`, borderBottom: `4px solid rgba(${moodRgb}, 0.6)` }}

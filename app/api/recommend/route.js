@@ -690,7 +690,7 @@ export async function POST(request) {
     );
   }
 
-  const { prompt, year, excludeIds = [], quick = false } = await request.json();
+  const { prompt, year, excludeIds = [], watchlistIds = [], watchedIds = [], quick = false } = await request.json();
   if (!prompt || !prompt.trim()) {
     return Response.json(
       { message: "Please provide a short movie description." },
@@ -750,10 +750,18 @@ export async function POST(request) {
     const mood = (quickAnalysis?.mood || "").toLowerCase();
     const genre = quickAnalysis?.genre || "";
     const themes = quickAnalysis?.themes || [];
-    const scored = merged.map((m) => ({
-      movie: m,
-      score: scorePlotRelevance(m.Plot, mood, genre, themes)
-    }));
+    const scored = merged.map((m) => {
+      let score = scorePlotRelevance(m.Plot, mood, genre, themes);
+      // Boost watchlist movies by 50%
+      if (watchlistIds.includes(m.imdbID)) {
+        score *= 1.5;
+      }
+      // Penalize watched movies by 30%
+      if (watchedIds.includes(m.imdbID)) {
+        score *= 0.7;
+      }
+      return { movie: m, score };
+    });
     scored.sort((a, b) => (b.score - a.score));
     const sorted = scored.map((s) => s.movie);
     const mainDetails = sorted[0];
@@ -982,9 +990,26 @@ export async function POST(request) {
   const outMovie = movie
     ? { ...movie, Poster: posterHttps(movie.Poster) || movie.Poster }
     : null;
-  const outRelated = (relatedMovies || []).map((m) =>
-    m ? { ...m, Poster: posterHttps(m.Poster) || m.Poster } : m
-  );
+  
+  // Score and reorder related movies based on watchlist/watched status
+  const scoredRelated = (relatedMovies || []).map((m) => {
+    let score = 0;
+    if (watchlistIds.includes(m.imdbID)) {
+      score += 10; // Boost watchlist movies
+    }
+    if (watchedIds.includes(m.imdbID)) {
+      score -= 5; // Penalize watched movies
+    }
+    return { movie: m, score };
+  });
+  
+  // Sort by watchlist/watched score first, then maintain original order for ties
+  scoredRelated.sort((a, b) => b.score - a.score);
+  
+  const outRelated = scoredRelated.map((item) => {
+    const m = item.movie;
+    return m ? { ...m, Poster: posterHttps(m.Poster) || m.Poster } : m;
+  });
 
   return Response.json({
     movie: outMovie,
