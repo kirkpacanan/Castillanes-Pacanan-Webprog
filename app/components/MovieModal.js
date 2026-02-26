@@ -153,10 +153,10 @@ export default function MovieModal({
                       <button
                         type="button"
                         onClick={onToggleWatchlist}
-                        className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 ${
+                        className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ease-out hover:scale-105 border ${
                           isInWatchList
-                            ? "border border-red-500 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:shadow-[0_0_12px_rgba(220,38,38,0.4)]"
-                            : "border border-white/20 text-white/80 hover:border-red-500 hover:text-white hover:shadow-[0_0_12px_rgba(178,34,34,0.3)]"
+                            ? "mood-accent-chip border-current"
+                            : "mood-accent-border border-white/20 text-white/80 hover:text-white"
                         }`}
                       >
                         {isInWatchList ? "✓ In Watch list" : "Add to Watch list"}
