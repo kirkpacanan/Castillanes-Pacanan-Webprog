@@ -9,6 +9,8 @@ export default function ContactPage() {
   const [topic, setTopic] = useState("general");
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState("");
   const [openBubble, setOpenBubble] = useState(null); // null | "before" | "helps"
   const beforeRef = useRef(null);
   const helpsRef = useRef(null);
@@ -31,9 +33,24 @@ export default function ContactPage() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openBubble]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
+    setSending(true);
+    setSendError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, surname, email, topic, message }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Something went wrong.");
+      setSubmitted(true);
+    } catch (err) {
+      setSendError(err.message || "Failed to send message. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const inputFieldClass = "flex flex-col gap-1.5";
@@ -250,12 +267,16 @@ export default function ContactPage() {
                         />
                       </div>
 
+                      {sendError && (
+                        <p className="text-sm font-medium text-red-400">{sendError}</p>
+                      )}
                       <div className="pt-2">
                         <button
                           type="submit"
-                          className="feelvie-button w-full rounded-xl py-3.5 text-base font-semibold text-white transition-all duration-300 ease-out hover:scale-105 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0d0d0d] active:scale-95 active:brightness-90 sm:w-auto sm:min-w-[140px] sm:px-8"
+                          disabled={sending}
+                          className="feelvie-button w-full rounded-xl py-3.5 text-base font-semibold text-white transition-all duration-300 ease-out hover:scale-105 hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#0d0d0d] active:scale-95 active:brightness-90 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100 sm:w-auto sm:min-w-[140px] sm:px-8"
                         >
-                          Submit
+                          {sending ? "Sending…" : "Submit"}
                         </button>
                       </div>
                     </form>

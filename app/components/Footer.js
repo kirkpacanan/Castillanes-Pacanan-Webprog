@@ -15,11 +15,7 @@ const DISCOVER_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { label: "Facebook", href: "#", icon: "facebook" },
-  { label: "Instagram", href: "#", icon: "instagram" },
-  { label: "X", href: "#", icon: "x" },
-  { label: "LinkedIn", href: "#", icon: "linkedin" },
-  { label: "YouTube", href: "#", icon: "youtube" },
+  { label: "Instagram", href: "https://www.instagram.com/feelvie143?igsh=ZTY0cXExY2JpZ2pn&utm_source=qr", icon: "instagram" },
 ];
 
 function SocialIcon({ name, className = "h-4 w-4" }) {
