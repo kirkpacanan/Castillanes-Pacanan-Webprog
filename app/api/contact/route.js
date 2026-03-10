@@ -23,7 +23,8 @@ export async function POST(request) {
       service: "gmail",
       auth: {
         user: process.env.GMAIL_USER,
-        pass: process.env.GMAIL_APP_PASSWORD,
+        // Strip all spaces — Google displays the key with spaces but SMTP requires none
+        pass: (process.env.GMAIL_APP_PASSWORD || "").replace(/\s/g, ""),
       },
     });
 
